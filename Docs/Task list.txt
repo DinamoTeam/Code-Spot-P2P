@@ -1,4 +1,17 @@
 Các tasks hiện tại:
+1/ Giang
+- Code Mirror: Nghịch xem nó hđ ntn
+- Xem lại Websocket, tìm 1 link để tao học
+- Local insert remote insert
+- Test set
+
+2/ Minh
+- Tạo class, viết generatePositionBetween
+- Configure Sqlite
+- Local delete, remote delete
+- Test set
+
+
 
 0/ Code Mirror: https://codemirror.net/doc/manual.html
 
