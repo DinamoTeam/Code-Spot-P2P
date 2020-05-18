@@ -1,0 +1,102 @@
+Các tasks hiện tại:
+
+0/ Code Mirror: https://codemirror.net/doc/manual.html
+
+1/ Implement CRDT: Tạo cái class CRDT như sau:
+
+class CRDT
+{
+	public char ch;
+	public CRDTid id;			<1,2><2,2>5
+	public int hashValue(); // last element of arr, and s
+}
+
+HashSet<CRDT>
+
+
+class CRDTid
+{
+	public List<Pair> arr;
+	public int s;
+	public static int compare(CRDTid id1, CRDTid id2);
+}
+sdfdd
+sdf
+sdf
+sd
+sdf
+
+class Pair
+{
+	public int digit;
+	public int siteId;
+	public static int compare(Pair p1, Pair p2);
+}
+
+// Function: CRDT[] generateNPositionsBetween(int N, CRDTid id1, CRDTid id2, int siteId, char[] chArr)
+// Hoặc: CRDT generatePositionBetween(CRDTid id1, CRDTid id2, int siteId)
+Để implement được generatePositionBetween(), probably mình sẽ cần 1 class tên là Decimal hay gì đó, implement phép trừ ở Base MAX_INT
+
+abcdss
+
+// Flow như sau:
+
+- Mỗi User: Trên screen sẽ có text, và internally user sẽ có 1 array of CRDTs tương ứng với cái text trên screen
+
+- Có 4 operations:
+
++ Local insert: 
+. User insert character 'a' at line 9 col 13
+. Code Mirror báo lại ngay cho mình là user vừa insert at line 9 col 13 character 'a'
+. Từ line 9, col 13 mình tính được index mà 'a' should be at, gọi nó là i
+. Lấy CRDT ở index i và i+1, rồi dùng generatePositionBetween để tìm được cái id ở giữa i và i+1 và tạo ra CRDT object tương ứng
+	sdfkljsdfklsdafjjs
+	            ^ ^		
+		    i i+1
+. Insert CRDT object vào giữa i và i+1
+. Gửi request lên server: server.add(object)
+. Server nhận được object rồi nó sẽ send cái object đấy cho tất cả các user còn lại
+
+
++ Local delete
+. User delete character 'b' at line 4 col 34, Code Mirror báo mình, và mình tính index i tương ứng
+. Vào arr[i] lấy CRDT object, gửi request server.delete(arr[i]) và xóa arr[i] trên CRDT array
+
+
++ Remote insert
+. Server gửi request về: Insert object {'a', <1,2><3,2><4,5>29}
+. Dùng Binary search tìm index i của element lớn nhất mà <= object.CRDTid
+Nếu element đấy = object thì thôi khỏi insert
+Nếu element đấy < object thì insert object vào bên phải element đấy, rồi từ index i tính ra line, col và phản ánh trên Code Mirror
+
+
++ Remote delete
+. Server gửi request về: Delete object {'a', <1,2><3,2><4,5>29}
+. Binary search tìm xem object đấy có tồn tại trong array ko
+Nếu tồn tại thì delete trong array và phản ánh trên CodeMirror
+Nếu ko tồn tại thì thôi
+
+
+
+2/ Figure out Websocket (SignalR)
+
+
+3/ SQLite
+
+
+4/ Test set
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
