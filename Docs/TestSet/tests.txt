@@ -1,0 +1,54 @@
+******************* Test Cases **********************
+I. Test Insert functions
+	1.
+		Action: User type one char 'a'
+		Expected: char 'a' appears
+		
+	2.
+		Action: User type a word "Abcd"
+		Expected: string "Abcd" appears
+		
+	3.
+		Action: User paste a chunk of text 
+					abc
+					def
+					geg
+		Expected: Chunk of text appears on screen in the right order
+
+II. Test Delete functions
+	1. 
+		Action: User delete one char 'a'
+		Expected: char 'a' disappears
+		
+	2. 
+		Action: User delete a word "Abcd"
+		Expected: string "Abcd" disappears
+		
+	3. 
+		Action: User select a chunk of text on the SAME line and delete
+		Expected: Chunk of text disappears
+		
+	4. 
+		Action: User select a chunk of text that spans across MULTIPLE lines and delete
+		Expected: Chunk of text disappears + leading whitespaces is deleted
+		
+	5. 
+		Action: 2 users delete the same character 'a'
+		Expected: ONLY character 'a' disappears
+
+III. Test Users Join
+	1. 
+		Action: New user create new doc
+		Expected: New doc created
+	
+	2. 
+		Action: New user joins via link
+		Expected: See the current doc created the the host who shared the link
+		
+	3. 
+		Action: All users closed the tabs
+		Expected: Pop-up to confirm Leave
+		
+	4. 
+		Action: All users with the same link leave
+		Expected: Delete the doc 
