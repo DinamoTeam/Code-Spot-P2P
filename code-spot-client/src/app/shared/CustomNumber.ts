@@ -137,8 +137,12 @@ export class CustomNumber {
     return null;
   }
 
+  // Trim leading zeros, but left 1 zero if the remaining array is [0]
   static trimLeadingZeros(arr: number[]): number[] {
     const firstNonZeroIndex = arr.findIndex(x => x != 0);
+    if (firstNonZeroIndex === -1) { // If the whole array is 0
+      return [0];
+    }
     return arr.slice(firstNonZeroIndex, arr.length);
   }
 
