@@ -8,7 +8,7 @@ export class CustomNumber {
   arr: number[];
 
   constructor(list: number[]) {
-    this.arr = Object.assign([], list); // Deep copy
+    this.arr = Object.assign([], CustomNumber.trimLeadingZeros(list)); // Deep copy
   }
 
   // Normal subtract function in base BASE with the assumption that n1 >= n2
@@ -46,17 +46,7 @@ export class CustomNumber {
       index1--;
     }
 
-    let numLeadingZeros = 0;
-    for (let i = 0; i < resArr.length; i++) {
-      if (resArr[i] != 0) {
-        break;
-      }
-      numLeadingZeros++;
-    }
-
-    if (resArr[0] == 0) {
-      resArr.splice(0, numLeadingZeros);  // Remove leading zeros
-    }
+    resArr = CustomNumber.trimLeadingZeros(resArr);
 
     return new CustomNumber(resArr);
   }
@@ -104,16 +94,7 @@ export class CustomNumber {
 
     resArr[0] = carry;
 
-    let numLeadingZeros = 0;
-    for (let i = 0; i < resArr.length; i++) {
-      if (resArr[i] != 0) {
-        break;
-      }
-      numLeadingZeros++;
-    }
-    if (resArr[0] == 0) {
-      resArr.splice(0, numLeadingZeros); // Remove leading zeros
-    }
+    resArr = CustomNumber.trimLeadingZeros(resArr);
 
     return new CustomNumber(resArr);
   }
@@ -124,10 +105,68 @@ export class CustomNumber {
     return new CustomNumber(digitArr);
   }
 
+  // Decrease some digits to generate a number less than n
+  static generateLessThan(n: CustomNumber): CustomNumber {
+    // If only 1 digit
+    if (n.arr.length == 1) {  
+      const newDigit = Math.floor(Math.random() * n.arr[0]);  // newDigit = 1->oldDigit-1
+      return new CustomNumber([newDigit]);
+    }
+
+    // 2 digits or longer
+    let newArr = Object.assign([], n.arr);
+    const numDigitsNonZero = newArr.filter(x => x != 0).length;
+    if (numDigitsNonZero === 1) { // Such an unusual case (Ex: 1000000)
+      // Decrease that number by 1 to get more nonZeroDigits
+      const newNumber = CustomNumber.subtractGreaterThan(n, new CustomNumber([1]));
+      newArr = Object.assign([], newNumber.arr);
+    }
+    // Decrease 1->numDigitsNonZero-1 times, prioritize more significant digits
+    const toBeDecreased = Math.floor(Math.random() * (numDigitsNonZero - 1)) + 1;
+    for (let i = 0; i < newArr.length; i++) {
+      if (newArr[i] != 0) {
+        newArr[i] = Math.floor(Math.random() * newArr[i]);
+      }
+    }
+
+    return new CustomNumber(CustomNumber.trimLeadingZeros(newArr));
+  }
+
+  static prefix(n: CustomNumber, index: number): CustomNumber {
+    // TODO
+    return null;
+  }
+
+  static trimLeadingZeros(arr: number[]): number[] {
+    const firstNonZeroIndex = arr.findIndex(x => x != 0);
+    return arr.slice(firstNonZeroIndex, arr.length);
+  }
+
+  compareTo(other: CustomNumber): number {
+    if (this.arr.length !== other.arr.length) {
+      return this.arr.length - other.arr.length;  // If length's not equal, trivial. Just compare length 
+    }
+
+    for (let i = 0; i < this.arr.length; i++) {
+      if (this.arr[i] != other.arr[i]) {
+        return this.arr[i] - other.arr[i];
+      }
+    }
+    return 0; // Equal
+  }
+
   toString(): string {
     let description = '';
-    for (let i = 0; i < this.arr.length; i++) {
-      description = description + this.arr[i];
+    let currentBase = CustomNumber.BASE;
+    if (currentBase === 10) {
+      for (let i = 0; i < this.arr.length; i++) {
+        description = description + this.arr[i];
+      }
+    }
+    else {
+      for (let i = 0; i < this.arr.length; i++) {
+        description = description + '(' + this.arr[i] + ')';
+      }
     }
     return description;
   }

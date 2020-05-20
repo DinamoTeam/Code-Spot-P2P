@@ -41,7 +41,7 @@ export class CRDTId {
   }
 
   static generatePositionBetween(id1: CRDTId, id2: CRDTId, site: number): CRDTId {
-    // TODO :)) Prepare hết các function khác rồi. Chờ khai hỏa thôi 
+    
     return null;
   }
 
