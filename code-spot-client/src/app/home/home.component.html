@@ -1,3 +1,38 @@
-<div class="jumbotron" style="background-color: #fff; height: calc(95vh);">
-  <ngx-monaco-editor class="solution-code-editor" [options]="editorOptions"></ngx-monaco-editor>
+<div class="container mt-100">
+  <div class="col-md-12">
+    <form class="form-horizontal" [formGroup]="languageForm">
+      <!--Select Language-->
+      <div class="form-group">
+        <div class="col-sm-2">
+          <select class="form-control" formControlName="language" (change)="onLanguageChange($event.target.value)">
+            <option *ngFor="let language of languages" [ngValue]="language.value">{{language.name}}</option>
+          </select>
+        </div>
+      </div>
+      <!--C++-->
+      <div *ngIf="selectedLang=='cpp'">
+        <ngx-monaco-editor class="solution-code-editor" [options]="editorCplusplus"></ngx-monaco-editor>
+      </div>
+      <!--C#-->
+      <div *ngIf="selectedLang=='csharp'">
+        <ngx-monaco-editor class="solution-code-editor" [options]="editorCsharp"></ngx-monaco-editor>
+      </div>
+      <!--Java-->
+      <div *ngIf="selectedLang=='java'">
+        <ngx-monaco-editor class="solution-code-editor" [options]="editorJava"></ngx-monaco-editor>
+      </div>
+      <!--JavaScript-->
+      <div *ngIf="selectedLang=='javascript'">
+        <ngx-monaco-editor class="solution-code-editor" [options]="editorJS"></ngx-monaco-editor>
+      </div>
+      <!--Python-->
+      <div *ngIf="selectedLang=='python'">
+        <ngx-monaco-editor class="solution-code-editor" [options]="editorPython"></ngx-monaco-editor>
+      </div>
+    </form>
+  </div>
 </div>
+
+<!--<div class="jumbotron" style="background-color: #fff; height: calc(95vh);">
+  <ngx-monaco-editor class="solution-code-editor" [options]="editorPython"></ngx-monaco-editor>
+</div>-->
