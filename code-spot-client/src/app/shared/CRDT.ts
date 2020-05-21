@@ -3,16 +3,22 @@
 // CustomNumber trim 0s at the beginning
 
 import { CustomNumber } from './CustomNumber';
-import { Identifiers } from '@angular/compiler';
 
+// Each CRDT object will correspond to 1 character in the text editor
+// A sorted, increasing order of CRDT array will correspond to the whole text
 export class CRDT {
   ch: string;
   id: CRDTId;
 
-  compareTo(other: CRDT): number {
-    return this.id.compareTo(other.id);
+  constructor(character: string, id: CRDTId) {
+    this.ch = character;
+    this.id = id;
   }
 
+  // Compare CRDT by its id
+  compareTo(other: CRDT): number { 
+    return this.id.compareTo(other.id);
+  }
 }
 
 /* CRDTId is equivalent to position identifier in Logoot paper page 4 definition 1 */
@@ -25,6 +31,8 @@ export class CRDTId {
     this.clockValue = clock;
   }
 
+  // Compare identifiers array from left to right. Terminate if one identifier is bigger than the other
+  // If one array runs out of length, the longer is the bigger
   compareTo(other: CRDTId): number {
     let length1 = this.arr.length;
     let length2 = other.arr.length;
@@ -42,13 +50,16 @@ export class CRDTId {
 
     // If we go to the end of one arr, it means the "beginning part" is exactly equal
     // => If equal length, compare by clockValue. Otherwise, the one longer is bigger 
-    if (length1 === length2) {
+    if (length1 === length2) { // This rarely, rarely happens!
       return this.clockValue - other.clockValue;
     }
     return length1 - length2;
   }
 
   // Generate an CRDTId in between id1 and id2
+  // Rough idea:
+  // delta = id2 - id1;
+  // idBetween = id1 + lessThanDeltaButBiggerThan0
   static generatePositionBetween(id1: CRDTId, id2: CRDTId, siteId: number, clock: number): CRDTId {
     let index = -1;
     const shorterLength = Math.min(id1.arr.length, id2.arr.length);
@@ -74,7 +85,7 @@ export class CRDTId {
 
     const smallerThanDelta = CustomNumber.generateLessThan(delta); // < delta but > 0
     const prefix1 = CRDTId.prefix(id1, index);
-    const numberBetweenPrefix1AndPrefix2 = CustomNumber.add(prefix1, smallerThanDelta);
+    const numberBetweenPrefix1AndPrefix2 = CustomNumber.add(prefix1, smallerThanDelta); // idBetween = id1 + lessThanDelta
 
     const newCRDTIdBetweenId1AndId2 = CRDTId.constructPosition(numberBetweenPrefix1AndPrefix2, id1, id2, siteId, clock);
     return newCRDTIdBetweenId1AndId2;
@@ -86,19 +97,25 @@ export class CRDTId {
     const num = index + 1;
     const numZerosToTheBack = (num > id.arr.length) ? (num - id.arr.length) : 0;
     const digitOnly = id.arr.map(i => i.digit);
-    const resultArr = digitOnly.concat(new Array<number>(numZerosToTheBack).fill(0));
+    let resultArr: number[];
+    if (id.arr.length < num) {
+      resultArr = digitOnly.concat(new Array<number>(numZerosToTheBack).fill(0));
+    } else {
+      resultArr = digitOnly.slice(0, num);
+    }
     return new CustomNumber(resultArr);
   }
 
   // Implement exactly as Logoot paper, bottom of page 4
   static constructPosition(digits: CustomNumber, id1: CRDTId, id2: CRDTId, siteId: number, clock: number): CRDTId {
     const identifiersArray = new Array<Identifier>(digits.arr.length);
+
     for (let i = 0; i < identifiersArray.length; i++) {
       if (i === identifiersArray.length - 1) {
         identifiersArray[i] = new Identifier(digits.arr[i], siteId);
-      } else if (digits.arr[i] === id1.arr[i].digit) {
+      } else if (id1.arr[i] && digits.arr[i] === id1.arr[i].digit) { // id1.arr[i] might not exist
         identifiersArray[i] = new Identifier(digits.arr[i], id1.arr[i].siteId);
-      } else if (digits.arr[i] === id2.arr[i].digit) {
+      } else if (id2.arr[i] && digits.arr[i] === id2.arr[i].digit) { // id2.arr[i] might not exist
         identifiersArray[i] = new Identifier(digits.arr[i], id2.arr[i].siteId);
       } else {
         identifiersArray[i] = new Identifier(digits.arr[i], siteId);
@@ -129,8 +146,8 @@ export class Identifier {
     this.siteId = siteId;
   }
 
+  // Compare by digit, use siteId to break tie
   compareTo(other: Identifier): number {
-    // Compare by digit, use siteId to break tie
     if (this.digit == other.digit) {
       return this.siteId - other.siteId;
     }
