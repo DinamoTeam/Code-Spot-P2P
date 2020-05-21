@@ -1,6 +1,6 @@
 import { CustomNumber } from './CustomNumber';
 
-const MAX_NUMBER_BASE_10 = 1000000; // For base 10 testing only
+const MAX_NUMBER_BASE_10 = 100000; // For base 10 testing only
 
 function numToArrDigit(n: number): number[] {
   let arr: number[] = [];
@@ -20,7 +20,7 @@ function testSubtractGreaterThanBase10(numberOfTestCases: number): void {
     let a = Math.floor(Math.random() * MAX_NUMBER_BASE_10) + 1; // Generate number from 1 to MAX_NUMBER
     let b = MAX_NUMBER_BASE_10;
     while (b >= a) {
-      b = Math.floor(Math.random() * MAX_NUMBER_BASE_10) + 1;
+      b = Math.floor(Math.random() * MAX_NUMBER_BASE_10); // b from 0 to MAX_NUMBER-1
     }
     let resultShouldBe = a - b;
 
@@ -102,7 +102,7 @@ function testGenerateLessThan(numberOfTestCases: number): void {
 
 // NOTE: check BASE in CustomNumber before run test
 
-testSubtractGreaterThanBase10(100000);
-testAddBase10(100000);
+testSubtractGreaterThanBase10(10000);
+testAddBase10(10000);
 testGenerateLessThan(1000); // Choose small numberOfTestCases since each test case will be tested 100 times
 
