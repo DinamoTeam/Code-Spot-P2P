@@ -13,6 +13,11 @@ export class CustomNumber {
 
   // Normal subtract function in base BASE with the assumption that n1 >= n2
   static subtractGreaterThan(n1: CustomNumber, n2: CustomNumber): CustomNumber {
+
+    if (n1.compareTo(n2) < 0) {
+      throw new Error('n1 < n2 in when substracting greater than');
+    }
+
     let carry = 0;
     let resArr = new Array<number>(n1.arr.length);
 
