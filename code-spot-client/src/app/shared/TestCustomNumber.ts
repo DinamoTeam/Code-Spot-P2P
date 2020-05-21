@@ -11,8 +11,14 @@ function numToArrDigit(n: number): number[] {
   return arr;
 }
 
-// Will console.error() an error if there is any
+// Generate random a, b in base 10. Take b - a like normal and b - a using CustomNumber
+// Console.error() if actualResult != expectedResult
 function testSubtractGreaterThanBase10(numberOfTestCases: number): void {
+  let onlyWorkForBase = 10;
+  if (CustomNumber.BASE !== onlyWorkForBase) {
+    console.error('Not in base 10, cannot use testSubtractGreaterThanBase10');
+    return;
+  }
 
   let numError = 0;
 
@@ -43,8 +49,14 @@ function testSubtractGreaterThanBase10(numberOfTestCases: number): void {
     + ' test cases, ' + numError + ' errors found');
 }
 
-// Will console.error() an error if there is any
+// Generate random a, b in base 10. Take a + b like normal and a + b using CustomNumber
+// Console.error() if actualResult != expectedResult
 function testAddBase10(numberOfTestCases: number): void {
+  let onlyWorkForBase = 10;
+  if (CustomNumber.BASE !== onlyWorkForBase) {
+    console.error('Not in base 10, cannot use testAddBase10');
+    return;
+  }
 
   let numError = 0;
 
@@ -73,7 +85,8 @@ function testAddBase10(numberOfTestCases: number): void {
     + ' test cases, ' + numError + ' errors found');
 }
 
-// Will console.error() an error if there is any
+// Generate a random CustomNumber called bigger
+// Generate 100 numbers less than bigger by generateLessThan() and then compare it with bigger
 function testGenerateLessThan(numberOfTestCases: number): void {
   const MAX_NUM_DIGIT = 1;
   const NUM_TEST_PER_NUMBER = 100;
@@ -85,10 +98,16 @@ function testGenerateLessThan(numberOfTestCases: number): void {
       arr[j] = Math.floor(Math.random() * CustomNumber.BASE);
     }
     let bigger = new CustomNumber(arr);
-    // bigger should never be 0, since 'nothing' is less than 0
-    bigger = CustomNumber.add(bigger, new CustomNumber([1]));
+    // bigger should never be 0 or 1, since generateLessThan must return sth >= 1
+    if (bigger.compareTo(new CustomNumber([2])) < 0) {
+      bigger = new CustomNumber([2]);
+    }
     for (let j = 0; j < NUM_TEST_PER_NUMBER; j++) {
       const smaller = CustomNumber.generateLessThan(bigger);
+      if (smaller.compareTo(new CustomNumber([0])) === 0) {
+        console.error('ERROR: Test generateLessThan, it returns 0 (It MUST NOT)');
+        numError++;
+      } 
       if (smaller.compareTo(bigger) >= 0) { // If smaller is actually not smaller
         console.error('ERROR: Test generateLessThan, smaller of ' +
           bigger.toString() + ' is ' + smaller.toString());
@@ -100,9 +119,8 @@ function testGenerateLessThan(numberOfTestCases: number): void {
     + ' test cases, ' + numError + ' errors found');
 }
 
-// NOTE: check BASE in CustomNumber before run test
+testSubtractGreaterThanBase10(10000); // Onlu work in base 10, check CustomNumber.BASE
+testAddBase10(10000); // Onlu work in base 10, check CustomNumber.BASE
 
-testSubtractGreaterThanBase10(10000);
-testAddBase10(10000);
 testGenerateLessThan(1000); // Choose small numberOfTestCases since each test case will be tested 100 times
 

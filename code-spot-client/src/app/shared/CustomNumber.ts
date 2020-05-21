@@ -1,4 +1,4 @@
-import { CRDT, Identifier } from './CRDT';
+import { Identifier } from './CRDT';
 
 export class CustomNumber {
 
@@ -104,7 +104,7 @@ export class CustomNumber {
     return new CustomNumber(resArr);
   }
 
-  // Return a CustomNumber object from an IdentifierArray
+  // Return a CustomNumber object from an IdentifierArray by taking digits only
   static customNumberFromIdentifierArray(identifiers: Identifier[]): CustomNumber {
     let digitArr = identifiers.map(id => id.digit);
     return new CustomNumber(digitArr);
@@ -114,7 +114,7 @@ export class CustomNumber {
   static generateLessThan(n: CustomNumber): CustomNumber {
     // If only 1 digit
     if (n.arr.length == 1) {  
-      const newDigit = Math.floor(Math.random() * n.arr[0]);  // newDigit = 1->oldDigit-1
+      const newDigit = Math.floor(Math.random() * (n.arr[0] - 1)) + 1;  // newDigit = 1->oldDigit-1. Never 0
       return new CustomNumber([newDigit]);
     }
 
@@ -134,12 +134,12 @@ export class CustomNumber {
       }
     }
 
-    return new CustomNumber(CustomNumber.trimLeadingZeros(newArr));
-  }
-
-  static prefix(n: CustomNumber, index: number): CustomNumber {
-    // TODO
-    return null;
+    // Always return something > 0
+    const result = new CustomNumber(CustomNumber.trimLeadingZeros(newArr));
+    if (result.compareTo(new CustomNumber([0])) === 0) { // If result is 0
+      return new CustomNumber([1]); // fine! return 1
+    }
+    return result;  // If result is not 0, return result
   }
 
   // Trim leading zeros, but left 1 zero if the remaining array is [0]
@@ -151,6 +151,7 @@ export class CustomNumber {
     return arr.slice(firstNonZeroIndex, arr.length);
   }
 
+  // Normal compare in base BASE
   compareTo(other: CustomNumber): number {
     if (this.arr.length !== other.arr.length) {
       return this.arr.length - other.arr.length;  // If length's not equal, trivial. Just compare length 
