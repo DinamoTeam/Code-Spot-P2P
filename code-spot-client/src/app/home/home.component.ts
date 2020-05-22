@@ -59,18 +59,25 @@ export class HomeComponent implements OnInit{
 
   onInitHandler(event: any){
     this.editor = event;
-    // this.editor.onDidBlurEditorText((e: any) => this.onBlurEditorTextHandler(e));
+
+    this.editor.onDidPaste((e: any) => this.onDidPasteHandler(e));
+    this.editor.onDidChangeModelContent((e: any) => this.onDidChangeModelContentHandler(e));
     
-      console.log(this.editor);
-      let line = this.editor.getPosition();
-      let range = new monaco.Range(line.lineNumber, 1, line.lineNumber, 1);
-      let id = { major: 1, minor: 1 };
-      let text = 'FOO';
-      let op = { identifier: id, range: range, text: text, forceMoveMarkers: true };
-      this.editor.executeEdits("my-source", [op]);
+    // Write text to the screen
+    console.log(this.editor);
+    let line = this.editor.getPosition();
+    let range = new monaco.Range(line.lineNumber, 1, line.lineNumber, 1);
+    let id = { major: 1, minor: 1 };
+    let text = 'FOO';
+    let op = { identifier: id, range: range, text: text, forceMoveMarkers: true };
+    this.editor.executeEdits("my-source", [op]);
   }
 
-  onChangeHandler(event: any){
-    console.log(event);
+  onDidPasteHandler(event: any) {
+    console.log("Sth just got pasted");
+  }
+
+  onDidChangeModelContentHandler(event: any) {
+    console.log("Content just changed here!")
   }
 }
