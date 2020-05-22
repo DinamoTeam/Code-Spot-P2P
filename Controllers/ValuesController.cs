@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CodeSpot.Data;
+using CodeSpot.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodeSpot.Controllers
 {
@@ -10,11 +13,17 @@ namespace CodeSpot.Controllers
 	[ApiController]
 	public class ValuesController : ControllerBase
 	{
+        private readonly DataContext _database;
+
+        public ValuesController(DataContext database)
+        {
+            _database = database;
+        }
 		// GET api/values
 		[HttpGet]
-		public ActionResult<IEnumerable<string>> Get()
+		public async Task<ActionResult<IEnumerable<string>>> Get()
 		{
-			return new string[] { "value1", "value2" };
+			return Ok(await _database.Values.FirstOrDefaultAsync());
 		}
 
 		// GET api/values/5
