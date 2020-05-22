@@ -29,17 +29,23 @@ export class HomeComponent implements OnInit{
     { name: "JavaScript", value: "javascript" }
   ]
 
-  editorCplusplus = { theme: "vs-dark", language: "cpp" };
-  editorCsharp = { theme: "vs-dark", language: "csharp" };
-  editorJava = { theme: "vs-dark", language: "java" };
-  editorJS = { theme: "vs-dark", language: "javascript" };
-  editorPython = { theme: "vs-dark", language: "python" };
-
-  editorOptions = { theme: 'vs-dark', language: 'javascript' };
+  editorOptions = { theme: 'vs-dark', language: 'cpp' };
   code: string = 'function x() {\nconsole.log("Hello world!");\n}';
 
   onLanguageChange(res) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);;
     console.log(this.selectedLang);
+
+    if (this.selectedLang == 'cpp') {
+      this.editorOptions = Object.assign({}, this.editorOptions, { language: "cpp" });
+    } else if (this.selectedLang == 'javascript') {
+      this.editorOptions = Object.assign({}, this.editorOptions, { language: "javascript" });
+    } else if (this.selectedLang == 'csharp') {
+      this.editorOptions = Object.assign({}, this.editorOptions, { language: "csharp" });
+    } else if (this.selectedLang == 'java') {
+      this.editorOptions = Object.assign({}, this.editorOptions, { language: "java" });
+    } else if (this.selectedLang == 'python') {
+      this.editorOptions = Object.assign({}, this.editorOptions, { language: "python" });
+    } 
   }
 }
