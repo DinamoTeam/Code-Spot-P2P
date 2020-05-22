@@ -35,6 +35,11 @@ II. Test Delete functions
 	5. 
 		Action: 2 users delete the same character 'a'
 		Expected: ONLY character 'a' disappears
+		
+	6.
+		Context: User1 and User2 both have "123456789" on their screen
+		Action: User1 deletes "456" and User2 deletes "567" concurrently
+		Expected: "12389"
 
 III. Test Users Join
 	1. 
@@ -52,3 +57,55 @@ III. Test Users Join
 	4. 
 		Action: All users with the same link leave
 		Expected: Delete the doc 
+
+IV. Test Insert MIXED with Delete
+	1.
+		Action: User1, User2 and User3 insert and delete lots of character concurrently and then stop
+		Expected: All 3 users see the same doc after a few seconds
+		
+	2.
+		Action: User1 select a chunk of text, and paste another chunk of text to replace the original
+				
+				abcd
+				efgh gklmn
+				opq
+				
+				User1 select g->n, and replace it with 9999
+		Expected:
+				abcd
+				ef9999
+				opq		
+		
+******************* When ready **********************
+
+V. Test Performance
+	0. 
+		Context: There are 3 Users: User1, User2, User3.
+		
+	1.
+		Action: User1 paste 10,000 characters
+		Expected: User2 and User3 see the changes in less than 3 seconds. Nobody's computer hang
+		
+	2.
+		Action: User2 deletes the whole documents of 50,000 characters
+		Expected: User1 and User3 see the changes in less than 3 seconds. Nobody's computer hang
+		
+VI. Test Across Region
+	0.
+		Context: User1 from Vietnam, User2 from Canada, User3 from America
+	
+	1.
+		Action: User1, User2, User3 edit the same doc
+		Expected: User1 should NOT wait too long until that user receives changes from User2 and User3
+		
+VII. Other Tests
+	1.
+		Action: User1's wifi goes down for 30 seconds
+		Expected: Any changes made during that time are still sent to other users after User1 reconnects
+		
+	2.
+		Action: User1 select a chunk of text and drag it to another place
+		Expected: Changes reflect on other users' computer
+		
+		
+		

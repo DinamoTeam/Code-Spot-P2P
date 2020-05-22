@@ -1,0 +1,45 @@
+There are 4 main operations:
+	1/ Local insert
+	2/ Remote insert
+	3/ Local delete
+	4/ Remote delete
+Context: There are 3 users: User1, User2, User3
+
+
+I/	Local insert and Remote insert:
+
+	0. Rough idea
+		1. User1 inserts, Editor.ts notices and tell User.ts
+		2. User.ts create CRDT object, insert it to the right spot in User1's CRDT array, and send that object to the server
+		3. Server takes the object, broadcast to the other users
+		4. The other users receive that new object, insertSorted to their CRDT array at 'index', and then tell Editor about the changes at 'index'
+		5. Editor add the new character correspondingly
+
+	1. Local insert
+		1. User1 insert something
+		2. Editor detects that insertion and parse it into the right format (index instead of line and column)
+		3. Editor calls User.localInsert(ch, index)
+			3.1 User.localInsert() generate the CRDTId object using generatePositionBetween(), and make a new CRDT object called newCrdt
+			3.2 The CRDT object is then inserted to CRDT[] array
+			3.3 Finally, User.localInsert() call User.sendInsertRequestToServer(newCrdt.toString()) to send the insertRequest to the server
+		Note: Editor's screen is now in sync with CRDT[] array
+		Also: If User1 inserted more than 1 character, just make a for loop and call User.localInsert() for each character
+		
+	2. Server broadcast insert
+		1. Now ServerController.cs receives sendInsertRequestToServer(newCrdt.toString()) request from User1
+		2. Server takes that newCrdt.toString() JSON object, parse it into a CRDTString object called crdtStr (CRDTString.cs)
+		3. Server asks database if the object exists
+			3.1 If yes, do nothing
+			3.2 If no, call broadCastInsert(CRDTString crdtStr, int userID) to send insertions request to all users EXCEPT userID
+	
+	3. Remote insert
+		1. User2 receives broadcastInsert(CRDTString crdtFromServer) request from Server (Of course User3 receives it too)
+		2. User2 calls receiveAndExecuteRemoteInsert(crdtFromServer)
+			2.1 This function first takes crdtFromServer (of type CRDTString) and parse it back to a CRDT Object called crdt
+			2.2 Then, insert the crdt object to User2's CRDT[] array, and keep the index
+			2.3 Call Editor.receiveAndExecuteRemoteInsert(crdt.ch, index) to reflect changes to the editor
+				2.3.1 Editor takes that character and its index, use indexToLineAndCol to insert the character to the correct spot
+				
+II/	Local delete and Remote delete:
+
+	Very similar to above.

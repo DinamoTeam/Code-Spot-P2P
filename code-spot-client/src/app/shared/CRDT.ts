@@ -31,7 +31,7 @@ export class CRDTId {
     this.clockValue = clock;
   }
 
-  // Compare identifiers array from left to right. Terminate if one identifier is bigger than the other
+  // Compare 2 identifier arrays from left to right. Terminate if one identifier is bigger than the other
   // If one array runs out of length, the longer is the bigger
   compareTo(other: CRDTId): number {
     let length1 = this.arr.length;
