@@ -64,7 +64,6 @@ export class HomeComponent implements OnInit{
     this.editor.onDidChangeModelContent((e: any) => this.onDidChangeModelContentHandler(e));
     
     // Write text to the screen
-    console.log(this.editor);
     let line = this.editor.getPosition();
     let range = new monaco.Range(line.lineNumber, 1, line.lineNumber, 1);
     let id = { major: 1, minor: 1 };
@@ -74,10 +73,25 @@ export class HomeComponent implements OnInit{
   }
 
   onDidPasteHandler(event: any) {
-    console.log("Sth just got pasted");
+    var rangeDetails = event;
+    console.log("Pasted range" + rangeDetails);
+    console.log(rangeDetails);
   }
 
   onDidChangeModelContentHandler(event: any) {
-    console.log("Content just changed here!")
+    var change = event.changes[0]; 
+
+    // The range that got replaced
+    var rangeDetails = change.range;
+    console.log("Range Details: " + rangeDetails);
+    console.log(rangeDetails);
+
+    // Length of the range that got replaced
+    var rangeLen = change.rangeLength;
+    console.log("Range Length: " + rangeLen);
+
+    // The new text for the range
+    var newText = change.text;
+    console.log("New text: " + newText);
   }
 }
