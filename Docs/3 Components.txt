@@ -1,0 +1,58 @@
+3 main components: Editor.ts, User.ts, ServerController.cs
+
+/* Editor.ts */
+	lineAndColToIndex(line: number, col: number): number{}
+	indexToLineAndCol(index: number): number[]{}
+	
+	receiveAndExecuteRemoteInsert(ch: string, index: int){}
+	receiveAndExecuteRemoteDelete(index: int){}
+/*-----------*/
+	
+	
+/* User.ts */
+	arr: CRDT[];
+	clock: number = 1;
+	
+	localInsert(ch: string, index: int): void{} // will call sendInsertRequestToServer()
+	sendInsertRequestToServer(crdt: CRDT){} // Send CRDTId dưới dạng string: <<1,2><3,2><43,4>5>
+	
+	localDelete(index: int): void{}
+	sendDeleteRequestToServer(crdt: CRDT){}
+	
+	receiveAndExecuteRemoteInsert(crdtString: CRDTString){} // Receive from server
+	
+	receiveAndExecuteRemotDelete(crdtString: CRDTString){}
+/*----------*/
+
+
+/* ServerController.cs */
+	ServerController(DataContext database);
+	
+	executeInsert(CRDTString crdt);
+	broadcastInsert(CRDTString crdt, int userID);
+	
+	executeDelete(CRDTString crdt);
+	broadcastDelete(CRDTString crdt, int userID);
+/*---------------------*/
+
+
+/* CRDTString.cs */
+class CRDTString
+{
+	public string CRDTId; // Looks like <<1,2><3,2><43,4>5>
+	public char ch;
+}
+/*---------------*/
+
+
+/* Database */
+1 table named CRDT, 2 columns:
+CRDTId: string - PRIMARY KEY
+ch: character
+/*----------*/
+
+
+
+
+
+
