@@ -13,6 +13,7 @@ export class HomeComponent implements OnInit{
 
 
   editor: any;
+  editorTextModel: any;
   selectedLang: string;
   languageForm = new FormGroup({
     language: new FormControl(
@@ -59,10 +60,12 @@ export class HomeComponent implements OnInit{
 
   onInitHandler(event: any){
     this.editor = event;
+    this.editorTextModel = this.editor.getModel();
+    this.editorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
     this.editor.onDidPaste((e: any) => this.onDidPasteHandler(e));
     this.editor.onDidChangeModelContent((e: any) => this.onDidChangeModelContentHandler(e));
-    
+
     // Write text to the screen
     let line = this.editor.getPosition();
     let range = new monaco.Range(line.lineNumber, 1, line.lineNumber, 1);
@@ -90,8 +93,19 @@ export class HomeComponent implements OnInit{
     var rangeLen = change.rangeLength;
     console.log("Range Length: " + rangeLen);
 
-    // The new text for the range
+    // The new text for the range (! \n can't see)
     var newText = change.text;
-    console.log("New text: " + newText);
+    console.log("New text: |" + newText + "|");
+
+    console.log("Index: " + this.posToIndex(rangeDetails.endLineNumber, rangeDetails.endColumn));
+  }
+
+  posToIndex(endLineNumber: number, endColumn: number): number {
+    let startLineNumber = 1;
+    let startColumn = 1;
+    return this.editorTextModel.getValueLengthInRange(new monaco.Range(startLineNumber, startColumn, endLineNumber, endColumn));
+
+    // FOR DEBUG: Print Value in Range
+    //console.log("(" + this.editorTextModel.getValueInRange(new monaco.Range(1, 0, endLineNumber, endColumn)) + ")");
   }
 }
