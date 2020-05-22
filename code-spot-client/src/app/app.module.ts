@@ -4,12 +4,16 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor';
 
 import { HomeComponent } from './home/home.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { AboutComponent } from './about/about.component';
+
+const monacoConfig: NgxMonacoEditorConfig = {
+  onMonacoLoad: () => {console.log( (<any>window).monaco); } 
+};
 
 @NgModule({
   declarations: [
@@ -24,7 +28,7 @@ import { AboutComponent } from './about/about.component';
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    MonacoEditorModule.forRoot()
+    MonacoEditorModule.forRoot(monacoConfig)
   ],
   providers: [],
   bootstrap: [AppComponent]
