@@ -31,6 +31,14 @@ export class CRDTId {
     this.clockValue = clock;
   }
 
+  static deepCopy(crdtId: CRDTId): CRDTId {
+    const deepCopiedArr: Identifier[] = [];
+    for (let i = 0; i < crdtId.arr.length; i++) {
+      deepCopiedArr.push(Identifier.deepCopy(crdtId.arr[i]));
+    }
+    return new CRDTId(deepCopiedArr, crdtId.clockValue);
+  }
+
   // Compare 2 identifier arrays from left to right. Terminate if one identifier is bigger than the other
   // If one array runs out of length, the longer is the bigger
   compareTo(other: CRDTId): number {
@@ -57,34 +65,60 @@ export class CRDTId {
   }
 
   // Generate an CRDTId in between id1 and id2
-  // Rough idea:
-  // delta = id2 - id1;
-  // idBetween = id1 + lessThanDeltaButBiggerThan0
+  // Rough idea: 2 cases
+  // Case 1: First non match indices - their digits are different
+  // delta = id2 - id1
+  // idBetweenId1AndId2 = id1 + lessThanDeltaButBiggerThanZero
+  // Case 2: First non match indices - their sites are different
+  // Fills the tail id2 with BASE-1, then do similar thing as case 1
   static generatePositionBetween(id1: CRDTId, id2: CRDTId, siteId: number, clock: number): CRDTId {
-    let index = -1;
+    let index = 0;
     const shorterLength = Math.min(id1.arr.length, id2.arr.length);
 
     // Find the first different index
     while (index < shorterLength) {
-      index++;
-      if (id1.arr[index] !== id2.arr[index]) {    // First time not match
+      if (id1.arr[index].compareTo(id2.arr[index]) != 0) {    // First time not match
         break;
       }
-    }
-
-    index--;  // decrease to fit with the while loop below
-    let delta = new CustomNumber([0]);
-    // loop until delta >= 2. (Eg: 7-5=2 => There's 1 spot for 6 in the middle. 7-6=1 doesn't work)
-    // Note: use prefix is enough because 2 > 1341242 (like version number) - we know it's bigger right from the first index
-    while (delta.compareTo(new CustomNumber([2])) < 0) { // while delta < 2
       index++;
-      const prefix1 = CRDTId.prefix(id1, index);
-      const prefix2 = CRDTId.prefix(id2, index);
-      delta = CustomNumber.subtractGreaterThan(prefix2, prefix1);
     }
 
+    let prefix1: CustomNumber;
+    let prefix2: CustomNumber;
+    let delta = new CustomNumber([0]);
+
+    if (index === shorterLength || id1.arr[index].digit !== id2.arr[index].digit) {  // digits are different
+      index--;  // decrease to fit with the while loop below
+      // loop until delta >= 2. (Eg: 7-5=2 => There's 1 spot for 6 in the middle. 7-6=1 doesn't work)
+      // Note: use prefix is enough because 2 > 1341242 (like version number) - we know it's bigger right from the first index
+      while (delta.compareTo(new CustomNumber([2])) < 0) { // while delta < 2
+        index++;
+        prefix1 = CRDTId.prefix(id1, index);
+        prefix2 = CRDTId.prefix(id2, index);
+        delta = CustomNumber.subtractGreaterThan(prefix2, prefix1);
+      }
+    }
+    else {   // same digit but different siteIds
+
+      // id1 = <1, 1>...
+      // id2 = <1, 3>...
+      // newId = <1, 1>...anything
+      // newId will always < id2
+      // Therefore we only need to find newId = <1, 1>... so that newId > id1. Below is how
+
+      // No need to do index--
+      prefix2 = CRDTId.prefix(id2, index);
+      
+      // generate something bigger than id1.arr[index+1->id1.arr.length-1]
+      while (delta.compareTo(new CustomNumber([2])) < 0) {
+        index++;
+        prefix1 = CRDTId.prefix(id1, index);
+        prefix2.arr.push(CustomNumber.BASE - 1); // Add max digit (in base 10, that would be 9) to the end of prefix2
+        delta = CustomNumber.subtractGreaterThan(prefix2, prefix1);
+      }
+    }
+    
     const smallerThanDelta = CustomNumber.generateLessThan(delta); // < delta but > 0
-    const prefix1 = CRDTId.prefix(id1, index);
     const numberBetweenPrefix1AndPrefix2 = CustomNumber.add(prefix1, smallerThanDelta); // idBetween = id1 + lessThanDelta
 
     const newCRDTIdBetweenId1AndId2 = CRDTId.constructPosition(numberBetweenPrefix1AndPrefix2, id1, id2, siteId, clock);
@@ -144,6 +178,10 @@ export class Identifier {
   constructor(digit: number, siteId: number) {
     this.digit = digit;
     this.siteId = siteId;
+  }
+
+  static deepCopy(id: Identifier): Identifier {
+    return new Identifier(id.digit, id.siteId);
   }
 
   // Compare by digit, use siteId to break tie
