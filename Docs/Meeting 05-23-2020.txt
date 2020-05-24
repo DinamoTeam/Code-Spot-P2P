@@ -1,0 +1,32 @@
+0/ Explain GeneratePositionBetween của Logoot và của CodeSpot
+
+1/ Make sure cả 2 hiểu cái system hiện tại, và xem Giang có bổ sung / thay đổi gì ko
+
+2/ Goals:
+	- Goal của Minh: Dự kiến trong tháng này bản prototype đầu tiên của CodeSpot phải hoạt động.
+					 Nghĩa là có thể run trên localhost và concurrently edit vài trăm ký tự mượt mà
+	- Goal của Giang: Design System đẹp
+
+3/ Code convention
+	- Dùng Prettier
+	- Use const in typescript as much as we can
+	- Có convention gì về comment ko? (Như trong Java thì mọi người hay dùng /**Some comment**/ để nó tự generate Documentation luôn
+	
+4/ Giang hỏi
+	- Một số câu hỏi về Big Idea (Về flow)
+	- Viết thử insertLocal
+
+5/ Chia việc
+	1/ Minh:
+		- Viết insertCrdtToSortedCrdtArr, removeCrdtFromSortedCrdtArr
+		- Viết handleLocalDelete
+	2/ Giang:
+		- Viết indexToLineAndCol
+		- Viết receiveAndExecuteRemoteInsert, receiveAndExecuteRemoteDelete
+
+5/ Other important Tasks to do
+	- Tìm hiểu thêm về Signal R, Websocket,...
+	- Làm sao để Server tạo siteID cho client (Hoặc client tự keep track siteId của mình)
+	- Tìm hiểu tạo nhiều room (Server - client and Peer to Peer)
+	- Viết nốt function trong EditorService.ts 
+	- Làm sao để tạo nhiều Room
