@@ -14,4 +14,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="code-spot-client\src\app\services\" />
+  </ItemGroup>
+
 </Project>
