@@ -18,11 +18,11 @@
 
 5/ Chia việc
 	1/ Minh:
-		- Viết insertCrdtToSortedCrdtArr, removeCrdtFromSortedCrdtArr
-		- Viết handleLocalDelete
+		- Viết insertCrdtToSortedCrdtArr, removeCrdtFromSortedCrdtArr DONE
+		- Viết handleLocalDelete DONE
 	2/ Giang:
 		- Viết indexToLineAndCol
-		- Viết receiveAndExecuteRemoteInsert, receiveAndExecuteRemoteDelete
+		- Viết receiveAndExecuteRemoteInsert, receiveAndExecuteRemoteDelete (Editor.ts)
 
 5/ Other important Tasks to do
 	- Tìm hiểu thêm về Signal R, Websocket,...
