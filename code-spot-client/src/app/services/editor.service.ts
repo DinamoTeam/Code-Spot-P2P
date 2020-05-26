@@ -42,22 +42,44 @@ export class EditorService {
   }
 
   handleLocalRemove(ch: string, index: number): void {
+    const siteIdTemp = 1;
 
+    index += 1; // because we have beg limit
+    const crdtToBeRemoved = this.arr[index];
+    this.arr.splice(index, 1);
+
+    this.broadcastRemove(crdtToBeRemoved);
   }
 
-  insertCrdtToSortedCrdtArr(crdt: CRDT, crdtArr: CRDT[]): void {
-
+  // Prototype: linear search. Future: binary search
+  insertCrdtToSortedCrdtArr(crdt: CRDT, crdtArr: CRDT[]): number {
+    for (let i = 1; i < crdtArr.length - 1; i++) {  // ignore borders at 0 and length-1
+      if (crdt.compareTo(crdtArr[i]) === 0) {
+        throw new Error('Cannot insert duplicate element into CRDT Array!');
+      } else if (crdt.compareTo(crdtArr[i]) > 0) {
+        crdtArr.splice(i, 0, crdt);
+        return i;
+      }
+    }
+    throw new Error('Failed to insert crdt object inside the borders');
   }
 
   broadCastInsert(crdt: CRDT): void {
-    
+    // TODO
   }
 
-  removeCrdtFromSortedCrdtArr(crdt: CRDT, crdtArr: CRDT[]): void {
-
+  // Prototype: linear search. Future: binary search
+  removeCrdtFromSortedCrdtArr(crdt: CRDT, crdtArr: CRDT[]): number {
+    for (let i = 1; i < crdtArr.length - 1; i++) {  // ignore borders at 0 and length-1
+      if (crdt.compareTo(crdtArr[i]) === 0) {
+        crdtArr.splice(i, 1);
+        return i;
+      }
+    }
+    throw new Error('Fail to delete crdt object! The object does not exist inside the array');
   }
 
   broadcastRemove(crdt: CRDT): void {
-
+    // TODO
   }
 }
