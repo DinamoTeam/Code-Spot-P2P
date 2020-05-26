@@ -100,6 +100,8 @@ export class HomeComponent implements OnInit {
       "Index: " +
         this.posToIndex(rangeDetails.endLineNumber, rangeDetails.endColumn)
     );
+
+    
   }
 
   // Write text to the screen
@@ -130,8 +132,9 @@ export class HomeComponent implements OnInit {
 
   insertCharAtIndex(text: string, index: number) {
     const pos = this.indexToPos(index);
+    console.log(pos);
     this.executeInsert(
-      text, pos.endLineNumber, pos.endColumn, pos.endLineNumber, pos.endColumn
+      text, pos.lineNumber, pos.column, pos.lineNumber, pos.column
     );
   }
 
