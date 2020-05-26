@@ -1,0 +1,86 @@
+SignalR Tutorial: https://www.youtube.com/watch?v=sdsCzyTtp6U&list=PLThyvG1mlMzltDxuQj0uQw1TDu1gJUNeG&index=9
+
+I.	Useful functions SignalR gives us (Video 9->14)
+	1.	Client side JavaScript
+		- connection.on("InsertCRDT", handleRemoteInsert(crdtData)) // receive message from the server
+		- connection.invoke("ServerMethodName", param1, param2,...) // call a specific function from the server
+		
+	2. Server side C#
+		- Clients.All.SendAsync("InsertCRDT", crdtData)	// Send message to all clients. 
+		- Clients.Caller.SendAsync("ClientMethodHandler", message) // Send message back to the client who initiate this request 
+		- Clients.Client(connectionId).SendAsync("ClientMethodHandle", message) // Send message to a specific client
+		- Context.ConnectionID // return this connection id
+		- Groups.AddToGroupAsync(connectionId, groupName) // Add this client to group if group exists. If not, create group and then add
+		- Clients.Group(groupName).SendAsync("ClientMethodHandler", message)	// Send message to group 
+		
+		- We can override OnConnectedAsync() and OnDisconnectedAsync()
+		
+II.	Client-Server Communication
+	1.	How server can send siteId to User?
+		
+		// C#
+		OnConnectedAsync()
+		{
+			Clients.Client(Context.ConnectionID).SendAsync("siteId", idCount++); // connection.on("siteId") will receive this message
+		}
+		
+		// Typescript
+		connection.on("siteId", (id) => {this.siteId = id})
+		
+	2.	How server can create groups, keep track of group?
+		
+		// Database
+		Room Table: RoomName(PK)
+		CRDT Table: CRDTId(PK), ch, RoomName(Foreign key)
+		
+		// C#
+		- When client enter codespot.com, immediately generate a unique RoomName such as "jRfd334kW" and send that to client
+		- Immediately do Groups.AddToGroupAsync(Context.ConnectionId, "jRfd334kW") to add current user to this room
+		- From now on, if new user want to enter this room, they can go to: codespot.com?jRfd334kW (pass room name as query string param)
+		- Whenever a user enter a room, store roomName on client side
+		
+	3.	Flow
+	
+		3.1 Local insert
+			
+			// Typescript
+			broadcastInsert(crdt: CRDT){
+				connection.invoke("executeInsert", crdt, this.roomName); // invoke "executeInsert" from server
+			}
+		
+			// C#
+			executeInsert(CRDTString crdt, string roomName)
+			{
+				if(crdt not in database)
+				{
+					add to database
+					broadcastInsert(crdt, roomName);
+				}
+			}
+			
+			broadcastInsert(CRDTString crdt, string roomName)
+			{
+				Clients.Group(roomName).SendAsync("RemoteInsert", crdt);	// connection.on("RemoteInsert") in 3.2 will receive this crdt
+				// Also, there is a function which will send message to all users in roomName EXCEPT current user. Use that one
+			}
+		
+		3.2	Remote insert
+		
+			// Typescript
+			connection.on("RemoteInsert", handleRemoteInsert(crdt));		// Send as CRDTString => remember to parse it back to CRDT
+			
+			handleRemoteInsert(crdt: CRDTString){
+				parse back to normal CRDT object
+				insert to crdt array and reflect changes on the editor
+			}
+		
+		
+		Note: localRemove() and remoteRemove() are similar
+		
+		
+		
+		
+		
+		
+		
+		

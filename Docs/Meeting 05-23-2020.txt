@@ -18,8 +18,8 @@
 
 5/ Chia việc
 	1/ Minh:
-		- Viết insertCrdtToSortedCrdtArr, removeCrdtFromSortedCrdtArr DONE
-		- Viết handleLocalDelete DONE
+		- Viết insertCrdtToSortedCrdtArr, removeCrdtFromSortedCrdtArr
+		- Viết handleLocalDelete
 	2/ Giang:
 		- Viết indexToLineAndCol
 		- Viết receiveAndExecuteRemoteInsert, receiveAndExecuteRemoteDelete (Editor.ts)
