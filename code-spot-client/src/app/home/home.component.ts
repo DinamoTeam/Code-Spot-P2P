@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { range } from 'rxjs';
+import { range } from "rxjs";
 
 declare const monaco: any;
 
@@ -103,8 +103,19 @@ export class HomeComponent implements OnInit {
   }
 
   // Write text to the screen
-  executeInsert(text: string, startLineNumber: number, startColumn: number, endLineNumber: number, endColumn: number) {
-    const range = new monaco.Range(startLineNumber, startColumn, endLineNumber, endColumn);
+  executeInsert(
+    text: string,
+    startLineNumber: number,
+    startColumn: number,
+    endLineNumber: number,
+    endColumn: number
+  ) {
+    const range = new monaco.Range(
+      startLineNumber,
+      startColumn,
+      endLineNumber,
+      endColumn
+    );
 
     this.editorTextModel.pushEditOperations(
       [],
@@ -118,13 +129,15 @@ export class HomeComponent implements OnInit {
   }
 
   posToIndex(endLineNumber: number, endColumn: number): number {
-    const startLineNumber = 1;
-    const startColumn = 1;
-    return this.editorTextModel.getValueLengthInRange(
-      new monaco.Range(startLineNumber, startColumn, endLineNumber, endColumn)
+    return this.editorTextModel.getOffsetAt(
+      new monaco.Position(endLineNumber, endColumn)
     );
 
     // FOR DEBUG: Print Value in Range
     //console.log("(" + this.editorTextModel.getValueInRange(new monaco.Range(1, 0, endLineNumber, endColumn)) + ")");
+  }
+
+  indexToPos(index: number): Position {
+    return this.editorTextModel.getPositionAt(index);
   }
 }
