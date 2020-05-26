@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { range } from 'rxjs';
 
 declare const monaco: any;
 
@@ -70,18 +71,7 @@ export class HomeComponent implements OnInit {
       this.onDidChangeModelContentHandler(e)
     );
 
-    // Write text to the screen
-    const line = this.editor.getPosition();
-    const range = new monaco.Range(line.lineNumber, 1, line.lineNumber, 1);
-    const id = { major: 1, minor: 1 };
-    const text = "FOO";
-    const op = {
-      identifier: id,
-      range: range,
-      text: text,
-      forceMoveMarkers: true,
-    };
-    this.editor.executeEdits("my-source", [op]);
+    this.executeInsert("Hello World!", 1, 1, 1, 1);
   }
 
   onDidPasteHandler(event: any) {
@@ -90,7 +80,7 @@ export class HomeComponent implements OnInit {
     console.log(rangeDetails);
   }
 
-  onDidChangeModelContentHandler(event: any) {
+  onDidChangeModelContentHandler(event: any): void {
     const change = event.changes[0];
 
     // The range that got replaced
@@ -109,6 +99,21 @@ export class HomeComponent implements OnInit {
     console.log(
       "Index: " +
         this.posToIndex(rangeDetails.endLineNumber, rangeDetails.endColumn)
+    );
+  }
+
+  // Write text to the screen
+  executeInsert(text: string, startLineNumber: number, startColumn: number, endLineNumber: number, endColumn: number) {
+    const range = new monaco.Range(startLineNumber, startColumn, endLineNumber, endColumn);
+
+    this.editorTextModel.pushEditOperations(
+      [],
+      [
+        {
+          range: range,
+          text: text,
+        },
+      ]
     );
   }
 
