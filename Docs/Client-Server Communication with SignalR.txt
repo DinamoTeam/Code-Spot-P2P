@@ -30,8 +30,9 @@ II.	Client-Server Communication
 	2.	How server can create groups, keep track of group?
 		
 		// Database
-		Room Table: RoomName(PK)
-		CRDT Table: CRDTId(PK), ch, RoomName(Foreign key)
+		Room: RoomName(PK)
+		CRDT: CRDTId(PK), ch, RoomName(Foreign key, ON CASCADE DELETE)
+		=> When a room is removed, all CRDT of that room will be removed automatically by SQL
 		
 		// C#
 		- When client enter codespot.com, immediately generate a unique RoomName such as "jRfd334kW" and send that to client
@@ -77,6 +78,12 @@ II.	Client-Server Communication
 		
 		Note: localRemove() and remoteRemove() are similar
 		
+III. Tasks to do
+	1.	Set up SignalR in both typescript and C#
+	2.	Add tables to database
+	3.	Write the remaining functions in Typescript
+	4.	Write the remaining functions in C#
+	5.	Run and test
 		
 		
 		
