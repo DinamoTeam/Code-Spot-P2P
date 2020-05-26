@@ -128,6 +128,13 @@ export class HomeComponent implements OnInit {
     );
   }
 
+  insertCharAtIndex(text: string, index: number) {
+    const pos = this.indexToPos(index);
+    this.executeInsert(
+      text, pos.endLineNumber, pos.endColumn, pos.endLineNumber, pos.endColumn
+    );
+  }
+
   posToIndex(endLineNumber: number, endColumn: number): number {
     return this.editorTextModel.getOffsetAt(
       new monaco.Position(endLineNumber, endColumn)
@@ -137,7 +144,7 @@ export class HomeComponent implements OnInit {
     //console.log("(" + this.editorTextModel.getValueInRange(new monaco.Range(1, 0, endLineNumber, endColumn)) + ")");
   }
 
-  indexToPos(index: number): Position {
+  indexToPos(index: number): any {
     return this.editorTextModel.getPositionAt(index);
   }
 }
