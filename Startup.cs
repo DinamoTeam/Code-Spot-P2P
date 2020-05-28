@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CodeSpot.Data;
+using CodeSpot.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -30,6 +31,7 @@ namespace CodeSpot
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 			services.AddDbContext<DataContext>(x => 
 				x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))); // Inside appsettings.json
+			services.AddSignalR();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +47,10 @@ namespace CodeSpot
 				app.UseHsts();
 			}
 
+			// app.UseSignalR must come before Use Mvc! Order matters!
+			app.UseSignalR(config => {
+				config.MapHub<MessageHub>("/messages");
+			});
 			app.UseHttpsRedirection();
 			app.UseMvc();
 		}
