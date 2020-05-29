@@ -47,7 +47,7 @@ II.	Client-Server Communication
 	
 		3.0 We need an extra class: CRDTString
 			class CRDTString{
-				id: string;	// CRDTId.toString(). Will look like <<3,4><5,4><7,5>9>
+				id: string;	// CRDTId.toString(). Will look like <<13,4><5,4><7,5>9>a
 				ch: string;
 			}
 			// Need a function to parse string back to object

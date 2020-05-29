@@ -15,8 +15,12 @@ export class CRDT {
     this.id = id;
   }
 
+  toString(): string {
+    return this.id.toString() + this.ch;
+  }
+
   // Compare CRDT by its id
-  compareTo(other: CRDT): number { 
+  compareTo(other: CRDT): number {
     return this.id.compareTo(other.id);
   }
 }
