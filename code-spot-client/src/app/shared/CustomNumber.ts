@@ -4,7 +4,7 @@ export class CustomNumber {
 
   // Don't use BASE too large (less than 2^50).
   // Reason: Number.MAX_SAFE_INTEGER = 2^53 - 1. This class will have some adding. I don't want overflow
-  static readonly BASE = 5165198;   // 'constant'
+  static readonly BASE = 56161561;   // 'constant'
   arr: number[];
 
   constructor(list: number[]) {
