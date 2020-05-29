@@ -49,7 +49,7 @@ namespace CodeSpot
 
 			// app.UseSignalR must come before Use Mvc! Order matters!
 			app.UseSignalR(config => {
-				config.MapHub<MessageHub>("/MessageHub");
+				config.MapHub<MessageHub>("/ServerMessageHub");
 			});
 			app.UseHttpsRedirection();
 			app.UseMvc();
