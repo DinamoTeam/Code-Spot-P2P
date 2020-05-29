@@ -19,6 +19,54 @@ export class CRDT {
     return this.id.toString() + this.ch;
   }
 
+  static parse(crdtStr: string): CRDT {
+    let tokens = crdtStr.split('');
+    tokens.shift();
+
+    // Get char
+    const ch = String(tokens.pop());
+
+    // Get clock value
+    let clockArr = []
+    let i = tokens.length - 2;
+    while (i > 0) {
+      if (tokens[i] == '>')
+        break
+
+      clockArr.unshift(tokens[i]);
+      i--;
+    }
+
+    const clockValue = Number(clockArr.join(''));
+    tokens = tokens.slice(0, i + 1);
+
+     // Get identifiers
+    let identifiers = new Array<Identifier>();
+    let beg = 0;
+    let end = 0;
+    while (end < tokens.length) {
+      if (tokens[end] == '>') {
+        let tempArr = tokens.slice(beg + 1, end);
+        let identifierStr = tempArr.join('');
+        let identifierNums = identifierStr.split(',');
+
+        let identifier = new Identifier(Number(identifierNums[0]), Number(identifierNums[1]));
+
+        identifiers.push(identifier);
+
+        end++;
+        beg = end;
+      }
+
+      end++;
+    }
+
+    const crdtId = new CRDTId(identifiers, clockValue);
+    const crdt = new CRDT(ch, crdtId);
+
+    return crdt;
+  }
+
   // Compare CRDT by its id
   compareTo(other: CRDT): number {
     return this.id.compareTo(other.id);
