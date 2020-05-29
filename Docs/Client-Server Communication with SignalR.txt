@@ -15,6 +15,9 @@ I.	Useful functions SignalR gives us (Video 9->14)
 		
 		- We can override OnConnectedAsync() and OnDisconnectedAsync()
 		
+		
+		
+		
 II.	Client-Server Communication
 	1.	How server can send siteId to User?
 		
@@ -30,8 +33,9 @@ II.	Client-Server Communication
 	2.	How server can create groups, keep track of group?
 		
 		// Database
-		Room Table: RoomName(PK)
-		CRDT Table: CRDTId(PK), ch, RoomName(Foreign key)
+		Room: RoomName(PK) // Use GUID
+		CRDT: CRDTId(PK), ch, RoomName(Foreign key, ON CASCADE DELETE)
+		=> When a room is removed, all CRDT of that room will be removed automatically by SQL
 		
 		// C#
 		- When client enter codespot.com, immediately generate a unique RoomName such as "jRfd334kW" and send that to client
@@ -41,35 +45,46 @@ II.	Client-Server Communication
 		
 	3.	Flow
 	
+		3.0 We need an extra class: CRDTString
+			class CRDTString{
+				id: string;	// CRDTId.toString(). Will look like <<13,4><5,4><7,5>9>a
+				ch: string;
+			}
+			// Need a function to parse string back to object
+			
+			class Message{
+				connectionId: string;
+				content: string;
+			}
+	
 		3.1 Local insert
 			
 			// Typescript
 			broadcastInsert(crdt: CRDT){
-				connection.invoke("executeInsert", crdt, this.roomName); // invoke "executeInsert" from server
+				connection.invoke("executeInsert", message: Message, this.roomName); // invoke "executeInsert" from server
 			}
 		
 			// C#
-			executeInsert(CRDTString crdt, string roomName)
+			executeInsert(CRDTString crdtString, string roomName)
 			{
-				if(crdt not in database)
+				if(crdtString not in database)
 				{
 					add to database
-					broadcastInsert(crdt, roomName);
+					broadcastInsert(crdtString, roomName);
 				}
 			}
 			
-			broadcastInsert(CRDTString crdt, string roomName)
+			broadcastInsert(CRDTString crdtString, string roomName)
 			{
-				Clients.Group(roomName).SendAsync("RemoteInsert", crdt);	// connection.on("RemoteInsert") in 3.2 will receive this crdt
-				// Also, there is a function which will send message to all users in roomName EXCEPT current user. Use that one
+				Clients.OthersInGroup(roomName).SendAsync("RemoteInsert", crdtString);	// connection.on("RemoteInsert") in 3.2 will receive this crdt
 			}
 		
 		3.2	Remote insert
 		
 			// Typescript
-			connection.on("RemoteInsert", handleRemoteInsert(crdt));		// Send as CRDTString => remember to parse it back to CRDT
+			connection.on("RemoteInsert", handleRemoteInsert(crdtString));		// Send as CRDTString => remember to parse it back to CRDT
 			
-			handleRemoteInsert(crdt: CRDTString){
+			handleRemoteInsert(crdtString: CRDTString){
 				parse back to normal CRDT object
 				insert to crdt array and reflect changes on the editor
 			}
@@ -77,6 +92,12 @@ II.	Client-Server Communication
 		
 		Note: localRemove() and remoteRemove() are similar
 		
+III. Tasks to do
+	1.	Set up SignalR in both typescript and C#
+	2.	Add tables to database
+	3.	Write the remaining functions in Typescript
+	4.	Write the remaining functions in C#
+	5.	Run and test
 		
 		
 		

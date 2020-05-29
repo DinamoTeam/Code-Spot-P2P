@@ -1,0 +1,15 @@
+I.	Minh vừa chỉnh cái CRDTString cho consistent
+
+II.	Giang có hỏi / bổ sung / thay đổi gì về system ko?
+
+III. Chia việc
+	1.	Set up SignalR in both typescript and C# (ASNPNET-signalR)
+	
+	2.	Add tables to database (Add Migrations) Minh 
+	3.	Write the remaining functions in Typescript => Giang
+	4.	Write the remaining functions in C# => Minh
+	5.	Run and test
+	
+IV.	Giải thích generatePositionsBetween nếu Giang muốn (not important)
+
+V.	Peer to Peer PeerJS
