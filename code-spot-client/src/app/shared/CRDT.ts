@@ -15,10 +15,6 @@ export class CRDT {
     this.id = id;
   }
 
-  toString(): string {
-    return this.id.toString() + this.ch;
-  }
-
   static parse(crdtStr: string): CRDT {
     let tokens = crdtStr.split('');
     tokens.shift();
@@ -27,11 +23,12 @@ export class CRDT {
     const ch = String(tokens.pop());
 
     // Get clock value
-    let clockArr = []
+    const clockArr = [];
     let i = tokens.length - 2;
     while (i > 0) {
-      if (tokens[i] == '>')
-        break
+      if (tokens[i] === '>') {
+        break;
+      }
 
       clockArr.unshift(tokens[i]);
       i--;
@@ -40,17 +37,20 @@ export class CRDT {
     const clockValue = Number(clockArr.join(''));
     tokens = tokens.slice(0, i + 1);
 
-     // Get identifiers
-    let identifiers = new Array<Identifier>();
+    // Get identifiers
+    const identifiers = new Array<Identifier>();
     let beg = 0;
     let end = 0;
     while (end < tokens.length) {
-      if (tokens[end] == '>') {
-        let tempArr = tokens.slice(beg + 1, end);
-        let identifierStr = tempArr.join('');
-        let identifierNums = identifierStr.split(',');
+      if (tokens[end] === '>') {
+        const tempArr = tokens.slice(beg + 1, end);
+        const identifierStr = tempArr.join('');
+        const identifierNums = identifierStr.split(',');
 
-        let identifier = new Identifier(Number(identifierNums[0]), Number(identifierNums[1]));
+        const identifier = new Identifier(
+          Number(identifierNums[0]),
+          Number(identifierNums[1])
+        );
 
         identifiers.push(identifier);
 
@@ -67,6 +67,10 @@ export class CRDT {
     return crdt;
   }
 
+  toString(): string {
+    return this.id.toString() + this.ch;
+  }
+
   // Compare CRDT by its id
   compareTo(other: CRDT): number {
     return this.id.compareTo(other.id);
@@ -75,7 +79,7 @@ export class CRDT {
 
 /* CRDTId is equivalent to position identifier in Logoot paper page 4 definition 1 */
 export class CRDTId {
-  arr: Identifier[];   /* arr is equivalent to position in Logoot paper page 4 definition 1 line 3 */
+  arr: Identifier[]; /* arr is equivalent to position in Logoot paper page 4 definition 1 line 3 */
   clockValue: number;
 
   constructor(identifierArr: Identifier[], clock: number) {
@@ -91,31 +95,6 @@ export class CRDTId {
     return new CRDTId(deepCopiedArr, crdtId.clockValue);
   }
 
-  // Compare 2 identifier arrays from left to right. Terminate if one identifier is bigger than the other
-  // If one array runs out of length, the longer is the bigger
-  compareTo(other: CRDTId): number {
-    let length1 = this.arr.length;
-    let length2 = other.arr.length;
-    let smallerLength = Math.min(length1, length2);
-
-    // Compare corresponding identifiers inside arr
-    for (let i = 0; i < smallerLength; i++) {
-      if (this.arr[i].compareTo(other.arr[i]) == 0) {
-        continue;   // Equal => move onto the next
-      }
-      else {
-        return this.arr[i].compareTo(other.arr[i]); // Otherwise, the ith identifiers determine smaller/bigger
-      }
-    }
-
-    // If we go to the end of one arr, it means the "beginning part" is exactly equal
-    // => If equal length, compare by clockValue. Otherwise, the one longer is bigger 
-    if (length1 === length2) { // This rarely, rarely happens!
-      return this.clockValue - other.clockValue;
-    }
-    return length1 - length2;
-  }
-
   // Generate an CRDTId in between id1 and id2
   // Rough idea: 2 cases
   // Case 1: First non match indices - their digits are different
@@ -123,13 +102,19 @@ export class CRDTId {
   // idBetweenId1AndId2 = id1 + lessThanDeltaButBiggerThanZero
   // Case 2: First non match indices - their sites are different
   // Fills the tail id2 with BASE-1, then do similar thing as case 1
-  static generatePositionBetween(id1: CRDTId, id2: CRDTId, siteId: number, clock: number): CRDTId {
+  static generatePositionBetween(
+    id1: CRDTId,
+    id2: CRDTId,
+    siteId: number,
+    clock: number
+  ): CRDTId {
     let index = 0;
     const shorterLength = Math.min(id1.arr.length, id2.arr.length);
 
     // Find the first different index
     while (index < shorterLength) {
-      if (id1.arr[index].compareTo(id2.arr[index]) != 0) {    // First time not match
+      if (id1.arr[index].compareTo(id2.arr[index]) !== 0) {
+        // First time not match
         break;
       }
       index++;
@@ -139,18 +124,23 @@ export class CRDTId {
     let prefix2: CustomNumber;
     let delta = new CustomNumber([0]);
 
-    if (index === shorterLength || id1.arr[index].digit !== id2.arr[index].digit) {  // digits are different
-      index--;  // decrease to fit with the while loop below
+    if (
+      index === shorterLength ||
+      id1.arr[index].digit !== id2.arr[index].digit
+    ) {
+      // digits are different
+      index--; // decrease to fit with the while loop below
       // loop until delta >= 2. (Eg: 7-5=2 => There's 1 spot for 6 in the middle. 7-6=1 doesn't work)
       // Note: use prefix is enough because 2 > 1341242 (like version number) - we know it's bigger right from the first index
-      while (delta.compareTo(new CustomNumber([2])) < 0) { // while delta < 2
+      while (delta.compareTo(new CustomNumber([2])) < 0) {
+        // while delta < 2
         index++;
         prefix1 = CRDTId.prefix(id1, index);
         prefix2 = CRDTId.prefix(id2, index);
         delta = CustomNumber.subtractGreaterThan(prefix2, prefix1);
       }
-    }
-    else {   // same digit but different siteIds
+    } else {
+      // same digit but different siteIds
 
       // id1 = <1, 1>...
       // id2 = <1, 3>...
@@ -160,7 +150,7 @@ export class CRDTId {
 
       // No need to do index--
       prefix2 = CRDTId.prefix(id2, index);
-      
+
       // generate something bigger than id1.arr[index+1->id1.arr.length-1]
       while (delta.compareTo(new CustomNumber([2])) < 0) {
         index++;
@@ -169,11 +159,20 @@ export class CRDTId {
         delta = CustomNumber.subtractGreaterThan(prefix2, prefix1);
       }
     }
-    
-    const smallerThanDelta = CustomNumber.generateLessThan(delta); // < delta but > 0
-    const numberBetweenPrefix1AndPrefix2 = CustomNumber.add(prefix1, smallerThanDelta); // idBetween = id1 + lessThanDelta
 
-    const newCRDTIdBetweenId1AndId2 = CRDTId.constructPosition(numberBetweenPrefix1AndPrefix2, id1, id2, siteId, clock);
+    const smallerThanDelta = CustomNumber.generateLessThan(delta); // < delta but > 0
+    const numberBetweenPrefix1AndPrefix2 = CustomNumber.add(
+      prefix1,
+      smallerThanDelta
+    ); // idBetween = id1 + lessThanDelta
+
+    const newCRDTIdBetweenId1AndId2 = CRDTId.constructPosition(
+      numberBetweenPrefix1AndPrefix2,
+      id1,
+      id2,
+      siteId,
+      clock
+    );
     return newCRDTIdBetweenId1AndId2;
   }
 
@@ -181,11 +180,13 @@ export class CRDTId {
   // Add 0 to the back if arr.length < num, and then convert to a CustomNumber
   static prefix(id: CRDTId, index: number): CustomNumber {
     const num = index + 1;
-    const numZerosToTheBack = (num > id.arr.length) ? (num - id.arr.length) : 0;
-    const digitOnly = id.arr.map(i => i.digit);
+    const numZerosToTheBack = num > id.arr.length ? num - id.arr.length : 0;
+    const digitOnly = id.arr.map((i) => i.digit);
     let resultArr: number[];
     if (id.arr.length < num) {
-      resultArr = digitOnly.concat(new Array<number>(numZerosToTheBack).fill(0));
+      resultArr = digitOnly.concat(
+        new Array<number>(numZerosToTheBack).fill(0)
+      );
     } else {
       resultArr = digitOnly.slice(0, num);
     }
@@ -193,15 +194,23 @@ export class CRDTId {
   }
 
   // Implement exactly as Logoot paper, bottom of page 4
-  static constructPosition(digits: CustomNumber, id1: CRDTId, id2: CRDTId, siteId: number, clock: number): CRDTId {
+  static constructPosition(
+    digits: CustomNumber,
+    id1: CRDTId,
+    id2: CRDTId,
+    siteId: number,
+    clock: number
+  ): CRDTId {
     const identifiersArray = new Array<Identifier>(digits.arr.length);
 
     for (let i = 0; i < identifiersArray.length; i++) {
       if (i === identifiersArray.length - 1) {
         identifiersArray[i] = new Identifier(digits.arr[i], siteId);
-      } else if (id1.arr[i] && digits.arr[i] === id1.arr[i].digit) { // id1.arr[i] might not exist
+      } else if (id1.arr[i] && digits.arr[i] === id1.arr[i].digit) {
+        // id1.arr[i] might not exist
         identifiersArray[i] = new Identifier(digits.arr[i], id1.arr[i].siteId);
-      } else if (id2.arr[i] && digits.arr[i] === id2.arr[i].digit) { // id2.arr[i] might not exist
+      } else if (id2.arr[i] && digits.arr[i] === id2.arr[i].digit) {
+        // id2.arr[i] might not exist
         identifiersArray[i] = new Identifier(digits.arr[i], id2.arr[i].siteId);
       } else {
         identifiersArray[i] = new Identifier(digits.arr[i], siteId);
@@ -210,7 +219,6 @@ export class CRDTId {
 
     return new CRDTId(identifiersArray, clock);
   }
-
 
   toString(): string {
     let description = '<';
@@ -221,11 +229,35 @@ export class CRDTId {
     return description;
   }
 
+  // Compare 2 identifier arrays from left to right. Terminate if one identifier is bigger than the other
+  // If one array runs out of length, the longer is the bigger
+  compareTo(other: CRDTId): number {
+    const length1 = this.arr.length;
+    const length2 = other.arr.length;
+    const smallerLength = Math.min(length1, length2);
+
+    // Compare corresponding identifiers inside arr
+    for (let i = 0; i < smallerLength; i++) {
+      if (this.arr[i].compareTo(other.arr[i]) === 0) {
+        continue; // Equal => move onto the next
+      } else {
+        return this.arr[i].compareTo(other.arr[i]); // Otherwise, the ith identifiers determine smaller/bigger
+      }
+    }
+
+    // If we go to the end of one arr, it means the "beginning part" is exactly equal
+    // => If equal length, compare by clockValue. Otherwise, the one longer is bigger
+    if (length1 === length2) {
+      // This rarely, rarely happens!
+      return this.clockValue - other.clockValue;
+    }
+    return length1 - length2;
+  }
 }
 
 export class Identifier {
-  digit: number;     /* digit is equivalent to pos in Logoot paper page 4 definition 1 line 1 */
-  siteId: number;    // siteId is an integer for now, maybe we will use a Universal ID generator library later
+  digit: number; /* digit is equivalent to pos in Logoot paper page 4 definition 1 line 1 */
+  siteId: number; // siteId is an integer for now, maybe we will use a Universal ID generator library later
 
   constructor(digit: number, siteId: number) {
     this.digit = digit;
@@ -238,7 +270,7 @@ export class Identifier {
 
   // Compare by digit, use siteId to break tie
   compareTo(other: Identifier): number {
-    if (this.digit == other.digit) {
+    if (this.digit === other.digit) {
       return this.siteId - other.siteId;
     }
     return this.digit - other.digit;

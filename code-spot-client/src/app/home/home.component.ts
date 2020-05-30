@@ -1,21 +1,21 @@
-import { Component, OnInit, Input, NgZone } from "@angular/core";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { EditorService } from "../services/editor.service";
-import { MessageService } from "../services/message.service";
+import { Component, OnInit, Input, NgZone } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { EditorService } from '../services/editor.service';
+import { MessageService } from '../services/message.service';
 
 declare const monaco: any;
 
 @Component({
-  selector: "app-home",
-  templateUrl: "./home.component.html",
-  styleUrls: ["./home.component.css"],
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
   editor: any;
   editorTextModel: any;
   selectedLang: string;
   languageForm = new FormGroup({
-    language: new FormControl("cpp", Validators.compose([Validators.required])),
+    language: new FormControl('cpp', Validators.compose([Validators.required])),
   });
 
   constructor(
@@ -25,43 +25,43 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.selectedLang = "cpp";
+    this.selectedLang = 'cpp';
   }
 
   @Input() languages = [
-    { name: "C++", value: "cpp" },
-    { name: "C#", value: "csharp" },
-    { name: "Java", value: "java" },
-    { name: "Python", value: "python" },
-    { name: "JavaScript", value: "javascript" },
+    { name: 'C++', value: 'cpp' },
+    { name: 'C#', value: 'csharp' },
+    { name: 'Java', value: 'java' },
+    { name: 'Python', value: 'python' },
+    { name: 'JavaScript', value: 'javascript' },
   ];
 
-  editorOptions = { theme: "vs-dark", language: "cpp" };
+  editorOptions = { theme: 'vs-dark', language: 'cpp' };
   code: string = 'function x() {\nconsole.log("Hello world!");\n}';
 
   onLanguageChange(res) {
-    this.selectedLang = res.slice(res.indexOf(":") + 2);
+    this.selectedLang = res.slice(res.indexOf(':') + 2);
     console.log(this.selectedLang);
 
-    if (this.selectedLang == "cpp") {
+    if (this.selectedLang === 'cpp') {
       this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: "cpp",
+        language: 'cpp',
       });
-    } else if (this.selectedLang == "javascript") {
+    } else if (this.selectedLang === 'javascript') {
       this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: "javascript",
+        language: 'javascript',
       });
-    } else if (this.selectedLang == "csharp") {
+    } else if (this.selectedLang === 'csharp') {
       this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: "csharp",
+        language: 'csharp',
       });
-    } else if (this.selectedLang == "java") {
+    } else if (this.selectedLang === 'java') {
       this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: "java",
+        language: 'java',
       });
-    } else if (this.selectedLang == "python") {
+    } else if (this.selectedLang === 'python') {
       this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: "python",
+        language: 'python',
       });
     }
   }
@@ -78,7 +78,7 @@ export class HomeComponent implements OnInit {
 
     this.editorService.executeInsert(
       this.editorTextModel,
-      "Hello World!",
+      'Hello World!',
       1,
       1,
       1,
@@ -88,7 +88,7 @@ export class HomeComponent implements OnInit {
 
   onDidPasteHandler(event: any) {
     const rangeDetails = event;
-    console.log("Pasted range" + rangeDetails);
+    console.log('Pasted range' + rangeDetails);
     console.log(rangeDetails);
   }
 
@@ -97,19 +97,19 @@ export class HomeComponent implements OnInit {
 
     // The range that got replaced
     const rangeDetails = change.range;
-    console.log("Range Details: " + rangeDetails);
+    console.log('Range Details: ' + rangeDetails);
     console.log(rangeDetails);
 
     // Length of the range that got replaced
     const rangeLen = change.rangeLength;
-    console.log("Range Length: " + rangeLen);
+    console.log('Range Length: ' + rangeLen);
 
     // The new text for the range (! \n can't see)
     const newText = change.text;
-    console.log("New text: |" + newText + "|");
+    console.log('New text: |' + newText + '|');
 
     console.log(
-      "Index: " +
+      'Index: ' +
         this.editorService.posToIndex(
           this.editorTextModel,
           rangeDetails.endLineNumber,

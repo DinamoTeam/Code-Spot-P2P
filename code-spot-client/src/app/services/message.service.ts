@@ -1,8 +1,8 @@
-import { EventEmitter, Injectable } from "@angular/core";
-import { HubConnection, HubConnectionBuilder } from "@aspnet/signalr";
+import { EventEmitter, Injectable } from '@angular/core';
+import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class MessageService {
   private connectionIsEstablished: boolean = false;
@@ -18,7 +18,7 @@ export class MessageService {
 
   private createConnection() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(window.location.href + "ServerMessageHub")
+      .withUrl(window.location.href + 'ServerMessageHub')
       .build();
   }
 
@@ -27,12 +27,12 @@ export class MessageService {
       .start()
       .then(() => {
         this.connectionIsEstablished = true;
-        console.log("Connection with SignalR started!");
+        console.log('Connection with SignalR started!');
         this.connectionEstablished.emit(true);
       })
       .catch((err) => {
         console.log(
-          "Error while establishing connection with SignalR, reconecting..."
+          'Error while establishing connection with SignalR, reconecting...'
         );
         setTimeout(function () {
           this.startConnection();

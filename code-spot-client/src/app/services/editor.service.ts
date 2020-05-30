@@ -1,9 +1,9 @@
-import { Injectable } from "@angular/core";
-import { CRDT, CRDTId, Identifier } from "../shared/CRDT";
-import { CustomNumber } from "../shared/CustomNumber";
+import { Injectable } from '@angular/core';
+import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
+import { CustomNumber } from '../shared/CustomNumber';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class EditorService {
   arr: CRDT[];
@@ -12,12 +12,12 @@ export class EditorService {
   constructor() {
     this.arr = new Array<CRDT>();
     this.arr[0] = new CRDT(
-      "_beg",
+      '_beg',
       new CRDTId([new Identifier(1, 0)], this.curClock++)
     );
 
     this.arr[1] = new CRDT(
-      "_end",
+      '_end',
       new CRDTId([new Identifier(CustomNumber.BASE, 0)], this.curClock++)
     );
   }
@@ -57,13 +57,13 @@ export class EditorService {
     for (let i = 1; i < crdtArr.length - 1; i++) {
       // ignore borders at 0 and length-1
       if (crdt.compareTo(crdtArr[i]) === 0) {
-        throw new Error("Cannot insert duplicate element into CRDT Array!");
+        throw new Error('Cannot insert duplicate element into CRDT Array!');
       } else if (crdt.compareTo(crdtArr[i]) > 0) {
         crdtArr.splice(i, 0, crdt);
         return i;
       }
     }
-    throw new Error("Failed to insert crdt object inside the borders");
+    throw new Error('Failed to insert crdt object inside the borders');
   }
 
   broadCastInsert(crdt: CRDT): void {
@@ -81,7 +81,7 @@ export class EditorService {
       }
     }
     throw new Error(
-      "Fail to delete crdt object! The object does not exist inside the array"
+      'Fail to delete crdt object! The object does not exist inside the array'
     );
   }
 
@@ -140,7 +140,7 @@ export class EditorService {
     );
 
     // FOR DEBUG: Print Value in Range
-    //console.log("(" + this.editorTextModel.getValueInRange(new monaco.Range(1, 0, endLineNumber, endColumn)) + ")");
+    // console.log("(" + this.editorTextModel.getValueInRange(new monaco.Range(1, 0, endLineNumber, endColumn)) + ")");
   }
 
   indexToPos(editorTextModel: any, index: number): any {
