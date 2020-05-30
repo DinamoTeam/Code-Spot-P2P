@@ -1,6 +1,7 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, NgZone } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { EditorService } from "../services/editor.service";
+import { MessageService } from "../services/message.service";
 
 declare const monaco: any;
 
@@ -10,14 +11,18 @@ declare const monaco: any;
   styleUrls: ["./home.component.css"],
 })
 export class HomeComponent implements OnInit {
-  constructor(public editorService: EditorService) {}
-
   editor: any;
   editorTextModel: any;
   selectedLang: string;
   languageForm = new FormGroup({
     language: new FormControl("cpp", Validators.compose([Validators.required])),
   });
+
+  constructor(
+    public editorService: EditorService,
+    private messageService: MessageService,
+    private ngZone: NgZone
+  ) {}
 
   ngOnInit() {
     this.selectedLang = "cpp";
@@ -112,4 +117,6 @@ export class HomeComponent implements OnInit {
         )
     );
   }
+
+  subscribeToSignalrEvents(): void {}
 }

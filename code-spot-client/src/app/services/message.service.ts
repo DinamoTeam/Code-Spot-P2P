@@ -10,7 +10,11 @@ export class MessageService {
 
   private hubConnection: HubConnection;
 
-  constructor() {}
+  constructor() {
+    this.createConnection();
+    // Register server events here
+    this.startConnection();
+  }
 
   private createConnection() {
     this.hubConnection = new HubConnectionBuilder()
@@ -36,6 +40,7 @@ export class MessageService {
       });
   }
 
+  /******************** SignalR Template ***************************
   private receiveMessageTemplate(): void {
     this.hubConnection.on("NameofJSReceiverMethod", (data: any) => {
       console.log("Received this from the server " + data);
@@ -45,4 +50,5 @@ export class MessageService {
   private invokeServerMethodTemplate(message: string) {
     this.hubConnection.invoke("NameofServerMethodToInvoke", message);
   }
+  */
 }
