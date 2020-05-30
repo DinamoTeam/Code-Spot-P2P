@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { range } from "rxjs";
+import { EditorService } from "../services/editor.service";
 
 declare const monaco: any;
 
@@ -10,7 +10,7 @@ declare const monaco: any;
   styleUrls: ["./home.component.css"],
 })
 export class HomeComponent implements OnInit {
-  constructor() {}
+  constructor(public editorService: EditorService) {}
 
   editor: any;
   editorTextModel: any;
@@ -71,7 +71,14 @@ export class HomeComponent implements OnInit {
       this.onDidChangeModelContentHandler(e)
     );
 
-    this.executeInsert("Hello World!", 1, 1, 1, 1);
+    this.editorService.executeInsert(
+      this.editorTextModel,
+      "Hello World!",
+      1,
+      1,
+      1,
+      1
+    );
   }
 
   onDidPasteHandler(event: any) {
@@ -98,56 +105,11 @@ export class HomeComponent implements OnInit {
 
     console.log(
       "Index: " +
-        this.posToIndex(rangeDetails.endLineNumber, rangeDetails.endColumn)
+        this.editorService.posToIndex(
+          this.editorTextModel,
+          rangeDetails.endLineNumber,
+          rangeDetails.endColumn
+        )
     );
-
-    
-  }
-
-  // Write text to the screen
-  executeInsert(
-    text: string,
-    startLineNumber: number,
-    startColumn: number,
-    endLineNumber: number,
-    endColumn: number
-  ) {
-    const range = new monaco.Range(
-      startLineNumber,
-      startColumn,
-      endLineNumber,
-      endColumn
-    );
-
-    this.editorTextModel.pushEditOperations(
-      [],
-      [
-        {
-          range: range,
-          text: text,
-        },
-      ]
-    );
-  }
-
-  insertCharAtIndex(text: string, index: number) {
-    const pos = this.indexToPos(index);
-    console.log(pos);
-    this.executeInsert(
-      text, pos.lineNumber, pos.column, pos.lineNumber, pos.column
-    );
-  }
-
-  posToIndex(endLineNumber: number, endColumn: number): number {
-    return this.editorTextModel.getOffsetAt(
-      new monaco.Position(endLineNumber, endColumn)
-    );
-
-    // FOR DEBUG: Print Value in Range
-    //console.log("(" + this.editorTextModel.getValueInRange(new monaco.Range(1, 0, endLineNumber, endColumn)) + ")");
-  }
-
-  indexToPos(index: number): any {
-    return this.editorTextModel.getPositionAt(index);
   }
 }
