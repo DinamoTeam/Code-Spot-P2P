@@ -4,6 +4,7 @@
 CRDT.js
 CustomNumber.js
 TestCRDT.js
+TestCustomNumber.js
 
 # compiled output
 /dist
