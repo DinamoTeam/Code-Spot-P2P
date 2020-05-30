@@ -58,7 +58,14 @@ namespace CodeSpot.Hubs
 
         private string generateRoomName()
 		{
-			return "Todo";
+			while (true)
+			{
+				string randomName = Guid.NewGuid().ToString();
+				if (_database.Rooms.FirstOrDefault(r => r.Name == randomName) == null)
+				{
+					return randomName;
+				}
+			}
 		}
 
 
