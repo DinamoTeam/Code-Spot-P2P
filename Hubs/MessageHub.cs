@@ -1,36 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Code_Spot.Data.DTO;
+﻿using Code_Spot.Data.DTO;
 using Code_Spot.Models;
 using CodeSpot.Data;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CodeSpot.Hubs
 {
-    public class MessageHub : Hub
-    {
-        private static long curId = 1;
-        private readonly DataContext _database;
+	public class MessageHub : Hub
+	{
+		private static long curId = 1;
+		private readonly DataContext _database;
 
-        public MessageHub(DataContext database)
-        {
-            _database = database;
-        }
+		public MessageHub(DataContext database)
+		{
+			_database = database;
+		}
 
-        public override async Task OnConnectedAsync()
-        {
-            string clientId = "" + (curId++);
-			await Clients.Client(Context.ConnectionId).SendAsync("MessageFromServer", new MessageDTO() { Type = "SiteId", Content = clientId });
-            await base.OnConnectedAsync();
-        }
+		public override async Task OnConnectedAsync()
+		{
+			string clientId = (curId++).ToString();
+			await Clients.Client(Context.ConnectionId).SendAsync("MessageFromServer", new MessageDTO() { Type = MessageType.SiteId, Content = clientId });
+			await base.OnConnectedAsync();
+		}
 
-        public override async Task OnDisconnectedAsync(Exception e)
-        {
-            await base.OnDisconnectedAsync(e);
-        }
+		public override async Task OnDisconnectedAsync(Exception e)
+		{
+			await base.OnDisconnectedAsync(e);
+		}
 
 		public async Task CreateNewRoom()
 		{
@@ -38,7 +37,7 @@ namespace CodeSpot.Hubs
 			_database.Rooms.Add(new Room(roomName));
 			await _database.SaveChangesAsync();
 			await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
-			await SendMessageToCallerClient("RoomName", roomName);
+			await SendMessageToCallerClient(MessageType.RoomName, roomName);
 		}
 
 		public async Task JoinExistingRoom(string roomName)
@@ -50,10 +49,10 @@ namespace CodeSpot.Hubs
 
 		public async Task SendPreviousMessagesToCaller(string roomName)
 		{
-			string result = "";
+			string result = string.Empty;
 			await _database.CRDTs.Where(c => c.RoomName == roomName)
-								 .ForEachAsync(c => {result += c.CRDTObject + '\n';});
-			await SendMessageToCallerClient("AllMessages", result);
+								 .ForEachAsync(c => { result += c.CRDTObject + '\n'; });
+			await SendMessageToCallerClient(MessageType.AllMessages, result);
 		}
 
 		public async Task ExecuteInsert(string content, string roomName)
@@ -66,7 +65,7 @@ namespace CodeSpot.Hubs
 			{
 				_database.CRDTs.Add(new CRDT(crdtObject, roomName));
 				await _database.SaveChangesAsync();
-				await SendMessageToOtherClientsInGroup(roomName, "RemoteInsert", content);
+				await SendMessageToOtherClientsInGroup(roomName, MessageType.RemoteInsert, content);
 			}
 		}
 
@@ -80,7 +79,7 @@ namespace CodeSpot.Hubs
 			{
 				_database.CRDTs.Remove(crdtFromDb);
 				await _database.SaveChangesAsync();
-				await SendMessageToOtherClientsInGroup(roomName, "RemoteRemove", content);
+				await SendMessageToOtherClientsInGroup(roomName, MessageType.RemoteRemove, content);
 			}
 		}
 
@@ -89,7 +88,7 @@ namespace CodeSpot.Hubs
 			while (true)
 			{
 				string randomName = Guid.NewGuid().ToString();
-				Console.WriteLine("RANDOM NAME: " + randomName);
+
 				if (_database.Rooms.FirstOrDefault(r => r.Name == randomName) == null)
 				{
 					return randomName;
@@ -106,5 +105,14 @@ namespace CodeSpot.Hubs
 		{
 			await Clients.OthersInGroup(roomName).SendAsync("MessageFromServer", new MessageDTO() { Type = type, Content = content });
 		}
+	}
+
+	public sealed class MessageType
+	{
+		public const string SiteId = "SiteId";
+		public const string RoomName = "RoomName";
+		public const string RemoteInsert = "RemoteInsert";
+		public const string RemoteRemove = "RemoteRemove";
+		public const string AllMessages = "AllMessages";
 	}
 }
