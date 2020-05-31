@@ -30,6 +30,9 @@ export class EditorService {
       '_end',
       new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], this.curClock++)
     ));
+
+    console.log('OUR CRDT ARRAY: ');
+    console.log(this.arr);
   }
 
   handleLocalInsert(

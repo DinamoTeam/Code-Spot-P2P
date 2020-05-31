@@ -83,14 +83,14 @@ export class HomeComponent implements OnInit {
       this.onDidChangeModelContentHandler(e)
     );
 
-    this.editorService.executeInsert(
+    /*this.editorService.executeInsert(
       this.editorTextModel,
       'Hello World!',
       1,
       1,
       1,
       1
-    );
+    );*/
   }
 
   onDidPasteHandler(event: any) {

@@ -3,7 +3,7 @@ import { CRDT } from './CRDT';
 export class Utils {
   // Prototype: linear search. Future: binary search
   static insertCrdtToSortedCrdtArr(crdt: CRDT, crdtArr: CRDT[]): number {
-    for (let i = 1; i < crdtArr.length - 1; i++) {
+    for (let i = 1; i < crdtArr.length; i++) {
       // ignore borders at 0 and length-1
       if (crdt.compareTo(crdtArr[i]) === 0) {
         throw new Error('Cannot insert duplicate element into CRDT Array!');
