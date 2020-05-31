@@ -26,7 +26,10 @@ export class HomeComponent implements OnInit {
     private messageService: MessageService,
     private ngZone: NgZone,
     private actRoute: ActivatedRoute
-  ) { this.subscribeToSignalrEvents(); this.getRoomName(); }
+  ) {
+    this.subscribeToSignalrEvents();
+    this.getRoomName();
+  }
 
   ngOnInit() {
     this.selectedLang = 'cpp';
@@ -114,18 +117,18 @@ export class HomeComponent implements OnInit {
 
     console.log(
       'Index: ' +
-        this.editorService.posToIndex(
-          this.editorTextModel,
-          rangeDetails.endLineNumber,
-          rangeDetails.endColumn
-        )
+      this.editorService.posToIndex(
+        this.editorTextModel,
+        rangeDetails.endLineNumber,
+        rangeDetails.endColumn
+      )
     );
   }
 
   subscribeToSignalrEvents(): void {
     this.messageService.messageReceived.subscribe((message: Message) => {
       this.ngZone.run(() => {
-        console.log("MESSAGE FROM SERVER !!!");
+        console.log('MESSAGE FROM SERVER !!!');
         console.log(message);
 
         const messageType = message.type;
@@ -146,18 +149,19 @@ export class HomeComponent implements OnInit {
           default:
             break;
         }
-
       });
     });
   }
 
   getRoomName(): void {
-    this.messageService.connectionEstablished.subscribe((successful: boolean) => {
-      if (successful) {
-        this.roomName = this.actRoute.snapshot.params['roomName'];
-        if (this.roomName == "NONE")
-          this.messageService.sendSignalCreateNewRoom();
+    this.messageService.connectionEstablished.subscribe(
+      (successful: boolean) => {
+        if (successful) {
+          this.roomName = this.actRoute.snapshot.params['roomName'];
+          if (this.roomName == 'NONE')
+            this.messageService.sendSignalCreateNewRoom();
+        }
       }
-    });
+    );
   }
 }

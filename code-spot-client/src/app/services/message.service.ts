@@ -80,9 +80,9 @@ export class MessageService {
 }
 
 export const enum MessageType {
-  SiteId = "SiteId",
-  RoomName = "RoomName",
-  RemoteInsert = "RemoteInsert",
-  RemoteRemove = "RemoteRemove",
-  AllMessages = "AllMessages"
+  SiteId = 'SiteId',
+  RoomName = 'RoomName',
+  RemoteInsert = 'RemoteInsert',
+  RemoteRemove = 'RemoteRemove',
+  AllMessages = 'AllMessages',
 }

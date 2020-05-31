@@ -12,7 +12,9 @@ export class EditorService {
 
   static setSiteId(id: number): void {
     EditorService.siteId = id;
-    console.log('EditorService: receive siteId ' + EditorService.siteId + ' from server');
+    console.log(
+      'EditorService: receive siteId ' + EditorService.siteId + ' from server'
+    );
   }
 
   constructor() {
