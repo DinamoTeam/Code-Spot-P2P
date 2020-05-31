@@ -21,15 +21,15 @@ export class EditorService {
 
   constructor(private messageService: MessageService) {
     this.arr = new Array<CRDT>();
-    this.arr[0] = new CRDT(
+    this.arr.push(new CRDT(
       '_beg',
       new CRDTId([new Identifier(1, 0)], this.curClock++)
-    );
+    ));
 
-    this.arr[1] = new CRDT(
+    this.arr.push(new CRDT(
       '_end',
       new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], this.curClock++)
-    );
+    ));
   }
 
   handleLocalInsert(
@@ -44,6 +44,10 @@ export class EditorService {
     }
 
     let index = this.posToIndex(editorTextModel, endLineNumber, endColumn);
+    console.log("-------------------------------");
+    console.log(index);
+    console.log(this.arr);
+    console.log("-------------------------------");
     index += 1; // because we have beg limit
     const crdtIdBefore = this.arr[index - 1].id;
     const crdtIdAfter = this.arr[index].id;
@@ -78,17 +82,20 @@ export class EditorService {
     this.messageService.broadcastRemove(crdtToBeRemoved.toString(), roomName);
   }
 
-  handleRemoteInsert(crdt: CRDT): void {
-    // TODO: Insert crdt to array, get index and reflect to the screen
+  handleRemoteInsert(editorTextModel: any, crdtStr: string): void {
+    let crdt = CRDT.parse(crdtStr);
+    const index = Utils.insertCrdtToSortedCrdtArr(crdt, this.arr);
+    this.writeCharToScreenAtIndex(editorTextModel, crdt.ch, index - 1);
   }
 
-  handleRemoteRemove(crdt: CRDT): void {
-    // TODO: Remove crdt from array, get index and reflect on the screen
+  handleRemoteRemove(editorTextModel: any, crdtStr: string): void {
+    let crdt = CRDT.parse(crdtStr);
+    const index = Utils.removeCrdtFromSortedCrdtArr(crdt, this.arr);
+    //this.writeCharToScreenAtIndex(editorTextModel, index);
   }
 
-  insertCharAtIndex(editorTextModel: any, text: string, index: number) {
+  writeCharToScreenAtIndex(editorTextModel: any, text: string, index: number): void {
     const pos = editorTextModel.indexToPos(index);
-    console.log(pos);
     this.executeInsert(
       editorTextModel,
       text,
@@ -97,6 +104,11 @@ export class EditorService {
       pos.lineNumber,
       pos.column
     );
+  }
+
+  deleteCharFromScreenAtIndex(editorTextModel: any, index: number): void {
+    const pos = editorTextModel.indexToPos(index);
+    this.executeRemove();
   }
 
   // Delete text from the screen

@@ -115,14 +115,13 @@ export class HomeComponent implements OnInit {
     const newText = change.text;
     console.log('New text: |' + newText + '|');
 
-    console.log(
-      'Index: ' +
-        this.editorService.posToIndex(
-          this.editorTextModel,
-          rangeDetails.endLineNumber,
-          rangeDetails.endColumn
-        )
-    );
+    // It's a remove event
+    if (newText == '') {
+      this.editorService.handleLocalRemove(this.editorTextModel, rangeDetails.startLineNumber, rangeDetails.startColumn, this.roomName);
+    }
+
+    // It's insert event
+    this.editorService.handleLocalInsert(this.editorTextModel, newText, rangeDetails.endLineNumber, rangeDetails.endColumn, this.roomName);
   }
 
   subscribeToSignalrEvents(): void {
@@ -141,10 +140,13 @@ export class HomeComponent implements OnInit {
             this.roomName = message.content;
             break;
           case MessageType.RemoteInsert:
+            this.editorService.handleRemoteInsert(this.editorTextModel, message.content);
             break;
           case MessageType.RemoteRemove:
+            this.editorService.handleRemoteRemove(this.editorTextModel, message.content);
             break;
           case MessageType.AllMessages:
+            console.log("AllMessage coming ...!")
             break;
           default:
             break;
