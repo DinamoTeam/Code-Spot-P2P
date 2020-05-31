@@ -98,7 +98,7 @@ export class EditorService {
   }
 
   writeCharToScreenAtIndex(editorTextModel: any, text: string, index: number): void {
-    const pos = editorTextModel.indexToPos(index);
+    const pos = this.indexToPos(editorTextModel, index);
     this.executeInsert(
       editorTextModel,
       text,
@@ -160,6 +160,7 @@ export class EditorService {
   }
 
   indexToPos(editorTextModel: any, index: number): any {
+    console.log(editorTextModel.getPositionAt(index));
     return editorTextModel.getPositionAt(index);
   }
 }
