@@ -8,6 +8,12 @@ import { CustomNumber } from '../shared/CustomNumber';
 export class EditorService {
   arr: CRDT[];
   curClock: number = 0;
+  static siteId: number = -1;
+
+  static setSiteId(id: number): void {
+    EditorService.siteId = id;
+    console.log('EditorService: receive siteId ' + EditorService.siteId + ' from server');
+  }
 
   constructor() {
     this.arr = new Array<CRDT>();
@@ -23,7 +29,9 @@ export class EditorService {
   }
 
   handleLocalInsert(ch: string, index: number): void {
-    const siteIdTemp = 1;
+    if (EditorService.siteId === -1) {
+      throw new Error('Error: call handleLocalInsert before setting siteId');
+    }
 
     index += 1; // because we have beg limit
     const crdtIdBefore = this.arr[index - 1].id;
@@ -32,7 +40,7 @@ export class EditorService {
     const crdtIdBetween = CRDTId.generatePositionBetween(
       crdtIdBefore,
       crdtIdAfter,
-      siteIdTemp,
+      EditorService.siteId,
       this.curClock++
     );
 
@@ -43,7 +51,9 @@ export class EditorService {
   }
 
   handleLocalRemove(ch: string, index: number): void {
-    const siteIdTemp = 1;
+    if (EditorService.siteId === -1) {
+      throw new Error('Error: call handleLocalRemove before setting siteId');
+    }
 
     index += 1; // because we have beg limit
     const crdtToBeRemoved = this.arr[index];

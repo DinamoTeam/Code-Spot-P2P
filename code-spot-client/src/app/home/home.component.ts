@@ -127,6 +127,10 @@ export class HomeComponent implements OnInit {
       this.ngZone.run(() => {
         console.log("MESSAGE FROM SERVER !!!");
         console.log(message);
+        if (message.type === 'SiteId') {
+          const siteId = parseInt(message.content, 10);
+          EditorService.setSiteId(siteId);
+        }
       });
     });
   }
