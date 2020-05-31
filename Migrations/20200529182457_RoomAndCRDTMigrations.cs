@@ -39,7 +39,7 @@ namespace CodeSpot.Migrations
                 name: "IX_CRDTs_RoomName",
                 table: "CRDTs",
                 column: "RoomName",
-                unique: true);
+                unique: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

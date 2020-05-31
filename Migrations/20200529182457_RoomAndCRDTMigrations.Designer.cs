@@ -25,8 +25,7 @@ namespace CodeSpot.Migrations
 
                     b.HasKey("CRDTObject", "RoomName");
 
-                    b.HasIndex("RoomName")
-                        .IsUnique();
+                    b.HasIndex("RoomName");
 
                     b.ToTable("CRDTs");
                 });
@@ -44,7 +43,7 @@ namespace CodeSpot.Migrations
             modelBuilder.Entity("Code_Spot.Models.CRDT", b =>
                 {
                     b.HasOne("Code_Spot.Models.Room", "Room")
-                        .WithOne("Crdt")
+                        .WithMany("Crdt")
                         .HasForeignKey("Code_Spot.Models.CRDT", "RoomName")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
