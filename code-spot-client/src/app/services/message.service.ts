@@ -15,11 +15,12 @@ export class MessageService {
   constructor() {
     this.stopConnection();
     this.createConnection();
-    this.registerOnSiteIdEvent();
+    this.registerOnServerEvent();
     this.startConnection();
   }
 
   private createConnection() {
+    /// !!! IMPORTANT: Remove configureLogging for PROD
     this.hubConnection = new HubConnectionBuilder()
       .configureLogging(LogLevel.Information)
       .withUrl('https://localhost:44394/ServerMessageHub')
@@ -44,10 +45,18 @@ export class MessageService {
       });
   }
 
-  private registerOnSiteIdEvent(): void {
-    this.hubConnection.on('SiteId', (data: any) => {
+  private registerOnServerEvent(): void {
+    this.hubConnection.on('MessageFromServer', (data: any) => {
       this.messageReceived.emit(data);
     });
+  }
+
+  sendSignalCreateNewRoom() {
+    this.hubConnection.invoke('CreateNewRoom');
+  }
+
+  sendSignalJoinExistingRoom(roomName: string) {
+    this.hubConnection.invoke('JoinExistingRoom', roomName);
   }
 
   private stopConnection() {

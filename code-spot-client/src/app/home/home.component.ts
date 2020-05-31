@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
     public editorService: EditorService,
     private messageService: MessageService,
     private ngZone: NgZone
-  ) {}
+  ) { this.subscribeToSignalrEvents(); }
 
   ngOnInit() {
     this.selectedLang = 'cpp';
@@ -125,6 +125,5 @@ export class HomeComponent implements OnInit {
         console.log(message);
       });
     });
-
   }
 }
