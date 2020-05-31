@@ -3,6 +3,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
 import { MessageService } from '../services/message.service';
 import { Message } from '../shared/Message';
+import { ActivatedRoute } from '@angular/router';
 
 declare const monaco: any;
 
@@ -12,6 +13,7 @@ declare const monaco: any;
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
+  roomName: string;
   editor: any;
   editorTextModel: any;
   selectedLang: string;
@@ -22,8 +24,9 @@ export class HomeComponent implements OnInit {
   constructor(
     public editorService: EditorService,
     private messageService: MessageService,
-    private ngZone: NgZone
-  ) { this.subscribeToSignalrEvents(); }
+    private ngZone: NgZone,
+    private actRoute: ActivatedRoute
+  ) { this.subscribeToSignalrEvents(); this.getRoomName(); }
 
   ngOnInit() {
     this.selectedLang = 'cpp';
@@ -122,8 +125,19 @@ export class HomeComponent implements OnInit {
   subscribeToSignalrEvents(): void {
     this.messageService.messageReceived.subscribe((message: Message) => {
       this.ngZone.run(() => {
+        console.log("MESSAGE FROM SERVER !!!");
         console.log(message);
       });
+    });
+  }
+
+  getRoomName(): void {
+    this.messageService.connectionEstablished.subscribe((successful: boolean) => {
+      if (successful) {
+        this.roomName = this.actRoute.snapshot.params['roomName'];
+        if (this.roomName == "NONE")
+          this.messageService.sendSignalCreateNewRoom();
+      }
     });
   }
 }
