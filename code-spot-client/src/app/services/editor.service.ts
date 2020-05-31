@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
+import { Utils } from '../shared/Utils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EditorService {
+  static siteId: number = -1;
   arr: CRDT[];
   curClock: number = 0;
-  static siteId: number = -1;
 
   static setSiteId(id: number): void {
     EditorService.siteId = id;
@@ -26,7 +27,7 @@ export class EditorService {
 
     this.arr[1] = new CRDT(
       '_end',
-      new CRDTId([new Identifier(CustomNumber.BASE, 0)], this.curClock++)
+      new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], this.curClock++)
     );
   }
 
@@ -48,7 +49,7 @@ export class EditorService {
 
     const crdtBetween = new CRDT(ch, crdtIdBetween);
 
-    this.insertCrdtToSortedCrdtArr(crdtBetween, this.arr);
+    Utils.insertCrdtToSortedCrdtArr(crdtBetween, this.arr);
     this.broadCastInsert(crdtBetween);
   }
 
@@ -64,41 +65,21 @@ export class EditorService {
     this.broadcastRemove(crdtToBeRemoved);
   }
 
-  // Prototype: linear search. Future: binary search
-  insertCrdtToSortedCrdtArr(crdt: CRDT, crdtArr: CRDT[]): number {
-    for (let i = 1; i < crdtArr.length - 1; i++) {
-      // ignore borders at 0 and length-1
-      if (crdt.compareTo(crdtArr[i]) === 0) {
-        throw new Error('Cannot insert duplicate element into CRDT Array!');
-      } else if (crdt.compareTo(crdtArr[i]) > 0) {
-        crdtArr.splice(i, 0, crdt);
-        return i;
-      }
-    }
-    throw new Error('Failed to insert crdt object inside the borders');
+  handleRemoteInsert(crdt: CRDT): void {
+    // TODO: Insert crdt to array, get index and reflect to the screen
+  }
+
+  handleRemoteRemove(crdt: CRDT): void {
+    // TODO: Remove crdt from array, get index and reflect on the screen
   }
 
   broadCastInsert(crdt: CRDT): void {
-    // TODO
+    // TODO: invoke ExecuteInsert() from MessageHub.cs
     return;
   }
 
-  // Prototype: linear search. Future: binary search
-  removeCrdtFromSortedCrdtArr(crdt: CRDT, crdtArr: CRDT[]): number {
-    for (let i = 1; i < crdtArr.length - 1; i++) {
-      // ignore borders at 0 and length-1
-      if (crdt.compareTo(crdtArr[i]) === 0) {
-        crdtArr.splice(i, 1);
-        return i;
-      }
-    }
-    throw new Error(
-      'Fail to delete crdt object! The object does not exist inside the array'
-    );
-  }
-
   broadcastRemove(crdt: CRDT): void {
-    // TODO
+    // TODO: Invoke ExecuteRemove() from MessageHub.cs
     return;
   }
 
@@ -113,6 +94,11 @@ export class EditorService {
       pos.lineNumber,
       pos.column
     );
+  }
+
+  // Delete text from the screen
+  executeRemove() {
+    // TODO
   }
 
   // Write text to the screen
