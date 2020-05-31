@@ -7,7 +7,7 @@ export class Utils {
       // ignore borders at 0 and length-1
       if (crdt.compareTo(crdtArr[i]) === 0) {
         throw new Error('Cannot insert duplicate element into CRDT Array!');
-      } else if (crdt.compareTo(crdtArr[i]) > 0) {
+      } else if (crdt.compareTo(crdtArr[i]) < 0) {
         crdtArr.splice(i, 0, crdt);
         return i;
       }
