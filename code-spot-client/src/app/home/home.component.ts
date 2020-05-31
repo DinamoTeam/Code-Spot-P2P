@@ -117,11 +117,11 @@ export class HomeComponent implements OnInit {
 
     console.log(
       'Index: ' +
-      this.editorService.posToIndex(
-        this.editorTextModel,
-        rangeDetails.endLineNumber,
-        rangeDetails.endColumn
-      )
+        this.editorService.posToIndex(
+          this.editorTextModel,
+          rangeDetails.endLineNumber,
+          rangeDetails.endColumn
+        )
     );
   }
 
@@ -160,6 +160,9 @@ export class HomeComponent implements OnInit {
           this.roomName = this.actRoute.snapshot.params['roomName'];
           if (this.roomName == 'NONE')
             this.messageService.sendSignalCreateNewRoom();
+          else {
+            this.messageService.sendSignalJoinExistingRoom(this.roomName);
+          }
         }
       }
     );

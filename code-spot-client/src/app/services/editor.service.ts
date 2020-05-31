@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
 import { Utils } from '../shared/Utils';
+import { MessageService } from './message.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +19,7 @@ export class EditorService {
     );
   }
 
-  constructor() {
+  constructor(private messageService: MessageService) {
     this.arr = new Array<CRDT>();
     this.arr[0] = new CRDT(
       '_beg',
@@ -31,11 +32,18 @@ export class EditorService {
     );
   }
 
-  handleLocalInsert(ch: string, index: number): void {
+  handleLocalInsert(
+    editorTextModel: any,
+    ch: string,
+    endLineNumber: number,
+    endColumn: number,
+    roomName: string
+  ): void {
     if (EditorService.siteId === -1) {
       throw new Error('Error: call handleLocalInsert before setting siteId');
     }
 
+    let index = this.posToIndex(editorTextModel, endLineNumber, endColumn);
     index += 1; // because we have beg limit
     const crdtIdBefore = this.arr[index - 1].id;
     const crdtIdAfter = this.arr[index].id;
@@ -50,19 +58,24 @@ export class EditorService {
     const crdtBetween = new CRDT(ch, crdtIdBetween);
 
     Utils.insertCrdtToSortedCrdtArr(crdtBetween, this.arr);
-    this.broadCastInsert(crdtBetween);
+    this.messageService.broadcastInsert(crdtBetween.toString(), roomName);
   }
 
-  handleLocalRemove(ch: string, index: number): void {
+  handleLocalRemove(
+    editorTextModel: any,
+    endLineNumber: number,
+    endColumn: number,
+    roomName: string
+  ): void {
     if (EditorService.siteId === -1) {
       throw new Error('Error: call handleLocalRemove before setting siteId');
     }
 
+    let index = this.posToIndex(editorTextModel, endLineNumber, endColumn);
     index += 1; // because we have beg limit
     const crdtToBeRemoved = this.arr[index];
     this.arr.splice(index, 1);
-
-    this.broadcastRemove(crdtToBeRemoved);
+    this.messageService.broadcastRemove(crdtToBeRemoved.toString(), roomName);
   }
 
   handleRemoteInsert(crdt: CRDT): void {
@@ -71,16 +84,6 @@ export class EditorService {
 
   handleRemoteRemove(crdt: CRDT): void {
     // TODO: Remove crdt from array, get index and reflect on the screen
-  }
-
-  broadCastInsert(crdt: CRDT): void {
-    // TODO: invoke ExecuteInsert() from MessageHub.cs
-    return;
-  }
-
-  broadcastRemove(crdt: CRDT): void {
-    // TODO: Invoke ExecuteRemove() from MessageHub.cs
-    return;
   }
 
   insertCharAtIndex(editorTextModel: any, text: string, index: number) {

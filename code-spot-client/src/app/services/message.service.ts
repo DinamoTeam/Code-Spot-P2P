@@ -59,6 +59,14 @@ export class MessageService {
     this.hubConnection.invoke('JoinExistingRoom', roomName);
   }
 
+  broadcastInsert(crdtString: string, roomName: string) {
+    this.hubConnection.invoke('ExecuteInsert', crdtString, roomName);
+  }
+
+  broadcastRemove(crdtString: string, roomName: string) {
+    this.hubConnection.invoke('ExecuteRemove', crdtString, roomName);
+  }
+
   private stopConnection() {
     if (this.connectionIsEstablished) {
       this.hubConnection.stop();
