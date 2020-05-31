@@ -13,6 +13,7 @@ export class MessageService {
   private hubConnection: HubConnection;
 
   constructor() {
+    this.stopConnection();
     this.createConnection();
     this.registerOnSiteIdEvent();
     this.startConnection();
@@ -47,6 +48,13 @@ export class MessageService {
     this.hubConnection.on('SiteId', (data: any) => {
       this.messageReceived.emit(data);
     });
+  }
+
+  private stopConnection() {
+    if (this.connectionIsEstablished) {
+      this.hubConnection.stop();
+      this.hubConnection = null;
+    }
   }
 
   /******************** SignalR Template ***************************
