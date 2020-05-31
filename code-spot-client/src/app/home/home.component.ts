@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
-import { MessageService } from '../services/message.service';
+import { MessageService, MessageType } from '../services/message.service';
 import { Message } from '../shared/Message';
 import { ActivatedRoute } from '@angular/router';
 
@@ -127,10 +127,26 @@ export class HomeComponent implements OnInit {
       this.ngZone.run(() => {
         console.log("MESSAGE FROM SERVER !!!");
         console.log(message);
-        if (message.type === 'SiteId') {
-          const siteId = parseInt(message.content, 10);
-          EditorService.setSiteId(siteId);
+
+        const messageType = message.type;
+        switch (messageType) {
+          case MessageType.SiteId:
+            const siteId = parseInt(message.content, 10);
+            EditorService.setSiteId(siteId);
+            break;
+          case MessageType.RoomName:
+            this.roomName = message.content;
+            break;
+          case MessageType.RemoteInsert:
+            break;
+          case MessageType.RemoteRemove:
+            break;
+          case MessageType.AllMessages:
+            break;
+          default:
+            break;
         }
+
       });
     });
   }
