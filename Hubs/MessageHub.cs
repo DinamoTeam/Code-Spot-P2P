@@ -88,7 +88,8 @@ namespace CodeSpot.Hubs
 		{
 			while (true)
 			{
-				string randomName = new Guid().ToString();
+				string randomName = Guid.NewGuid().ToString();
+				Console.WriteLine("RANDOM NAME: " + randomName);
 				if (_database.Rooms.FirstOrDefault(r => r.Name == randomName) == null)
 				{
 					return randomName;

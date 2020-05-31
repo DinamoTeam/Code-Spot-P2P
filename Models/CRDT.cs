@@ -4,6 +4,7 @@ namespace Code_Spot.Models
 {
     public class CRDT
     {
+        public CRDT() { }
         public CRDT(string crdt, string roomName)
         {
             this.CRDTObject = crdt;
