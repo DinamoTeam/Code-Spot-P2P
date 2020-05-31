@@ -1,10 +1,12 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
+import { HubConnection, HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
+import { Message } from '../shared/Message';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MessageService {
+  messageReceived = new EventEmitter<Message>();
   private connectionIsEstablished: boolean = false;
   connectionEstablished = new EventEmitter<Boolean>();
 
@@ -12,17 +14,18 @@ export class MessageService {
 
   constructor() {
     this.createConnection();
-    // Register server events here
+    this.registerOnSiteIdEvent();
     this.startConnection();
   }
 
   private createConnection() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(window.location.href + 'ServerMessageHub')
+      .configureLogging(LogLevel.Information)
+      .withUrl('https://localhost:44394/ServerMessageHub')
       .build();
   }
 
-  private startConnection() {
+  private startConnection(): void {
     this.hubConnection
       .start()
       .then(() => {
@@ -38,6 +41,12 @@ export class MessageService {
           this.startConnection();
         }, 5000);
       });
+  }
+
+  private registerOnSiteIdEvent(): void {
+    this.hubConnection.on('SiteId', (data: any) => {
+      this.messageReceived.emit(data);
+    });
   }
 
   /******************** SignalR Template ***************************

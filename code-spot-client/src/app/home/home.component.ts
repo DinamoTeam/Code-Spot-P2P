@@ -2,6 +2,7 @@ import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
 import { MessageService } from '../services/message.service';
+import { Message } from '../shared/Message';
 
 declare const monaco: any;
 
@@ -118,5 +119,12 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  subscribeToSignalrEvents(): void {}
+  subscribeToSignalrEvents(): void {
+    this.messageService.messageReceived.subscribe((message: Message) => {
+      this.ngZone.run(() => {
+        console.log(message);
+      });
+    });
+
+  }
 }
