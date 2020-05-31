@@ -28,10 +28,14 @@ namespace CodeSpot
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+			{
+				builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().WithOrigins("http://localhost:4200");
+			}));
+			services.AddSignalR();
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 			services.AddDbContext<DataContext>(x => 
 				x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))); // Inside appsettings.json
-			services.AddSignalR();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +51,7 @@ namespace CodeSpot
 				app.UseHsts();
 			}
 
+			app.UseCors("CorsPolicy");
 			// app.UseSignalR must come before Use Mvc! Order matters!
 			app.UseSignalR(config => {
 				config.MapHub<MessageHub>("/ServerMessageHub");
