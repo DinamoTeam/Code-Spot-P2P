@@ -23,7 +23,7 @@ namespace CodeSpot.Hubs
         public override async Task OnConnectedAsync()
         {
             string clientId = "" + (curId++);
-            await Clients.Client(Context.ConnectionId).SendAsync("SiteId", clientId);
+			await Clients.Client(Context.ConnectionId).SendAsync("MessageFromServer", new MessageDTO() { Type = "SiteId", Content = clientId });
             await base.OnConnectedAsync();
         }
 
@@ -38,7 +38,7 @@ namespace CodeSpot.Hubs
 			_database.Rooms.Add(new Room(roomName));
 			await _database.SaveChangesAsync();
 			await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
-			await Clients.Caller.SendAsync("RoomName", roomName);
+			await SendMessageToCallerClient("RoomName", roomName);
 		}
 
 		public async Task JoinExistingRoom(string roomName)
@@ -53,25 +53,12 @@ namespace CodeSpot.Hubs
 			string result = "";
 			await _database.CRDTs.Where(c => c.RoomName == roomName)
 								 .ForEachAsync(c => {result += c.CRDTObject + '\n';});
-			await Clients.Caller.SendAsync("AllMessages", result);
+			await SendMessageToCallerClient("AllMessages", result);
 		}
 
-        private string GenerateRoomName()
+		public async Task ExecuteInsert(string content, string roomName)
 		{
-			while (true)
-			{
-				string randomName = Guid.NewGuid().ToString();
-				if (_database.Rooms.FirstOrDefault(r => r.Name == randomName) == null)
-				{
-					return randomName;
-				}
-			}
-		}
-
-
-		public async Task ExecuteInsert(MessageDTO message, string roomName)
-		{
-			string crdtObject = message.Content;
+			string crdtObject = content;
 			CRDT crdtFromDb = await _database.CRDTs.FirstOrDefaultAsync(
 				c => c.CRDTObject == crdtObject && c.RoomName == roomName);
 
@@ -79,13 +66,13 @@ namespace CodeSpot.Hubs
 			{
 				_database.CRDTs.Add(new CRDT(crdtObject, roomName));
 				await _database.SaveChangesAsync();
-				await Clients.OthersInGroup(roomName).SendAsync("RemoteInsert", message);
+				await SendMessageToOtherClientsInGroup(roomName, "RemoteInsert", content);
 			}
 		}
 
-		public async Task ExecuteRemove(MessageDTO message, string roomName)
+		public async Task ExecuteRemove(string content, string roomName)
 		{
-			string crdtObject = message.Content;
+			string crdtObject = content;
 			CRDT crdtFromDb = await _database.CRDTs.FirstOrDefaultAsync(
 				c => c.CRDTObject == crdtObject && c.RoomName == roomName);
 
@@ -93,8 +80,30 @@ namespace CodeSpot.Hubs
 			{
 				_database.CRDTs.Remove(crdtFromDb);
 				await _database.SaveChangesAsync();
-				await Clients.OthersInGroup(roomName).SendAsync("RemoteRemove", message);
+				await SendMessageToOtherClientsInGroup(roomName, "RemoteRemove", content);
 			}
 		}
-    }
+
+		private string GenerateRoomName()
+		{
+			while (true)
+			{
+				string randomName = new Guid().ToString();
+				if (_database.Rooms.FirstOrDefault(r => r.Name == randomName) == null)
+				{
+					return randomName;
+				}
+			}
+		}
+
+		public async Task SendMessageToCallerClient(string type, string content)
+		{
+			await Clients.Caller.SendAsync("MessageFromServer", new MessageDTO() { Type = type, Content = content });
+		}
+
+		public async Task SendMessageToOtherClientsInGroup(string roomName, string type, string content)
+		{
+			await Clients.OthersInGroup(roomName).SendAsync("MessageFromServer", new MessageDTO() { Type = type, Content = content });
+		}
+	}
 }
