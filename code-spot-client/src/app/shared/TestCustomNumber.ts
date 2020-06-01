@@ -164,7 +164,80 @@ function testGenerateLessThan(numberOfTestCases: number): void {
   );
 }
 
+function testDecimalBASEConversion(numberOfTestCases: number): void {
+  let errorCount = 0;
+
+  for (let i = 0; i < numberOfTestCases; i++) {
+    const startWith = Math.floor(Math.random() * 10000000);
+    const numInBaseBASE = CustomNumber.decimalToCustomNumber(startWith);
+    const baseBASEToDecimal = CustomNumber.customNumberToDecimal(numInBaseBASE);
+    if (startWith !== baseBASEToDecimal) {
+      console.error(
+        'Test DecimalBASEConversion, Error: Convert ' +
+          startWith +
+          ' to base BASE got ' +
+          numInBaseBASE.toString() +
+          ' and convert back to base 10 got ' +
+          baseBASEToDecimal
+      );
+      errorCount++;
+    }
+  }
+
+  console.log(
+    'Test DecimalBASEConversion using ' +
+      numberOfTestCases +
+      ' test cases, ' +
+      errorCount +
+      ' errors found'
+  );
+}
+
+function testNaiveFloorDivide(numberOfTestCases: number): void {
+  let errorCount = 0;
+
+  for (let i = 0; i < numberOfTestCases; i++) {
+    const decimal1 = Math.floor(Math.random() * Math.pow(2, 25));
+    const decimal2 = Math.floor(Math.random() * Math.pow(2, 25));
+    const customNumber1 = CustomNumber.decimalToCustomNumber(decimal1);
+    const customNumber2 = CustomNumber.decimalToCustomNumber(decimal2);
+
+    const quotientCustomNumber = CustomNumber.naiveFloorDivide(
+      customNumber1,
+      customNumber2
+    );
+    const quotientDecimal = CustomNumber.customNumberToDecimal(
+      quotientCustomNumber
+    );
+    const quotientDecimalShouldBe = Math.floor(decimal1 / decimal2);
+
+    if (quotientDecimal !== quotientDecimalShouldBe) {
+      console.error(
+        'Test NaiveFloorDivide, Error: Divide ' +
+          decimal1 +
+          ' by ' +
+          decimal2 +
+          ' got ' +
+          quotientDecimal +
+          '. Expected: ' +
+          quotientDecimalShouldBe
+      );
+      errorCount++;
+    }
+  }
+
+  console.log(
+    'Test NaiveFloorDivide using ' +
+      numberOfTestCases +
+      ' test cases, ' +
+      errorCount +
+      ' errors found'
+  );
+}
+
 testSubtractGreaterThanBase10(10000); // Onlu work in base 10, check CustomNumber.BASE
 testAddBase10(10000); // Onlu work in base 10, check CustomNumber.BASE
 
 testGenerateLessThan(1000); // Choose small numberOfTestCases since each test case will be tested 100 times
+testDecimalBASEConversion(100000);
+testNaiveFloorDivide(100000);
