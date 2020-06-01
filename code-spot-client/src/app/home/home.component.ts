@@ -17,6 +17,7 @@ export class HomeComponent implements OnInit {
   editor: any;
   editorTextModel: any;
   remoteOpLeft: number = 0;
+  allMessages: string = null;
   selectedLang: string;
   languageForm = new FormGroup({
     language: new FormControl('cpp', Validators.compose([Validators.required])),
@@ -110,16 +111,13 @@ export class HomeComponent implements OnInit {
 
     // The range that got replaced
     const rangeDetails = change.range;
-    console.log('Range Details: ' + rangeDetails);
-    console.log(rangeDetails);
 
     // Length of the range that got replaced
     const rangeLen = change.rangeLength;
-    console.log('Range Length: ' + rangeLen);
 
     // The new text for the range (! \n can't see)
     const newText = change.text;
-    console.log('New text: |' + newText + '|');
+    //console.log('New text: |' + newText + '|');
 
     // It's a remove event
     if (newText == '') {
@@ -141,13 +139,9 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  allMessages: string = null;
   subscribeToSignalrEvents(): void {
     this.messageService.messageReceived.subscribe((message: Message) => {
       this.ngZone.run(() => {
-        console.log('MESSAGE FROM SERVER !!!');
-        console.log(message);
-
         const messageType = message.type;
         switch (messageType) {
           case MessageType.SiteId:
@@ -166,8 +160,10 @@ export class HomeComponent implements OnInit {
             break;
           case MessageType.RemoteRemove:
             this.remoteOpLeft = 1;
+            console.log('MESSAGE FROM SERVER !!!');
+            console.log(message);
             this.editorService.handleRemoteRemove(
-              this.editorTextModel,
+              this.editor,
               message.content
             );
             break;

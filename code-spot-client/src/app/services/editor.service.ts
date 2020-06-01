@@ -86,10 +86,12 @@ export class EditorService {
     this.writeCharToScreenAtIndex(editorTextModel, crdt.ch, index - 1);
   }
 
-  handleRemoteRemove(editorTextModel: any, crdtStr: string): void {
+  handleRemoteRemove(editor: any, crdtStr: string): void {
     let crdt = CRDT.parse(crdtStr);
+    console.log(this.arr);
     const index = Utils.removeCrdtFromSortedCrdtArr(crdt, this.arr);
-    //this.writeCharToScreenAtIndex(editorTextModel, index);
+    console.log(this.arr);
+    //this.deleteCharFromScreenAtIndex(editor, index);
   }
 
   handleAllMessages(editorTextModel: any, crdts: string): void {
@@ -118,14 +120,33 @@ export class EditorService {
     );
   }
 
-  deleteCharFromScreenAtIndex(editorTextModel: any, index: number): void {
-    const pos = editorTextModel.indexToPos(index);
-    this.executeRemove();
+  deleteCharFromScreenAtIndex(editor, index: number): void {
+    const editorTextModel = editor.getModel();
+    const pos = this.indexToPos(editorTextModel, index);
+    this.executeRemove
+      (editor, pos.lineNumber,
+      pos.column,
+      pos.lineNumber,
+        pos.column
+      );
   }
 
   // Delete text from the screen
-  executeRemove() {
-    // TODO
+  executeRemove(
+    editor: any,
+    startLineNumber: number,
+    startColumn: number,
+    endLineNumber: number,
+    endColumn: number
+  ) {
+    const range = new monaco.Range(
+      startLineNumber,
+      startColumn,
+      endLineNumber,
+      endColumn
+    );
+
+    editor.addEditOperation(range, null, false);
   }
 
   // Write text to the screen
