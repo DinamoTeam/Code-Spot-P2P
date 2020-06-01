@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit {
   roomName: string;
   editor: any;
   editorTextModel: any;
+  isRemoteOp: boolean = false;
   selectedLang: string;
   languageForm = new FormGroup({
     language: new FormControl('cpp', Validators.compose([Validators.required])),
@@ -100,6 +101,11 @@ export class HomeComponent implements OnInit {
   }
 
   onDidChangeModelContentHandler(event: any): void {
+    if (this.isRemoteOp) {
+      this.isRemoteOp = !this.isRemoteOp;
+      return;
+    }
+
     const change = event.changes[0];
 
     // The range that got replaced
@@ -140,9 +146,11 @@ export class HomeComponent implements OnInit {
             this.roomName = message.content;
             break;
           case MessageType.RemoteInsert:
+            this.isRemoteOp = true;
             this.editorService.handleRemoteInsert(this.editorTextModel, message.content);
             break;
           case MessageType.RemoteRemove:
+            this.isRemoteOp = true;
             this.editorService.handleRemoteRemove(this.editorTextModel, message.content);
             break;
           case MessageType.AllMessages:
