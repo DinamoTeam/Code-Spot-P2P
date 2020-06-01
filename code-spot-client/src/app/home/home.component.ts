@@ -174,7 +174,7 @@ export class HomeComponent implements OnInit {
           case MessageType.AllMessages:
             if (message.content !== '') {
               let crdtArr = message.content.split('~');
-              this.remoteOpLeft = crdtArr.length - 1;
+              this.remoteOpLeft = crdtArr.length;
 
               // Duplicate tab duplicate editorTextModel too
               if (this.editorTextModel === undefined) {

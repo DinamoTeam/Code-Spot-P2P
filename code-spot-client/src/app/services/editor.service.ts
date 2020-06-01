@@ -97,7 +97,7 @@ export class EditorService {
 
     console.log(crdtArr);
 
-    for (var i = 0; i < crdtArr.length - 1; i++) {
+    for (var i = 0; i < crdtArr.length; i++) {
       this.handleRemoteInsert(editorTextModel, crdtArr[i]);
     }
   }
