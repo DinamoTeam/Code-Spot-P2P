@@ -3,7 +3,7 @@ import { Identifier } from './CRDT';
 export class CustomNumber {
   // Don't use BASE too large (less than 2^50).
   // Reason: Number.MAX_SAFE_INTEGER = 2^53 - 1. This class will have some adding. I don't want overflow
-  static readonly BASE = 56161561; // 'constant'
+  static readonly BASE = Math.pow(2, 25); // 'constant'
   arr: number[];
 
   constructor(list: number[]) {
@@ -100,6 +100,44 @@ export class CustomNumber {
     resArr = CustomNumber.trimLeadingZeros(resArr);
 
     return new CustomNumber(resArr);
+  }
+
+  // Convert to base 10, do integer division and then convert back
+  static naiveFloorDivide(n1: CustomNumber, n2: CustomNumber): CustomNumber {
+    const decimal1 = CustomNumber.customNumberToDecimal(n1);
+    const decimal2 = CustomNumber.customNumberToDecimal(n2);
+    const quotientDecimal = Math.floor(decimal1 / decimal2);
+
+    return CustomNumber.decimalToCustomNumber(quotientDecimal);
+  }
+
+  static customNumberToDecimal(n: CustomNumber): number {
+    let num = 0;
+    let pos = 0;
+
+    for (let index = n.arr.length - 1; index >= 0; index--) {
+      num += n.arr[index] * Math.pow(CustomNumber.BASE, pos);
+      pos++;
+    }
+
+    if (!Number.isSafeInteger(num)) {
+      throw new Error(
+        'Error: Number is not safe. Potential precision lost. Check if CustomNumber.BASE is too large'
+      );
+    }
+
+    return num;
+  }
+
+  static decimalToCustomNumber(n: number): CustomNumber {
+    const arr = new Array<number>();
+
+    while (n > 0) {
+      arr.push(n % CustomNumber.BASE);
+      n = Math.floor(n / CustomNumber.BASE);
+    }
+
+    return new CustomNumber(arr.reverse());
   }
 
   // Return a CustomNumber object from an IdentifierArray by taking digits only
