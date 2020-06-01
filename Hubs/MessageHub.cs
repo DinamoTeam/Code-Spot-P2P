@@ -51,7 +51,7 @@ namespace CodeSpot.Hubs
 		{
 			string result = string.Empty;
 			await _database.CRDTs.Where(c => c.RoomName == roomName)
-								 .ForEachAsync(c => { result += c.CRDTObject + '\n'; });
+								 .ForEachAsync(c => { result += c.CRDTObject + '~'; });
 			await SendMessageToCallerClient(MessageType.AllMessages, result);
 		}
 
