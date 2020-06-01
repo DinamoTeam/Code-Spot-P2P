@@ -176,6 +176,91 @@ export class CRDTId {
     return newCRDTIdBetweenId1AndId2;
   }
 
+  static generateNPositionsBetween(
+    id1: CRDTId,
+    id2: CRDTId,
+    N: number,
+    siteId: number,
+    clock: number
+  ): CRDTId[] {
+    let index = 0;
+    const shorterLength = Math.min(id1.arr.length, id2.arr.length);
+
+    // Find the first different index
+    while (index < shorterLength) {
+      if (id1.arr[index].compareTo(id2.arr[index]) !== 0) {
+        // First time not match
+        break;
+      }
+      index++;
+    }
+
+    let prefix1: CustomNumber;
+    let prefix2: CustomNumber;
+    let delta = new CustomNumber([0]);
+    const NPlus1InBaseBASE = CustomNumber.decimalToCustomNumber(N + 1);
+    const NInBaseBASE = CustomNumber.decimalToCustomNumber(N);
+
+    if (
+      index === shorterLength ||
+      id1.arr[index].digit !== id2.arr[index].digit
+    ) {
+      // digits are different
+      index--; // decrease to fit with the while loop below
+      // loop until delta >= N + 1, so that we have N spots
+      // Note: use prefix is enough because 2 > 1341242 (like version number) - we know it's bigger right from the first index
+      while (delta.compareTo(NPlus1InBaseBASE) < 0) {
+        index++;
+        prefix1 = CRDTId.prefix(id1, index);
+        prefix2 = CRDTId.prefix(id2, index);
+        delta = CustomNumber.subtractGreaterThan(prefix2, prefix1);
+      }
+    } else {
+      // same digit but different siteIds
+
+      // id1 = <1, 1>...
+      // id2 = <1, 3>...
+      // newId = <1, 1>...anything
+      // newId will always < id2
+      // Therefore we only need to find newId = <1, 1>... so that newId > id1. Below is how
+
+      // No need to do index--
+      prefix2 = CRDTId.prefix(id2, index);
+
+      // generate something bigger than id1.arr[index+1->id1.arr.length-1]
+      while (delta.compareTo(NPlus1InBaseBASE) < 0) {
+        index++;
+        prefix1 = CRDTId.prefix(id1, index);
+        prefix2.arr.push(CustomNumber.BASE - 1); // Add max digit (in base 10, that would be 9) to the end of prefix2
+        delta = CustomNumber.subtractGreaterThan(prefix2, prefix1);
+      }
+    }
+
+    const step = CustomNumber.naiveFloorDivide(
+      CustomNumber.subtractGreaterThan(delta, new CustomNumber([1])),
+      NInBaseBASE
+    );
+    let r = prefix1;
+    const CRDTIdList = new Array<CRDTId>();
+
+    for (let i = 0; i < N; i++) {
+      const random1ToStepInclusive = CustomNumber.generateLessThan(
+        CustomNumber.add(step, new CustomNumber([1]))
+      );
+      const crdtIdBetween = CRDTId.constructPosition(
+        CustomNumber.add(r, random1ToStepInclusive),
+        id1,
+        id2,
+        siteId,
+        clock++
+      );
+      CRDTIdList.push(crdtIdBetween);
+      r = CustomNumber.add(r, random1ToStepInclusive);
+    }
+
+    return CRDTIdList;
+  }
+
   // Take elements 0 to 'index' inclusive (digit only) and map to a number array.
   // Add 0 to the back if arr.length < num, and then convert to a CustomNumber
   static prefix(id: CRDTId, index: number): CustomNumber {
