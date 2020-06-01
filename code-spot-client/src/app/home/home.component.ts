@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit {
   roomName: string;
   editor: any;
   editorTextModel: any;
-  isRemoteOp: boolean = false;
+  remoteOpLeft: number = 0;
   selectedLang: string;
   languageForm = new FormGroup({
     language: new FormControl('cpp', Validators.compose([Validators.required])),
@@ -34,6 +34,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.selectedLang = 'cpp';
+    this.allMessages = null;
   }
 
   @Input() languages = [
@@ -84,14 +85,13 @@ export class HomeComponent implements OnInit {
       this.onDidChangeModelContentHandler(e)
     );
 
-    /*this.editorService.executeInsert(
-      this.editorTextModel,
-      'Hello World!',
-      1,
-      1,
-      1,
-      1
-    );*/
+    if (this.allMessages != null) {
+      this.editorService.handleAllMessages(
+        this.editorTextModel,
+        this.allMessages
+      );
+      this.allMessages = null;
+    }
   }
 
   onDidPasteHandler(event: any) {
@@ -101,8 +101,8 @@ export class HomeComponent implements OnInit {
   }
 
   onDidChangeModelContentHandler(event: any): void {
-    if (this.isRemoteOp) {
-      this.isRemoteOp = !this.isRemoteOp;
+    if (this.remoteOpLeft > 0) {
+      this.remoteOpLeft--;
       return;
     }
 
@@ -123,13 +123,25 @@ export class HomeComponent implements OnInit {
 
     // It's a remove event
     if (newText == '') {
-      this.editorService.handleLocalRemove(this.editorTextModel, rangeDetails.startLineNumber, rangeDetails.startColumn, this.roomName);
+      this.editorService.handleLocalRemove(
+        this.editorTextModel,
+        rangeDetails.startLineNumber,
+        rangeDetails.startColumn,
+        this.roomName
+      );
     }
 
     // It's insert event
-    this.editorService.handleLocalInsert(this.editorTextModel, newText, rangeDetails.endLineNumber, rangeDetails.endColumn, this.roomName);
+    this.editorService.handleLocalInsert(
+      this.editorTextModel,
+      newText,
+      rangeDetails.endLineNumber,
+      rangeDetails.endColumn,
+      this.roomName
+    );
   }
 
+  allMessages: string = null;
   subscribeToSignalrEvents(): void {
     this.messageService.messageReceived.subscribe((message: Message) => {
       this.ngZone.run(() => {
@@ -146,15 +158,34 @@ export class HomeComponent implements OnInit {
             this.roomName = message.content;
             break;
           case MessageType.RemoteInsert:
-            this.isRemoteOp = true;
-            this.editorService.handleRemoteInsert(this.editorTextModel, message.content);
+            this.remoteOpLeft = 1;
+            this.editorService.handleRemoteInsert(
+              this.editorTextModel,
+              message.content
+            );
             break;
           case MessageType.RemoteRemove:
-            this.isRemoteOp = true;
-            this.editorService.handleRemoteRemove(this.editorTextModel, message.content);
+            this.remoteOpLeft = 1;
+            this.editorService.handleRemoteRemove(
+              this.editorTextModel,
+              message.content
+            );
             break;
           case MessageType.AllMessages:
-            console.log("AllMessage coming ...!")
+            if (message.content !== '') {
+              let crdtArr = message.content.split('~');
+              this.remoteOpLeft = crdtArr.length - 1;
+
+              // Duplicate tab duplicate editorTextModel too
+              if (this.editorTextModel === undefined) {
+                this.allMessages = message.content;
+              } else {
+                this.editorService.handleAllMessages(
+                  this.editorTextModel,
+                  message.content
+                );
+              }
+            }
             break;
           default:
             break;

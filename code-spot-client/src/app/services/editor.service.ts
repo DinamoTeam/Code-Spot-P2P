@@ -21,18 +21,16 @@ export class EditorService {
 
   constructor(private messageService: MessageService) {
     this.arr = new Array<CRDT>();
-    this.arr.push(new CRDT(
-      '_beg',
-      new CRDTId([new Identifier(1, 0)], this.curClock++)
-    ));
+    this.arr.push(
+      new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
+    );
 
-    this.arr.push(new CRDT(
-      '_end',
-      new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], this.curClock++)
-    ));
-
-    console.log('OUR CRDT ARRAY: ');
-    console.log(this.arr);
+    this.arr.push(
+      new CRDT(
+        '_end',
+        new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], this.curClock++)
+      )
+    );
   }
 
   handleLocalInsert(
@@ -47,10 +45,6 @@ export class EditorService {
     }
 
     let index = this.posToIndex(editorTextModel, endLineNumber, endColumn);
-    console.log("-------------------------------");
-    console.log(index);
-    console.log(this.arr);
-    console.log("-------------------------------");
     index += 1; // because we have beg limit
     const crdtIdBefore = this.arr[index - 1].id;
     const crdtIdAfter = this.arr[index].id;
@@ -88,6 +82,7 @@ export class EditorService {
   handleRemoteInsert(editorTextModel: any, crdtStr: string): void {
     let crdt = CRDT.parse(crdtStr);
     const index = Utils.insertCrdtToSortedCrdtArr(crdt, this.arr);
+    console.log(crdt.ch);
     this.writeCharToScreenAtIndex(editorTextModel, crdt.ch, index - 1);
   }
 
@@ -97,7 +92,21 @@ export class EditorService {
     //this.writeCharToScreenAtIndex(editorTextModel, index);
   }
 
-  writeCharToScreenAtIndex(editorTextModel: any, text: string, index: number): void {
+  handleAllMessages(editorTextModel: any, crdts: string): void {
+    let crdtArr = crdts.split('~');
+
+    console.log(crdtArr);
+
+    for (var i = 0; i < crdtArr.length - 1; i++) {
+      this.handleRemoteInsert(editorTextModel, crdtArr[i]);
+    }
+  }
+
+  writeCharToScreenAtIndex(
+    editorTextModel: any,
+    text: string,
+    index: number
+  ): void {
     const pos = this.indexToPos(editorTextModel, index);
     this.executeInsert(
       editorTextModel,
