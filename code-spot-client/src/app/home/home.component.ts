@@ -117,8 +117,8 @@ export class HomeComponent implements OnInit {
 
     // The new text for the range (! \n can't see)
     const newText = change.text;
-    //console.log('New text: |' + newText + '|');
-
+    console.log('New text: |' + newText + '|');
+    console.log(newText);
     // It's a remove event
     if (newText == '') {
       this.editorService.handleLocalRemove(
@@ -127,16 +127,16 @@ export class HomeComponent implements OnInit {
         rangeDetails.startColumn,
         this.roomName
       );
+    } else {
+      // It's insert event
+      this.editorService.handleLocalInsert(
+        this.editorTextModel,
+        newText,
+        rangeDetails.endLineNumber,
+        rangeDetails.endColumn,
+        this.roomName
+      );
     }
-
-    // It's insert event
-    this.editorService.handleLocalInsert(
-      this.editorTextModel,
-      newText,
-      rangeDetails.endLineNumber,
-      rangeDetails.endColumn,
-      this.roomName
-    );
   }
 
   subscribeToSignalrEvents(): void {
