@@ -4,6 +4,7 @@ import { EditorService } from '../services/editor.service';
 import { MessageService, MessageType } from '../services/message.service';
 import { Message } from '../shared/Message';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 
 declare const monaco: any;
 
@@ -27,7 +28,8 @@ export class HomeComponent implements OnInit {
     public editorService: EditorService,
     private messageService: MessageService,
     private ngZone: NgZone,
-    private actRoute: ActivatedRoute
+    private actRoute: ActivatedRoute,
+    private location: Location
   ) {
     this.subscribeToSignalrEvents();
     this.getRoomName();
@@ -149,6 +151,7 @@ export class HomeComponent implements OnInit {
             break;
           case MessageType.RoomName:
             this.roomName = message.content;
+            this.location.replaceState('/' + this.roomName);
             break;
           case MessageType.RemoteInsert:
             this.remoteOpLeft = 1;
