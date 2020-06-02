@@ -51,7 +51,6 @@ export class HomeComponent implements OnInit {
 
   onLanguageChange(res) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);
-    console.log(this.selectedLang);
 
     if (this.selectedLang === 'cpp') {
       this.editorOptions = Object.assign({}, this.editorOptions, {
@@ -117,8 +116,8 @@ export class HomeComponent implements OnInit {
 
     // The new text for the range (! \n can't see)
     const newText = change.text;
-    console.log('New text: |' + newText + '|');
-    console.log(newText);
+    //console.log('New text: |' + newText + '|');
+
     // It's a remove event
     if (newText == '') {
       this.editorService.handleLocalRemove(
@@ -160,8 +159,6 @@ export class HomeComponent implements OnInit {
             break;
           case MessageType.RemoteRemove:
             this.remoteOpLeft = 1;
-            console.log('MESSAGE FROM SERVER !!!');
-            console.log(message);
             this.editorService.handleRemoteRemove(
               this.editorTextModel,
               message.content

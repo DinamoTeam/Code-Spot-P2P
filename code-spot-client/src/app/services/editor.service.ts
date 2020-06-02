@@ -14,9 +14,6 @@ export class EditorService {
 
   static setSiteId(id: number): void {
     EditorService.siteId = id;
-    console.log(
-      'EditorService: receive siteId ' + EditorService.siteId + ' from server'
-    );
   }
 
   constructor(private messageService: MessageService) {
@@ -82,22 +79,17 @@ export class EditorService {
   handleRemoteInsert(editorTextModel: any, crdtStr: string): void {
     let crdt = CRDT.parse(crdtStr);
     const index = Utils.insertCrdtToSortedCrdtArr(crdt, this.arr);
-    console.log(crdt.ch);
     this.writeCharToScreenAtIndex(editorTextModel, crdt.ch, index - 1);
   }
 
   handleRemoteRemove(editorTextModel: any, crdtStr: string): void {
     let crdt = CRDT.parse(crdtStr);
-    console.log(this.arr);
     const index = Utils.removeCrdtFromSortedCrdtArr(crdt, this.arr);
-    console.log(this.arr);
     this.deleteCharFromScreenAtIndex(editorTextModel, index - 1);
   }
 
   handleAllMessages(editorTextModel: any, crdts: string): void {
     let crdtArr = crdts.split('~');
-
-    console.log(crdtArr);
 
     for (var i = 0; i < crdtArr.length; i++) {
       this.handleRemoteInsert(editorTextModel, crdtArr[i]);
@@ -122,12 +114,13 @@ export class EditorService {
 
   deleteCharFromScreenAtIndex(editorTextModel: any, index: number): void {
     const pos = this.indexToPos(editorTextModel, index);
-    this.executeRemove
-      (editorTextModel, pos.lineNumber,
+    this.executeRemove(
+      editorTextModel,
+      pos.lineNumber,
       pos.column,
       pos.lineNumber,
-        pos.column
-      );
+      pos.column
+    );
   }
 
   // Delete text from the screen
