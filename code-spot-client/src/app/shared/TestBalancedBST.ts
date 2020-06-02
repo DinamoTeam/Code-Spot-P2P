@@ -1,6 +1,6 @@
-import { BalancedBST } from './BalancedBST';
+import { BalancedBST, Comparable } from './BalancedBST';
 
-class Integer {
+class Integer implements Comparable {
     num: number;
     constructor(n: number) {
         this.num = n;

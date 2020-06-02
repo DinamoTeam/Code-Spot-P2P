@@ -75,7 +75,6 @@ export class BalancedBST<T extends Comparable> {
     if (this.isEmpty()) {
       return;
     }
-    console.log('HERE');
     let res = '';
     const q = new Queue<Node<T>>();
     q.enqueue(this.root);
