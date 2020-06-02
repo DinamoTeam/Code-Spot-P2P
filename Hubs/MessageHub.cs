@@ -52,7 +52,10 @@ namespace CodeSpot.Hubs
 			string result = string.Empty;
 			await _database.CRDTs.Where(c => c.RoomName == roomName)
 								 .ForEachAsync(c => { result += c.CRDTObject + '~'; });
-			result = result.Remove(result.Length - 1);
+
+			if (result != string.Empty)
+				result = result.Remove(result.Length - 1);
+
 			await SendMessageToCallerClient(MessageType.AllMessages, result);
 		}
 
