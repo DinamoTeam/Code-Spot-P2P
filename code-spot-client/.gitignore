@@ -5,6 +5,8 @@ CRDT.js
 CustomNumber.js
 TestCRDT.js
 TestCustomNumber.js
+BalancedBST.js
+TestBalancedBST.js
 
 # compiled output
 /dist
