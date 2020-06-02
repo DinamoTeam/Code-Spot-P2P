@@ -86,12 +86,12 @@ export class EditorService {
     this.writeCharToScreenAtIndex(editorTextModel, crdt.ch, index - 1);
   }
 
-  handleRemoteRemove(editor: any, crdtStr: string): void {
+  handleRemoteRemove(editorTextModel: any, crdtStr: string): void {
     let crdt = CRDT.parse(crdtStr);
     console.log(this.arr);
     const index = Utils.removeCrdtFromSortedCrdtArr(crdt, this.arr);
     console.log(this.arr);
-    //this.deleteCharFromScreenAtIndex(editor, index);
+    this.deleteCharFromScreenAtIndex(editorTextModel, index - 1);
   }
 
   handleAllMessages(editorTextModel: any, crdts: string): void {
@@ -120,11 +120,10 @@ export class EditorService {
     );
   }
 
-  deleteCharFromScreenAtIndex(editor, index: number): void {
-    const editorTextModel = editor.getModel();
+  deleteCharFromScreenAtIndex(editorTextModel: any, index: number): void {
     const pos = this.indexToPos(editorTextModel, index);
     this.executeRemove
-      (editor, pos.lineNumber,
+      (editorTextModel, pos.lineNumber,
       pos.column,
       pos.lineNumber,
         pos.column
@@ -133,7 +132,7 @@ export class EditorService {
 
   // Delete text from the screen
   executeRemove(
-    editor: any,
+    editorTextModel: any,
     startLineNumber: number,
     startColumn: number,
     endLineNumber: number,
@@ -143,10 +142,18 @@ export class EditorService {
       startLineNumber,
       startColumn,
       endLineNumber,
-      endColumn
+      endColumn + 1
     );
 
-    editor.addEditOperation(range, null, false);
+    editorTextModel.pushEditOperations(
+      [],
+      [
+        {
+          range: range,
+          text: null,
+        },
+      ]
+    );
   }
 
   // Write text to the screen
@@ -190,7 +197,6 @@ export class EditorService {
   }
 
   indexToPos(editorTextModel: any, index: number): any {
-    console.log(editorTextModel.getPositionAt(index));
     return editorTextModel.getPositionAt(index);
   }
 }

@@ -163,7 +163,7 @@ export class HomeComponent implements OnInit {
             console.log('MESSAGE FROM SERVER !!!');
             console.log(message);
             this.editorService.handleRemoteRemove(
-              this.editor,
+              this.editorTextModel,
               message.content
             );
             break;
