@@ -123,7 +123,7 @@ export class BalancedBST<T extends IsObject> {
     }
   }
 
-  find(data: T): Node<T> {
+  private find(data: T): Node<T> {
     if (this.isEmpty()) {
       return null;
     }
@@ -142,13 +142,48 @@ export class BalancedBST<T extends IsObject> {
   }
 
   getIndex(data: T): number {
-    // TODO
-    return 0;
+    if (this.isEmpty()) {
+      return -1;
+    }
+    let node = this.root;
+    let index = 0;
+    while (node) {
+      if (data.compareTo(node.data) === 0) {
+        // subtree of a leaf has size 0. subtree of null has size -1
+        const leftSubtreeSize = (node.left) ? node.left.subtreeSize : -1;
+        index += leftSubtreeSize + 1;
+        return index;
+      } else if(data.compareTo(node.data) < 0) {
+        node = node.left;
+      } else {
+        const leftSubtreeSize = (node.left) ? node.left.subtreeSize : -1;
+        index += leftSubtreeSize + 2;
+        node = node.right;
+      }
+    }
+    // Not found
+    return -1;
   }
 
   getDataAt(index: number): T {
-    // TODO
-    return null;
+    if (this.isEmpty() || index >= this.size) {
+      return null;
+    }
+
+    let node = this.root;
+    while (node) {
+      const leftSubtreeSize = (node.left) ? node.left.subtreeSize : -1;
+      if (index === leftSubtreeSize + 1) {
+        return node.data;
+      } else if (index <= leftSubtreeSize) {
+        node = node.left;
+      } else {
+        index -= (leftSubtreeSize + 2);
+        node = node.right;
+      }
+    }
+    // Weird. Something went wrong
+    throw new Error('Something went wrong when getDataAt(index)');
   }
 
   getSize(): number {
