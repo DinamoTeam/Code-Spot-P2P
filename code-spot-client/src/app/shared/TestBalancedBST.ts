@@ -24,7 +24,7 @@ function testInsertAndRemove(numberOfOperations: number): void {
   for (let i = 0; i < numberOfOperations; i++) {
     const randomNumber =
       Math.floor(Math.random() * (MAX_DATA - MIN_DATA + 1)) + MIN_DATA;
-    if (Math.random() < 0.9) {
+    if (Math.random() < 0.5) {
       bst.insert(new Integer(randomNumber));
       insertSorted(sortedArr, new Integer(randomNumber));
     } else {
@@ -42,7 +42,53 @@ function testInsertAndRemove(numberOfOperations: number): void {
       numberOfOperations +
       ' operations, ' +
       numError +
-      ' found'
+      ' errors found'
+  );
+}
+
+function testOrderStatistics(numberOfOperations: number) {
+  const MIN_DATA = -10000;
+  const MAX_DATA = 10000;
+  let numError = 0;
+
+  const sortedArr = new Array<Integer>();
+  const bst = new BalancedBST<Integer>();
+
+  for (let i = 0; i < numberOfOperations; i++) {
+    const randomNumber =
+      Math.floor(Math.random() * (MAX_DATA - MIN_DATA + 1)) + MIN_DATA;
+    if (Math.random() < 0.5) {
+      bst.insert(new Integer(randomNumber));
+      insertSorted(sortedArr, new Integer(randomNumber));
+    } else {
+      bst.remove(new Integer(randomNumber));
+      removeSorted(sortedArr, new Integer(randomNumber));
+    }
+
+    // Test getIndex()
+    for (let j = 0; j < sortedArr.length; j++) {
+      const curData = sortedArr[j];
+      if (bst.getIndex(curData) !== j) {
+        console.error('getIndex() failed');
+        numError++;
+      }
+    }
+
+    // Test getDataAt()
+    for (let j = 0; j < sortedArr.length; j++) {
+      if (bst.getDataAt(j).compareTo(sortedArr[j]) !== 0) {
+        console.error('getDataAt() failed');
+        numError++;
+      }
+    }
+  }
+
+  console.log(
+    'Test order statistics by executing ' +
+      numberOfOperations +
+      ' operations, ' +
+      numError +
+      ' errors found'
   );
 }
 
@@ -59,27 +105,23 @@ function insertSorted(sortedArr: Integer[], data: Integer): void {
 }
 
 function removeSorted(sortedArr: Integer[], data: Integer): void {
-    for (let i = 0; i < sortedArr.length; i++) {
-        if (data.compareTo(sortedArr[i]) === 0) {
-            sortedArr.splice(i, 1);
-        }
+  for (let i = 0; i < sortedArr.length; i++) {
+    if (data.compareTo(sortedArr[i]) === 0) {
+      sortedArr.splice(i, 1);
     }
+  }
 }
 
 function arrToString(arrSorted: Integer[]): string {
-    let res = '';
-    for (let i = 0; i < arrSorted.length; i++) {
-        res = res + arrSorted[i].toString();
-    }
-    return res;
+  let res = '';
+  for (let i = 0; i < arrSorted.length; i++) {
+    res = res + arrSorted[i].toString();
+  }
+  return res;
 }
 
 testInsertAndRemove(10000);
-
-
-
-
-
+testOrderStatistics(10000);
 
 /*
 const bst = new BalancedBST<Integer>();
@@ -92,22 +134,7 @@ bst.insert(new Integer(8));
 bst.remove(new Integer(5));
 bst.remove(new Integer(100));
 
-const arr: Integer[] = [];
-insertSorted(arr, new Integer(2));
-insertSorted(arr, new Integer(100));
-insertSorted(arr, new Integer(-3));
-insertSorted(arr, new Integer(5));
-insertSorted(arr, new Integer(4));
-insertSorted(arr, new Integer(8));
-removeSorted(arr, new Integer(5));
-removeSorted(arr, new Integer(100));
-
-console.log(bst.inorderToString());
-console.log(arrToString(arr));
-
-console.log(bst.inorderToString().length);
-console.log(arrToString(arr).length);
-
-const b = bst.inorderToString() === arrToString(arr);
-console.log(b);
+for (let i = 0; i < bst.getSize(); i++) {
+  console.log(bst.getDataAt(i).toString());
+}
 */
