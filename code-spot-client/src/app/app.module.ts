@@ -13,6 +13,11 @@ import { FooterComponent } from './footer/footer.component';
 import { AboutComponent } from './about/about.component';
 
 const monacoConfig: NgxMonacoEditorConfig = {
+  defaultOptions: {
+    wordWrap: "on",
+    showUnused: true,
+    tabCompletion: "onlySnippets",
+  },
   onMonacoLoad: () => {
     /* Change Config here */
   },
