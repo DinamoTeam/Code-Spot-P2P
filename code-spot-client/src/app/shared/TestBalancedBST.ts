@@ -25,11 +25,19 @@ function testInsertAndRemove(numberOfOperations: number): void {
     const randomNumber =
       Math.floor(Math.random() * (MAX_DATA - MIN_DATA + 1)) + MIN_DATA;
     if (Math.random() < 0.5) {
-      bst.insert(new Integer(randomNumber));
-      insertSorted(sortedArr, new Integer(randomNumber));
+      const bstReturnIndex = bst.insert(new Integer(randomNumber));
+      const arrReturnIndex = insertSorted(sortedArr, new Integer(randomNumber));
+      if (bstReturnIndex !== arrReturnIndex) {
+        console.error('The return value of insert function is incorrect!');
+        numError++;
+      }
     } else {
-      bst.remove(new Integer(randomNumber));
-      removeSorted(sortedArr, new Integer(randomNumber));
+      const bstReturnIndex = bst.remove(new Integer(randomNumber));
+      const arrReturnIndex = removeSorted(sortedArr, new Integer(randomNumber));
+      if (bstReturnIndex !== arrReturnIndex) {
+        console.error('The return value of remove function is incorrect!');
+        numError++;
+      }
     }
     if (bst.inorderToString() !== arrToString(sortedArr)) {
       console.error('The tree does not remains Binary Search property!');
@@ -118,7 +126,7 @@ function testTreeIsBalanced(numberOfOperations: number) {
     console.log(
       'Test tree balance by executing ' +
         numberOfOperations +
-        ' operations, tree remains balanced after every single operations!'
+        ' operations, tree remains balanced after every single operations! 0 errors found'
     );
   } else {
     console.log(
@@ -131,24 +139,27 @@ function testTreeIsBalanced(numberOfOperations: number) {
   }
 }
 
-function insertSorted(sortedArr: Integer[], data: Integer): void {
+function insertSorted(sortedArr: Integer[], data: Integer): number {
   for (let i = 0; i < sortedArr.length; i++) {
     if (data.compareTo(sortedArr[i]) === 0) {
-      return;
+      return -1;
     } else if (data.compareTo(sortedArr[i]) < 0) {
       sortedArr.splice(i, 0, data);
-      return;
+      return i;
     }
   }
   sortedArr.push(data);
+  return sortedArr.length - 1;
 }
 
-function removeSorted(sortedArr: Integer[], data: Integer): void {
+function removeSorted(sortedArr: Integer[], data: Integer): number {
   for (let i = 0; i < sortedArr.length; i++) {
     if (data.compareTo(sortedArr[i]) === 0) {
       sortedArr.splice(i, 1);
+      return i;
     }
   }
+  return -1;
 }
 
 function arrToString(arrSorted: Integer[]): string {
