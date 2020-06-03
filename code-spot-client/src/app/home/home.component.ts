@@ -98,8 +98,8 @@ export class HomeComponent implements OnInit {
 
   onDidPasteHandler(event: any) {
     const rangeDetails = event;
-    console.log('Pasted range' + rangeDetails);
-    console.log(rangeDetails);
+    //console.log('Pasted range' + rangeDetails);
+    //console.log(rangeDetails);
   }
 
   onDidChangeModelContentHandler(event: any): void {
@@ -118,18 +118,19 @@ export class HomeComponent implements OnInit {
 
     // The new text for the range (! \n can't see)
     const newText = change.text;
-    //console.log('New text: |' + newText + '|');
+    console.log('New text: |' + newText + '|');
+    console.log(rangeDetails);
 
     // It's a remove event
-    if (newText == '') {
+    if (newText.length === 0) {
       this.editorService.handleLocalRemove(
         this.editorTextModel,
         rangeDetails.startLineNumber,
         rangeDetails.startColumn,
         this.roomName
       );
-    } else {
-      // It's insert event
+    } else if (newText.length === 1) {
+      // It's insert char event
       this.editorService.handleLocalInsert(
         this.editorTextModel,
         newText,
@@ -137,6 +138,36 @@ export class HomeComponent implements OnInit {
         rangeDetails.endColumn,
         this.roomName
       );
+    } else if (newText.length > 1) {
+      // !!! It can be pasted / or use auto-suggest
+      // TODO: handle auto-suggest
+      this.handlePasteEvent(
+        newText,
+        rangeDetails.endLineNumber,
+        rangeDetails.endColumn
+      );
+    }
+  }
+
+  handlePasteEvent(text: string, endLineNumber: number, endColumn: number) {
+    const letters = text.split('');
+    //console.log(letters);
+    for (var i = 0; i < letters.length; i++) {
+      console.log(letters[i] + ' ' + endLineNumber + ' ' + endColumn);
+      this.editorService.handleLocalInsert(
+        this.editorTextModel,
+        letters[i],
+        endLineNumber,
+        endColumn,
+        this.roomName
+      );
+
+      if (letters[i] === '\n') {
+        endLineNumber++;
+        endColumn = 0;
+      }
+
+      endColumn++;
     }
   }
 

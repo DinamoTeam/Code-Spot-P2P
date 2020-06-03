@@ -83,6 +83,7 @@ export class EditorService {
   }
 
   handleRemoteRemove(editorTextModel: any, crdtStr: string): void {
+    console.log(this.arr);
     let crdt = CRDT.parse(crdtStr);
     const index = Utils.removeCrdtFromSortedCrdtArr(crdt, this.arr);
     this.deleteCharFromScreenAtIndex(editorTextModel, index - 1);
