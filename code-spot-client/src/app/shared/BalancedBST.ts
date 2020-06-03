@@ -1,8 +1,10 @@
-export interface Comparable {
-  compareTo: (other: any) => number;
+export interface IsObject {
+  compareTo: (other: this) => number;
+  toString: () => string;
 }
 
-export class BalancedBST<T extends Comparable> {
+// NO DUPLICATES in this BST! return -1 if insert duplicate elements
+export class BalancedBST<T extends IsObject> {
   private root: Node<T>;
   private size: number;
   constructor() {
@@ -22,7 +24,8 @@ export class BalancedBST<T extends Comparable> {
     let node = this.root;
     while (true) {
       if (data.compareTo(node.data) === 0) {
-        throw new Error('This BST does not allow duplicate elements');
+        // No duplicate elements
+        return -1;
       } else if (data.compareTo(node.data) < 0) {
         // Go left
         if (node.left === null) {
@@ -46,8 +49,106 @@ export class BalancedBST<T extends Comparable> {
   }
 
   remove(data: T): number {
+    const nodeToRemove = this.find(data);
+    if (!nodeToRemove) {
+      return -1;
+    }
+    const returnIndex = this.getIndex(data);
+    this.size--;
+    this.removeHelper(nodeToRemove);
+    return returnIndex;
+  }
+
+  private removeHelper(nodeToRemove: Node<T>) {
+    // if nodeToRemove is a leaf
+    if (!nodeToRemove.left && !nodeToRemove.right) {
+      // and it is also the root
+      if (!nodeToRemove.parent) {
+        this.root = null;
+      } else {
+        this.decrementAllAncestorsSize(nodeToRemove);
+        const parent = nodeToRemove.parent;
+        if (parent.left === nodeToRemove) {
+          parent.left = null;
+        } else {
+          parent.right = null;
+        }
+      }
+    } else if (nodeToRemove.left && nodeToRemove.right) {
+      // If has 2 children
+      // Find left most node in right subtree
+      let temp = nodeToRemove.right;
+      while (temp.left) {
+        temp = temp.left;
+      }
+      // temp is the left most node
+      nodeToRemove.data = temp.data;
+      this.removeHelper(temp);
+    } else {
+      // It has 1 children
+      const parent = nodeToRemove.parent;
+      // If that is left child
+      if (nodeToRemove.left) {
+        // If nodeToRemove is the root
+        if (!parent) {
+          nodeToRemove.left.parent = null;
+          this.root = nodeToRemove.left;
+        } else {
+          this.decrementAllAncestorsSize(nodeToRemove);
+          if (parent.left === nodeToRemove) {
+            parent.left = nodeToRemove.left;
+            nodeToRemove.left.parent = parent;
+          } else {
+            parent.right = nodeToRemove.left;
+            nodeToRemove.left.parent = parent;
+          }
+        }
+      } else {
+        // It has right child
+        // If nodeToRemove is the root
+        if (!parent) {
+          nodeToRemove.right.parent = null;
+          this.root = nodeToRemove.right;
+        } else {
+          this.decrementAllAncestorsSize(nodeToRemove);
+          if (parent.left === nodeToRemove) {
+            parent.left = nodeToRemove.right;
+            nodeToRemove.right.parent = parent;
+          } else {
+            parent.right = nodeToRemove.right;
+            nodeToRemove.right.parent = parent;
+          }
+        }
+      }
+    }
+  }
+
+  find(data: T): Node<T> {
+    if (this.isEmpty()) {
+      return null;
+    }
+    let node = this.root;
+    while (node) {
+      if (data.compareTo(node.data) === 0) {
+        return node;
+      } else if (data.compareTo(node.data) < 0) {
+        node = node.left;
+      } else {
+        node = node.right;
+      }
+    }
+    // Not found
+    return null;
+  }
+
+  getIndex(data: T): number {
     // TODO
     return 0;
+  }
+
+  getDataAt(index: number): T {
+    // TODO
+    return null;
   }
 
   getSize(): number {
@@ -61,14 +162,23 @@ export class BalancedBST<T extends Comparable> {
     return this.size === 0;
   }
 
-  getIndex(data: T): number {
-    // TODO
-    return 0;
+  inorderToString(): string {
+    const res: string[] = [];
+    this.inorderHelper(this.root, res);
+    let stringRes = '';
+    for (let i = 0; i < res.length; i++) {
+      stringRes = stringRes + res[i];
+    }
+    return stringRes;
   }
 
-  getDataAt(index: number): T {
-    // TODO
-    return null;
+  private inorderHelper(node: Node<T>, res: string[]): void {
+    if (!node) {
+      return;
+    }
+    this.inorderHelper(node.left, res);
+    res.push(node.data.toString());
+    this.inorderHelper(node.right, res);
   }
 
   printLevel(): void {
@@ -102,6 +212,18 @@ export class BalancedBST<T extends Comparable> {
       node.subtreeSize++;
     }
   }
+
+  private decrementAllAncestorsSize(node: Node<T>): void {
+    if (node === null) {
+      throw new Error(
+        'Error: You should not call incrementAllAncestorsSize on a null node'
+      );
+    }
+    while (node.parent !== null) {
+      node = node.parent;
+      node.subtreeSize--;
+    }
+  }
 }
 
 class Node<T> {
@@ -112,16 +234,13 @@ class Node<T> {
   parent: Node<T>;
   constructor(
     data: T,
-    parent: Node<T> = null,
-    left: Node<T> = null,
-    right: Node<T> = null,
-    subtreeSize: number = 0
+    parent: Node<T>
   ) {
     this.data = data;
-    this.left = left;
-    this.right = right;
+    this.left = null;
+    this.right = null;
     this.parent = parent;
-    this.subtreeSize = subtreeSize;
+    this.subtreeSize = 0;
   }
 }
 
