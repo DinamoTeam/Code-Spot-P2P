@@ -92,6 +92,45 @@ function testOrderStatistics(numberOfOperations: number) {
   );
 }
 
+function testTreeIsBalanced(numberOfOperations: number) {
+  const MIN_DATA = -10000;
+  const MAX_DATA = 10000;
+  let numError = 0;
+
+  const bst = new BalancedBST<Integer>();
+
+  for (let i = 0; i < numberOfOperations; i++) {
+    const randomNumber =
+      Math.floor(Math.random() * (MAX_DATA - MIN_DATA + 1)) + MIN_DATA;
+    if (Math.random() < 0.9) {
+      bst.insert(new Integer(randomNumber));
+    } else {
+      bst.remove(new Integer(randomNumber));
+    }
+
+    if (!bst.isBalance()) {
+      console.error('Error: Tree is not balanced!');
+      numError++;
+    }
+  }
+
+  if (numError === 0) {
+    console.log(
+      'Test tree balance by executing ' +
+        numberOfOperations +
+        ' operations, tree remains balanced after every single operations!'
+    );
+  } else {
+    console.log(
+      'Test tree balance by executing ' +
+        numberOfOperations +
+        ' operations, ' +
+        numError +
+        ' errors found'
+    );
+  }
+}
+
 function insertSorted(sortedArr: Integer[], data: Integer): void {
   for (let i = 0; i < sortedArr.length; i++) {
     if (data.compareTo(sortedArr[i]) === 0) {
@@ -122,19 +161,4 @@ function arrToString(arrSorted: Integer[]): string {
 
 testInsertAndRemove(10000);
 testOrderStatistics(10000);
-
-/*
-const bst = new BalancedBST<Integer>();
-bst.insert(new Integer(2));
-bst.insert(new Integer(100));
-bst.insert(new Integer(-3));
-bst.insert(new Integer(5));
-bst.insert(new Integer(4));
-bst.insert(new Integer(8));
-bst.remove(new Integer(5));
-bst.remove(new Integer(100));
-
-for (let i = 0; i < bst.getSize(); i++) {
-  console.log(bst.getDataAt(i).toString());
-}
-*/
+testTreeIsBalanced(10000);
