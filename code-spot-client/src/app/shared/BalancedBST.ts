@@ -31,9 +31,8 @@ export class BalancedBST<T extends IsObject> {
         if (node.left === null) {
           node.left = new Node<T>(data, node);
           this.incrementAllAncestorsSize(node.left);
-          const indexToReturn = this.getIndex(node.left.data);
           this.goUpRebalanceAndUpdateHeightBFAndSubtreeSize(node);
-          return indexToReturn;
+          return this.getIndex(data);
         } else {
           node = node.left;
         }
@@ -42,9 +41,8 @@ export class BalancedBST<T extends IsObject> {
         if (node.right === null) {
           node.right = new Node<T>(data, node);
           this.incrementAllAncestorsSize(node.right);
-          const indexToReturn = this.getIndex(node.right.data);
           this.goUpRebalanceAndUpdateHeightBFAndSubtreeSize(node);
-          return indexToReturn;
+          return this.getIndex(data);
         } else {
           node = node.right;
         }
@@ -296,12 +294,27 @@ export class BalancedBST<T extends IsObject> {
   }
 
   isBalance(): boolean {
-    const maximumHeight = Math.ceil(Math.log2(this.size)) + 1;
-    return this.getHeight() <= maximumHeight;
+    if (this.isEmpty()) {
+      return true;
+    }
+    const q = new Queue<Node<T>>();
+    q.enqueue(this.root);
+    while (!q.isEmpty()) {
+      const node = q.dequeue();
+      if (node.balancedFactor < -1 || node.balancedFactor > 1) {
+        return false;
+      }
+      if (node.left) {
+        q.enqueue(node.left);
+      }
+      if (node.right) {
+        q.enqueue(node.right);
+      }
+    }
+    return true;
   }
 
-  // Note: I can simply get height from this.root.height,
-  // but I want to calculate everything again to see if they confirm each other
+  // Note: Slow, for test purposes only. If you need height, simply return this.root.height + 1
   getHeight(): number {
     if (this.isEmpty()) {
       return 0;
