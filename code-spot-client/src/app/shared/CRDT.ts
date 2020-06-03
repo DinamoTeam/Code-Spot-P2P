@@ -3,10 +3,11 @@
 // CustomNumber trim 0s at the beginning
 
 import { CustomNumber } from './CustomNumber';
+import { IsObject } from './BalancedBST';
 
 // Each CRDT object will correspond to 1 character in the text editor
-// A sorted, increasing order of CRDT array will correspond to the whole text
-export class CRDT {
+// A sorted (increasing order) CRDT array will correspond to the whole text
+export class CRDT implements IsObject {
   ch: string;
   id: CRDTId;
 

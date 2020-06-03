@@ -1,4 +1,6 @@
 import { BalancedBST, IsObject } from './BalancedBST';
+import { CRDT, CRDTId, Identifier } from './CRDT';
+import { CustomNumber } from './CustomNumber';
 
 class Integer implements IsObject {
   num: number;
@@ -14,29 +16,42 @@ class Integer implements IsObject {
 }
 
 function testInsertAndRemove(numberOfOperations: number): void {
-  const MIN_DATA = -10000;
-  const MAX_DATA = 10000;
   let numError = 0;
+  let clock = 0;
 
-  const sortedArr = new Array<Integer>();
-  const bst = new BalancedBST<Integer>();
+  const sortedArr = new Array<CRDT>();
+  const bst = new BalancedBST<CRDT>();
+  const begCRDT = new CRDT('_beg', new CRDTId([new Identifier(1, 0)], clock++));
+  const endCRDT = new CRDT(
+    '_end',
+    new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], clock++)
+  );
+  bst.insert(begCRDT);
+  bst.insert(endCRDT);
+  insertSorted(sortedArr, begCRDT);
+  insertSorted(sortedArr, endCRDT);
 
   for (let i = 0; i < numberOfOperations; i++) {
-    const randomNumber =
-      Math.floor(Math.random() * (MAX_DATA - MIN_DATA + 1)) + MIN_DATA;
-    if (Math.random() < 0.5) {
-      const bstReturnIndex = bst.insert(new Integer(randomNumber));
-      const arrReturnIndex = insertSorted(sortedArr, new Integer(randomNumber));
+    if (Math.random() < 0.7) {
+      const randomCRDT = generateRandomCRDT(clock++);
+      const bstReturnIndex = bst.insert(randomCRDT);
+      const arrReturnIndex = insertSorted(sortedArr, randomCRDT);
       if (bstReturnIndex !== arrReturnIndex) {
         console.error('The return value of insert function is incorrect!');
         numError++;
       }
     } else {
-      const bstReturnIndex = bst.remove(new Integer(randomNumber));
-      const arrReturnIndex = removeSorted(sortedArr, new Integer(randomNumber));
-      if (bstReturnIndex !== arrReturnIndex) {
-        console.error('The return value of remove function is incorrect!');
-        numError++;
+      if (bst.getSize() > 2) {
+        // random index except 0 and length - 1
+        const randomIndexToRemove =
+          Math.floor(Math.random() * (bst.getSize() - 2)) + 1;
+        const crdtToBeRemoved = bst.getDataAt(randomIndexToRemove);
+        const bstReturnIndex = bst.remove(crdtToBeRemoved);
+        const arrReturnIndex = removeSorted(sortedArr, crdtToBeRemoved);
+        if (bstReturnIndex !== arrReturnIndex) {
+          console.error('The return value of remove function is incorrect!');
+          numError++;
+        }
       }
     }
     if (bst.inorderToString() !== arrToString(sortedArr)) {
@@ -55,22 +70,35 @@ function testInsertAndRemove(numberOfOperations: number): void {
 }
 
 function testOrderStatistics(numberOfOperations: number) {
-  const MIN_DATA = -10000;
-  const MAX_DATA = 10000;
   let numError = 0;
+  let clock = 0;
 
-  const sortedArr = new Array<Integer>();
-  const bst = new BalancedBST<Integer>();
+  const sortedArr = new Array<CRDT>();
+  const bst = new BalancedBST<CRDT>();
+  const begCRDT = new CRDT('_beg', new CRDTId([new Identifier(1, 0)], clock++));
+  const endCRDT = new CRDT(
+    '_end',
+    new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], clock++)
+  );
+  bst.insert(begCRDT);
+  bst.insert(endCRDT);
+  insertSorted(sortedArr, begCRDT);
+  insertSorted(sortedArr, endCRDT);
 
   for (let i = 0; i < numberOfOperations; i++) {
-    const randomNumber =
-      Math.floor(Math.random() * (MAX_DATA - MIN_DATA + 1)) + MIN_DATA;
-    if (Math.random() < 0.5) {
-      bst.insert(new Integer(randomNumber));
-      insertSorted(sortedArr, new Integer(randomNumber));
+    if (Math.random() < 0.7) {
+      const randomCRDT = generateRandomCRDT(clock++);
+      bst.insert(randomCRDT);
+      insertSorted(sortedArr, randomCRDT);
     } else {
-      bst.remove(new Integer(randomNumber));
-      removeSorted(sortedArr, new Integer(randomNumber));
+      if (bst.getSize() > 2) {
+        // random index except 0 and length - 1
+        const randomIndexToRemove =
+          Math.floor(Math.random() * (bst.getSize() - 2)) + 1;
+        const crdtToBeRemoved = bst.getDataAt(randomIndexToRemove);
+        bst.remove(crdtToBeRemoved);
+        removeSorted(sortedArr, crdtToBeRemoved);
+      }
     }
 
     // Test getIndex()
@@ -101,19 +129,29 @@ function testOrderStatistics(numberOfOperations: number) {
 }
 
 function testTreeIsBalanced(numberOfOperations: number) {
-  const MIN_DATA = -10000;
-  const MAX_DATA = 10000;
   let numError = 0;
+  let clock = 0;
 
-  const bst = new BalancedBST<Integer>();
+  const bst = new BalancedBST<CRDT>();
+  const begCRDT = new CRDT('_beg', new CRDTId([new Identifier(1, 0)], clock++));
+  const endCRDT = new CRDT(
+    '_end',
+    new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], clock++)
+  );
+  bst.insert(begCRDT);
+  bst.insert(endCRDT);
 
   for (let i = 0; i < numberOfOperations; i++) {
-    const randomNumber =
-      Math.floor(Math.random() * (MAX_DATA - MIN_DATA + 1)) + MIN_DATA;
     if (Math.random() < 0.9) {
-      bst.insert(new Integer(randomNumber));
+      bst.insert(generateRandomCRDT(clock++));
     } else {
-      bst.remove(new Integer(randomNumber));
+      if (bst.getSize() > 2) {
+        // random index except 0 and length - 1
+        const randomIndexToRemove =
+          Math.floor(Math.random() * (bst.getSize() - 2)) + 1;
+        const crdtToBeRemoved = bst.getDataAt(randomIndexToRemove);
+        bst.remove(crdtToBeRemoved);
+      }
     }
 
     if (!bst.isBalance()) {
@@ -139,7 +177,7 @@ function testTreeIsBalanced(numberOfOperations: number) {
   }
 }
 
-function insertSorted(sortedArr: Integer[], data: Integer): number {
+function insertSorted(sortedArr: CRDT[], data: CRDT): number {
   for (let i = 0; i < sortedArr.length; i++) {
     if (data.compareTo(sortedArr[i]) === 0) {
       return -1;
@@ -152,7 +190,7 @@ function insertSorted(sortedArr: Integer[], data: Integer): number {
   return sortedArr.length - 1;
 }
 
-function removeSorted(sortedArr: Integer[], data: Integer): number {
+function removeSorted(sortedArr: CRDT[], data: CRDT): number {
   for (let i = 0; i < sortedArr.length; i++) {
     if (data.compareTo(sortedArr[i]) === 0) {
       sortedArr.splice(i, 1);
@@ -162,7 +200,7 @@ function removeSorted(sortedArr: Integer[], data: Integer): number {
   return -1;
 }
 
-function arrToString(arrSorted: Integer[]): string {
+function arrToString(arrSorted: CRDT[]): string {
   let res = '';
   for (let i = 0; i < arrSorted.length; i++) {
     res = res + arrSorted[i].toString();
@@ -170,6 +208,22 @@ function arrToString(arrSorted: Integer[]): string {
   return res;
 }
 
-testInsertAndRemove(10000);
+function generateRandomCRDT(clock: number): CRDT {
+  const MAX_NUMBER_OF_IDENTIFIER = 50;
+  const numberOfSiteId = 10;
+
+  const numberOfIdentifiers =
+    Math.floor(Math.random() * MAX_NUMBER_OF_IDENTIFIER) + 1;
+  const identifierArr: Identifier[] = [];
+  for (let i = 0; i < numberOfIdentifiers; i++) {
+    const randomDigit = Math.floor(Math.random() * 100000) + 1;
+    const randomSiteId = Math.floor(Math.random() * numberOfSiteId) + 1;
+    const randomIdentifier = new Identifier(randomDigit, randomSiteId);
+    identifierArr.push(randomIdentifier);
+  }
+  return new CRDT('a', new CRDTId(identifierArr, clock));
+}
+
+testInsertAndRemove(1000);
 testOrderStatistics(10000);
 testTreeIsBalanced(10000);
