@@ -226,7 +226,7 @@ export class CodeEditorComponent implements OnInit {
       (successful: boolean) => {
         if (successful) {
           this.roomName = this.actRoute.snapshot.params['roomName'];
-          console.log(this.roomName);
+          console.log(this.actRoute.snapshot);
           if (this.roomName == 'NONE')
             this.messageService.sendSignalCreateNewRoom();
           else {
@@ -235,5 +235,26 @@ export class CodeEditorComponent implements OnInit {
         }
       }
     );
+  }
+
+  showSuccessAlert: boolean = false;
+  copyLink(): void {
+    const selBox = document.createElement('textarea');
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.top = '0';
+    selBox.style.opacity = '0';
+    selBox.value = window.location.href;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+    document.body.removeChild(selBox);
+
+    this.showSuccessAlert = true;
+  }
+
+  closeAlert() {
+    this.showSuccessAlert = false;
   }
 }

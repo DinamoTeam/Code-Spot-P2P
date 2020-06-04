@@ -1,3 +1,9 @@
+<div *ngIf="showSuccessAlert" class="alert alert-success" role="alert" style="position: absolute">
+  Link copied to clipboard!
+  <button type="button" class="close" (click)="closeAlert()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 <div class="container mt-3">
   <!--<h3>{{roomName}}</h3>-->
   <div class="col-md-12">
@@ -16,5 +22,5 @@
       </div>
     </form>
   </div>
-  <a class="btn btn-md mb-3 btn-navy" role="button" routerLink="/editor">Get shareable link!</a>
+  <button class="btn btn-md mb-3 btn-navy" (click)="copyLink()">Get shareable link!</button>
 </div>
