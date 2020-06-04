@@ -1,19 +1,10 @@
-<div class="container mt-100">
-  <h3>{{roomName}}</h3>
-  <div class="col-md-12">
-    <form class="form-horizontal" [formGroup]="languageForm">
-      <!--Select Language-->
-      <div class="form-group">
-        <div class="col-sm-2">
-          <select class="form-control" formControlName="language" (change)="onLanguageChange($event.target.value)">
-            <option *ngFor="let language of languages" [ngValue]="language.value">{{language.name}}</option>
-          </select>
-        </div>
-      </div>
-      <!--Editor-->
-      <div>
-        <ngx-monaco-editor class="solution-code-editor"  [options]="editorOptions" (onInit)="onInitHandler($event)"></ngx-monaco-editor>
-      </div>
-    </form>
+<div class="jumbotron">
+  <div class="container">
+    <h1 class="display-3">Code and Collab!</h1>
+    <p>A sync code editor that helps you ...</p>
+    <div class="d-flex flex-column flex-md-row">
+      <a class="btn btn-primary btn-lg mr-md-3" role="button" routerLink="/editor">Create New Room &raquo;</a>
+      <a class="btn btn-outline-secondary btn-lg ml-20" role="button" routerLink="/editor">Join Existing Room &raquo;</a>
+    </div>
   </div>
 </div>
