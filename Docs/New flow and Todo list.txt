@@ -1,0 +1,55 @@
+0. Goals
+	- Enable fast insert / delete even if user paste / delete 10k characters
+	- Make syncing works for all cases (insert, remove, replace a chunk of text and code suggestion)
+
+I.	Flow (integrated generateNPositionsBetween and BalancedBST):
+	
+	1	Editor.service.ts
+		- handleLocalRangeInsert(editorTextModel: any, chArr: string[], startIndex: number, roomName: string): void {}
+			+ Generate N CRDT objects using generateNPositionsBetween, insert them to BalancedBST and then broadcast them to the server
+			
+		- handleLocalRangeRemove(editorTextModel: any, startIndex: number, length: number, roomName: string): void {}
+			+ Remove N CRDT objects from BalancedBST, add these N objects to a list and broadcast that list to the server
+			
+		- handleRemoteRangeRemove(editorTextModel: any, crdtStrs: string[]): void {}
+			+ Remove each CRDT object from the BalancedBST, return a list of {index, char} to be reflected on Monaco
+			+ NOTE: Some EDGE CASES will break the program if on Monaco, we take a shortcut and delete text from list[0].index to list[length-1].index
+			+ Worst case senerio, we will need to delete individual character one by one on Monaco. This will not happen though. 
+				We can loop through list for consecutive ranges and delete them
+				
+		- handleRemoteRangeInsert(editorTextModel: any, crdtStrs: string[]): void {}
+			+ Insert each CRDT object to the BalancedBST, return a list of {index, char} to be reflected on Monaco
+			+ Same NOTE with handleRemoteRangeRemove
+			
+	2	MessageHub.cs
+		- ExecuteRangeInsert(List<string> crdtStrs, string roomName)
+			+ Add each crdtStr to database and then send RemoteRangeInsert request to otherClientsInGroup
+		
+		- ExecuteRangeRemove(List<string> crdtStrs, string roomName)
+			+ Delete each crdtStr from database and send RemoteRangeRemove request to otherClientsInGroup
+		
+		NOTE:  Optimize insert to / delete from database by executing SaveChangesAsync AFTER we have inserted / deleted ALL crdtStrs
+
+	// Ê trong message content ko cần seperate CRDT by ~ nữa, dùng 1 cái list là xong right? List<string> crdtStrs ý?
+
+II/ TODO LIST:
+
+1.	Editor side:
+	- Write 4 functions in Part I
+	- Use these 4 functions to sync when
+		+ insert text 
+		+ delete text
+		+ replace a chunk of text (replace = remove and then insert)
+		+ code suggestion
+		+ Select text and move it by mouse. We need to either hand this case or disable this feature
+	- Get AllMessage: When User1 just inserted 1000 characters, User2 enters the room, User2 gets error -> fix that (Maybe not, we will change to P2P anyway)
+	- User1 is typing lots of text. User2 move cursor to where User1 is typing -> User2's text is selected -> Fix that
+
+2.	Server side:
+	- Write 2 functions in Part I
+	- Delete Room's data database when all users have disconnected
+	
+3.	Other stuff (Not too important for now):
+	- Optimize generateLessThan() for shorter CRDTId
+	- Peer to Peer 
+	- Handle the case where User's wifi goes down
