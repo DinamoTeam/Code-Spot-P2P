@@ -142,6 +142,14 @@ export class CodeEditorComponent implements OnInit {
         } else {
           console.log('Text that spanned multiple lines got removed!');
           // TODO: Delete text that span multiple lines
+          this.editorService.handleLocalRangeRemove(
+            this.editorTextModel,
+            rangeDetails.startLineNumber,
+            rangeDetails.startColumn,
+            rangeDetails.endLineNumber,
+            rangeDetails.endColumn,
+            this.roomName
+          );
         }
       }
 

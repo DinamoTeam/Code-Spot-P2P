@@ -61,19 +61,44 @@ export class EditorService {
 
   handleLocalRemove(
     editorTextModel: any,
-    endLineNumber: number,
-    endColumn: number,
+    lineNumber: number,
+    column: number,
     roomName: string
   ): void {
     if (EditorService.siteId === -1) {
       throw new Error('Error: call handleLocalRemove before setting siteId');
     }
 
-    let index = this.posToIndex(editorTextModel, endLineNumber, endColumn);
-    index += 1; // because we have beg limit
+    let index = this.posToIndex(editorTextModel, lineNumber, column) + 1; // because we have beg limit
     const crdtToBeRemoved = this.arr[index];
     this.arr.splice(index, 1);
     this.messageService.broadcastRemove(crdtToBeRemoved.toString(), roomName);
+  }
+
+  handleLocalRangeRemove(
+    editorTextModel: any,
+    startLineNumber: number,
+    startColumn: number,
+    endLineNumber: number,
+    endColumn: number,
+    roomName: string
+  ): void {
+    let startIndex = this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // because we have beg limit
+    let endIndex = this.posToIndex(editorTextModel, endLineNumber, endColumn) + 1; // because we have beg limit
+
+    console.log("--------------------");
+    console.log(startLineNumber);
+    console.log(endLineNumber);
+    console.log(startIndex);
+    console.log(endIndex);
+    console.log(this.arr);
+    console.log("--------------------");
+
+    for (var index = startIndex; index <= endIndex; index++) {
+      let crdtToBeRemoved = this.arr[index];
+      this.arr.splice(index, 1);
+      this.messageService.broadcastRemove(crdtToBeRemoved.toString(), roomName);
+    }
   }
 
   handleRemoteInsert(editorTextModel: any, crdtStr: string): void {
