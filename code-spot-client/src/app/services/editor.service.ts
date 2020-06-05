@@ -59,22 +59,6 @@ export class EditorService {
     this.messageService.broadcastInsert(crdtBetween.toString(), roomName);
   }
 
-  handleLocalRemove(
-    editorTextModel: any,
-    lineNumber: number,
-    column: number,
-    roomName: string
-  ): void {
-    if (EditorService.siteId === -1) {
-      throw new Error('Error: call handleLocalRemove before setting siteId');
-    }
-
-    let index = this.posToIndex(editorTextModel, lineNumber, column) + 1; // because we have beg limit
-    const crdtToBeRemoved = this.arr[index];
-    this.arr.splice(index, 1);
-    this.messageService.broadcastRemove(crdtToBeRemoved.toString(), roomName);
-  }
-
   handleLocalRangeRemove(
     editorTextModel: any,
     startLineNumber: number,
@@ -82,6 +66,10 @@ export class EditorService {
     rangeLen: number,
     roomName: string
   ): void {
+    if (EditorService.siteId === -1) {
+      throw new Error('Error: call handleLocalRemove before setting siteId');
+    }
+
     let startIndex =
       this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // because we have beg limit
 
@@ -138,14 +126,7 @@ export class EditorService {
     index: number
   ): void {
     const pos = this.indexToPos(editorTextModel, index);
-    this.executeRemove(
-      editorTextModel,
-      ch,
-      pos.lineNumber,
-      pos.column,
-      pos.lineNumber,
-      pos.column
-    );
+    this.executeRemove(editorTextModel, ch, pos.lineNumber, pos.column);
   }
 
   // Delete text from the screen
@@ -153,9 +134,7 @@ export class EditorService {
     editorTextModel: any,
     ch: string,
     startLineNumber: number,
-    startColumn: number,
-    endLineNumber: number,
-    endColumn: number
+    startColumn: number
   ) {
     let range = new monaco.Range(1, 1, 1, 1);
     if (ch === '\n') {
@@ -169,8 +148,8 @@ export class EditorService {
       range = new monaco.Range(
         startLineNumber,
         startColumn,
-        endLineNumber,
-        endColumn + 1
+        startLineNumber,
+        startColumn + 1
       );
     }
 

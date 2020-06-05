@@ -120,36 +120,13 @@ export class CodeEditorComponent implements OnInit {
 
     // It's a remove event
     if (newText.length === 0) {
-      if (rangeLen === 1) {
-        this.editorService.handleLocalRemove(
-          this.editorTextModel,
-          rangeDetails.startLineNumber,
-          rangeDetails.startColumn,
-          this.roomName
-        );
-      } else {
-        if (rangeDetails.startLineNumber === rangeDetails.endLineNumber) {
-          let endColumn = rangeDetails.endColumn;
-          for (var i = rangeLen; i > 0; i--) {
-            this.editorService.handleLocalRemove(
-              this.editorTextModel,
-              rangeDetails.startLineNumber,
-              endColumn,
-              this.roomName
-            );
-
-            endColumn--;
-          }
-        } else {
-          this.editorService.handleLocalRangeRemove(
-            this.editorTextModel,
-            rangeDetails.startLineNumber,
-            rangeDetails.startColumn,
-            rangeLen,
-            this.roomName
-          );
-        }
-      }
+      this.editorService.handleLocalRangeRemove(
+        this.editorTextModel,
+        rangeDetails.startLineNumber,
+        rangeDetails.startColumn,
+        rangeLen,
+        this.roomName
+      );
 
       return;
     }
