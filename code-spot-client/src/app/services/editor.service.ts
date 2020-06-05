@@ -77,7 +77,8 @@ export class EditorService {
     this.messageService.broadcastRangeInsert(listCRDTString, roomName);
   }
 
-  handleRemoveRangeInsert(editorTextModel: any, crdtStrs: string[]) {
+  // new
+  handleRemoteRangeInsert(editorTextModel: any, crdtStrs: string[]) {
     const crdts = crdtStrs.map(crdtStr => CRDT.parse(crdtStr));
     const insertingChar = crdts.map(crdt => crdt.ch);
     const insertingIndices = new Array<number>(crdts.length);
@@ -111,6 +112,17 @@ export class EditorService {
     this.messageService.broadcastRangeRemoveNEW(removedCRDTString, roomName);
   }
 
+  handleRemoteRangeRemoveNEW(editorTextModel: any, crdtStrs: string[]): void {
+    const crdts = crdtStrs.map(crdtStr => CRDT.parse(crdtStr));
+    const deletingIndices = new Array<number>(crdts.length);
+
+    for (let i = 0; i < crdts.length; i++) {
+      const deleteingIndex = this.bst.remove(crdts[i]);
+      deletingIndices[i] = deleteingIndex;
+    }
+
+    // TODO: Do smart stuff to delete at the correct positions on the screen
+  }
 
   handleLocalInsert(
     editorTextModel: any,
