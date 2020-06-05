@@ -82,16 +82,12 @@ export class EditorService {
     rangeLen: number,
     roomName: string
   ): void {
-    let startIndex = this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // because we have beg limit
-
-    console.log(startIndex);
-    console.log(rangeLen);
-    console.log(this.arr);
+    let startIndex =
+      this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // because we have beg limit
 
     const beg = startIndex;
     let end = startIndex + rangeLen - 1;
     while (end >= beg) {
-      console.log(this.arr[end]);
       let crdtToBeRemoved = this.arr[end];
       this.messageService.broadcastRemove(crdtToBeRemoved.toString(), roomName);
       end--;
@@ -107,10 +103,9 @@ export class EditorService {
   }
 
   handleRemoteRemove(editorTextModel: any, crdtStr: string): void {
-    console.log(this.arr);
     let crdt = CRDT.parse(crdtStr);
     const index = Utils.removeCrdtFromSortedCrdtArr(crdt, this.arr);
-    this.deleteCharFromScreenAtIndex(editorTextModel, index - 1);
+    this.deleteCharFromScreenAtIndex(editorTextModel, crdt.ch, index - 1);
   }
 
   handleAllMessages(editorTextModel: any, crdts: string): void {
@@ -137,10 +132,15 @@ export class EditorService {
     );
   }
 
-  deleteCharFromScreenAtIndex(editorTextModel: any, index: number): void {
+  deleteCharFromScreenAtIndex(
+    editorTextModel: any,
+    ch: string,
+    index: number
+  ): void {
     const pos = this.indexToPos(editorTextModel, index);
     this.executeRemove(
       editorTextModel,
+      ch,
       pos.lineNumber,
       pos.column,
       pos.lineNumber,
@@ -151,17 +151,28 @@ export class EditorService {
   // Delete text from the screen
   executeRemove(
     editorTextModel: any,
+    ch: string,
     startLineNumber: number,
     startColumn: number,
     endLineNumber: number,
     endColumn: number
   ) {
-    const range = new monaco.Range(
-      startLineNumber,
-      startColumn,
-      endLineNumber,
-      endColumn + 1
-    );
+    let range = new monaco.Range(1, 1, 1, 1);
+    if (ch === '\n') {
+      range = new monaco.Range(
+        startLineNumber,
+        startColumn,
+        startLineNumber + 1,
+        1
+      );
+    } else {
+      range = new monaco.Range(
+        startLineNumber,
+        startColumn,
+        endLineNumber,
+        endColumn + 1
+      );
+    }
 
     editorTextModel.pushEditOperations(
       [],
