@@ -104,6 +104,13 @@ export class EditorService {
     }
   }
 
+  handleAllMessagesTest(editorTextModel: any, crdts: string[]): void {
+    for (var i = 0; i < crdts.length; i++) {
+      console.log(crdts[i]);
+      //this.handleRemoteInsert(editorTextModel, crdts[i]);
+    }
+  }
+
   writeCharToScreenAtIndex(
     editorTextModel: any,
     text: string,

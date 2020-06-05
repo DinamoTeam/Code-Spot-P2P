@@ -1,9 +1,11 @@
 ﻿using Code_Spot.Data.DTO;
 using Code_Spot.Models;
 using CodeSpot.Data;
+using CodeSpot.Data.DTO;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -59,6 +61,19 @@ namespace CodeSpot.Hubs
 			await SendMessageToCallerClient(MessageType.AllMessages, result);
 		}
 
+		public async Task JoinExistingRoomTest(string roomName)
+		{
+			//await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
+			await GetAllPreviousMessages(roomName);
+		}
+
+		public async Task GetAllPreviousMessages(string roomName)
+		{
+			List<string> messages = await _database.CRDTs.Where(c => c.RoomName == roomName).Select(e => e.CRDTObject).ToListAsync();
+
+			await SendMessagesToCallerClient(MessageType.Test, messages);
+		}
+
 		public async Task ExecuteInsert(string content, string roomName)
 		{
 			string crdtObject = content;
@@ -100,6 +115,11 @@ namespace CodeSpot.Hubs
 			}
 		}
 
+		public async Task SendMessagesToCallerClient(string type, List<string> content)
+		{
+			await Clients.Caller.SendAsync("MessageFromServer", new MessagesDTO() { Type = type, Messages = content });
+		}
+
 		public async Task SendMessageToCallerClient(string type, string content)
 		{
 			await Clients.Caller.SendAsync("MessageFromServer", new MessageDTO() { Type = type, Content = content });
@@ -118,5 +138,6 @@ namespace CodeSpot.Hubs
 		public const string RemoteInsert = "RemoteInsert";
 		public const string RemoteRemove = "RemoteRemove";
 		public const string AllMessages = "AllMessages";
+		public const string Test = "Test";
 	}
 }

@@ -57,6 +57,7 @@ export class MessageService {
 
   sendSignalJoinExistingRoom(roomName: string) {
     this.hubConnection.invoke('JoinExistingRoom', roomName);
+    this.hubConnection.invoke('JoinExistingRoomTest', roomName);
   }
 
   broadcastInsert(crdtString: string, roomName: string) {
