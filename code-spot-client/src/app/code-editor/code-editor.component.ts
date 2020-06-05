@@ -113,7 +113,7 @@ export class CodeEditorComponent implements OnInit {
     const rangeLen = change.rangeLength;
     // The new text for the range (! \n can't see)
     const newText = change.text;
-    console.log('Range Len' + rangeLen);
+    console.log('Range Len: ' + rangeLen);
     console.log('New text: |' + newText + '|');
     console.log(rangeDetails);
 
@@ -127,7 +127,22 @@ export class CodeEditorComponent implements OnInit {
           this.roomName
         );
       } else {
-        console.log('Multiple letters got removed!');
+        if (rangeDetails.startLineNumber === rangeDetails.endLineNumber) {
+          let endColumn = rangeDetails.endColumn;
+          for (var i = rangeLen; i > 0; i--) {
+            this.editorService.handleLocalRemove(
+              this.editorTextModel,
+              rangeDetails.startLineNumber,
+              endColumn,
+              this.roomName
+            );
+
+            endColumn--;
+          }
+        } else {
+          console.log('Text that spanned multiple lines got removed!');
+          // TODO: Delete text that span multiple lines
+        }
       }
 
       return;
