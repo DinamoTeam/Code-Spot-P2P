@@ -53,3 +53,6 @@ II/ TODO LIST:
 	- Optimize generateLessThan() for shorter CRDTId
 	- Peer to Peer 
 	- Handle the case where User's wifi goes down
+	
+	
+*** IMPORTANT: Make sure Minh understands how to delete a range of text and insert a range of text on Monaco
