@@ -84,14 +84,20 @@ export class EditorService {
   ): void {
     let startIndex = this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // because we have beg limit
 
-    let index = startIndex;
-    while (rangeLen >= 0) {
-      console.log(this.arr[index]);
-      let crdtToBeRemoved = this.arr[index];
-      this.arr.splice(index, 1);
+    console.log(startIndex);
+    console.log(rangeLen);
+    console.log(this.arr);
+
+    const beg = startIndex;
+    let end = startIndex + rangeLen - 1;
+    while (end >= beg) {
+      console.log(this.arr[end]);
+      let crdtToBeRemoved = this.arr[end];
       this.messageService.broadcastRemove(crdtToBeRemoved.toString(), roomName);
-      rangeLen--;
+      end--;
     }
+
+    this.arr.splice(startIndex, rangeLen);
   }
 
   handleRemoteInsert(editorTextModel: any, crdtStr: string): void {
