@@ -113,5 +113,7 @@ export const enum MessageType {
   RoomName = 'RoomName',
   RemoteInsert = 'RemoteInsert',
   RemoteRemove = 'RemoteRemove',
+  RemoteRangeInsert = 'RemoteRangeInsert',
+  RemoteRangeRemove = 'RemoteRangeRemove',
   AllMessages = 'AllMessages',
 }

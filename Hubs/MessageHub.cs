@@ -56,11 +56,31 @@ namespace CodeSpot.Hubs
 			await SendMessagesToCallerClient(MessageType.AllMessages, messages);
 		}
 
+		// New 
+		public async Task ExecuteRangeInsert(List<string> crdtStrs, string roomName)
+		{
+			foreach (var crdtStr in crdtStrs) 
+			{
+				if (! await _database.CRDTs.AnyAsync(
+					c => c.CRDTObject == crdtStr && c.RoomName == roomName))
+				{
+					await _database.AddAsync(new CRDT(crdtStr, roomName));
+				}
+				else 
+				{
+					throw new Exception("Insert existed CRDT item");
+				}
+			}
+			await _database.SaveChangesAsync();
+			await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeInsert, crdtStrs);
+		}
+
 		public async Task ExecuteInsert(string content, string roomName)
 		{
 			string crdtObject = content;
 
-			if (! await _database.CRDTs.AnyAsync(c => c.CRDTObject == crdtObject && c.RoomName == roomName))
+			if (! await _database.CRDTs.AnyAsync(
+				c => c.CRDTObject == crdtObject && c.RoomName == roomName))
 			{
 				await _database.CRDTs.AddAsync(new CRDT(crdtObject, roomName));
 				await _database.SaveChangesAsync();
@@ -135,6 +155,8 @@ namespace CodeSpot.Hubs
 		public const string RemoteInsert = "RemoteInsert";
 		public const string RemoteRemove = "RemoteRemove";
 		public const string AllMessages = "AllMessages";
+		public const string RemoteRangeInsert = "RemoteRangeInsert";
+		public const string RemoteRangeRemove = "RemoteRangeRemove";
 		public const string Test = "Test";
 	}
 }
