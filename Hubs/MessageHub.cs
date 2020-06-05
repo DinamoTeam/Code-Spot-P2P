@@ -46,24 +46,6 @@ namespace CodeSpot.Hubs
 		{
 			// TODO: Check if roomName exists. If not, somehow tell that to user
 			await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
-			await SendPreviousMessagesToCaller(roomName);
-		}
-
-		public async Task SendPreviousMessagesToCaller(string roomName)
-		{
-			string result = string.Empty;
-			await _database.CRDTs.Where(c => c.RoomName == roomName)
-								 .ForEachAsync(c => { result += c.CRDTObject + '~'; });
-
-			if (result != string.Empty)
-				result = result.Remove(result.Length - 1);
-
-			await SendMessageToCallerClient(MessageType.AllMessages, result);
-		}
-
-		public async Task JoinExistingRoomTest(string roomName)
-		{
-			//await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
 			await GetAllPreviousMessages(roomName);
 		}
 
@@ -71,7 +53,7 @@ namespace CodeSpot.Hubs
 		{
 			List<string> messages = await _database.CRDTs.Where(c => c.RoomName == roomName).Select(e => e.CRDTObject).ToListAsync();
 
-			await SendMessagesToCallerClient(MessageType.Test, messages);
+			await SendMessagesToCallerClient(MessageType.AllMessages, messages);
 		}
 
 		public async Task ExecuteInsert(string content, string roomName)

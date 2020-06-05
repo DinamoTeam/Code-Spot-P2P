@@ -19,7 +19,7 @@ export class CodeEditorComponent implements OnInit {
   editor: any;
   editorTextModel: any;
   remoteOpLeft: number = 0;
-  allMessages: string = null;
+  allMessages: string[] = null;
   selectedLang: string;
   languageForm = new FormGroup({
     language: new FormControl('cpp', Validators.compose([Validators.required])),
@@ -180,7 +180,7 @@ export class CodeEditorComponent implements OnInit {
   }
 
   subscribeToSignalrEvents(): void {
-    this.messageService.messageReceived.subscribe((message: Message) => {
+    this.messageService.messageReceived.subscribe((message: any) => {
       this.ngZone.run(() => {
         const messageType = message.type;
         switch (messageType) {
@@ -208,16 +208,16 @@ export class CodeEditorComponent implements OnInit {
             break;
           case MessageType.AllMessages:
             if (message.content !== '') {
-              let crdtArr = message.content.split('~');
-              this.remoteOpLeft = crdtArr.length;
+              //let crdtArr = message.content.split('~');
+              this.remoteOpLeft = message.messages.length;
 
-              // Duplicate tab duplicate editorTextModel too
+              // Duplicate tab or refresh tab don't generate new editorTextModel
               if (this.editorTextModel === undefined) {
-                this.allMessages = message.content;
+                this.allMessages = message.messages;
               } else {
                 this.editorService.handleAllMessages(
                   this.editorTextModel,
-                  message.content
+                  message.messages
                 );
               }
             }

@@ -96,18 +96,9 @@ export class EditorService {
     this.deleteCharFromScreenAtIndex(editorTextModel, crdt.ch, index - 1);
   }
 
-  handleAllMessages(editorTextModel: any, crdts: string): void {
-    let crdtArr = crdts.split('~');
-
-    for (var i = 0; i < crdtArr.length; i++) {
-      this.handleRemoteInsert(editorTextModel, crdtArr[i]);
-    }
-  }
-
-  handleAllMessagesTest(editorTextModel: any, crdts: string[]): void {
+  handleAllMessages(editorTextModel: any, crdts: string[]): void {
     for (var i = 0; i < crdts.length; i++) {
-      console.log(crdts[i]);
-      //this.handleRemoteInsert(editorTextModel, crdts[i]);
+      this.handleRemoteInsert(editorTextModel, crdts[i]);
     }
   }
 
