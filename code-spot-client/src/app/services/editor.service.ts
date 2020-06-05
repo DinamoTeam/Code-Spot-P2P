@@ -136,15 +136,6 @@ export class EditorService {
     );
   }
 
-  deleteCharFromScreenAtIndex(
-    editorTextModel: any,
-    ch: string,
-    index: number
-  ): void {
-    const pos = this.indexToPos(editorTextModel, index);
-    this.executeRemove(editorTextModel, ch, pos.lineNumber, pos.column);
-  }
-
   deleteTextInRange(
     editorTextModel: any,
     startLineNumber: number,
@@ -158,41 +149,6 @@ export class EditorService {
       endLineNumber,
       endColumn
     );
-    editorTextModel.pushEditOperations(
-      [],
-      [
-        {
-          range: range,
-          text: null,
-        },
-      ]
-    );
-  }
-
-  // Delete text from the screen
-  executeRemove(
-    editorTextModel: any,
-    ch: string,
-    startLineNumber: number,
-    startColumn: number
-  ) {
-    let range = new monaco.Range(1, 1, 1, 1);
-    if (ch === '\n') {
-      range = new monaco.Range(
-        startLineNumber,
-        startColumn,
-        startLineNumber + 1,
-        1
-      );
-    } else {
-      range = new monaco.Range(
-        startLineNumber,
-        startColumn,
-        startLineNumber,
-        startColumn + 1
-      );
-    }
-
     editorTextModel.pushEditOperations(
       [],
       [

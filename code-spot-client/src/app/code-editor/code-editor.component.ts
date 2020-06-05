@@ -202,8 +202,8 @@ export class CodeEditorComponent implements OnInit {
             this.remoteOpLeft = 1;
             this.editorService.handleRemoteRangeRemove(
               this.editorTextModel,
-              parseInt(message.messages[0]),
-              parseInt(message.messages[1])
+              parseInt(message.messages[0]),  // startIndex
+              parseInt(message.messages[1])   // rangeLen
             );
             break;
           case MessageType.AllMessages:
