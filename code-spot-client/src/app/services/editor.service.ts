@@ -79,8 +79,8 @@ export class EditorService {
 
   // new
   handleRemoteRangeInsert(editorTextModel: any, crdtStrs: string[]) {
-    const crdts = crdtStrs.map(crdtStr => CRDT.parse(crdtStr));
-    const insertingChar = crdts.map(crdt => crdt.ch);
+    const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
+    const insertingChar = crdts.map((crdt) => crdt.ch);
     const insertingIndices = new Array<number>(crdts.length);
 
     for (let i = 0; i < crdts.length; i++) {
@@ -88,6 +88,10 @@ export class EditorService {
       insertingIndices[i] = insertingIndex;
     }
 
+    // Right now: Naively insert each char for testing purposes
+    for (let i = 0; i < crdts.length; i++) {
+      this.writeCharToScreenAtIndex(editorTextModel, insertingChar[i], insertingIndices[i]);
+    }
     // TODO: Do smart stuff to insert each char to the correct position on the screen
   }
 
@@ -113,7 +117,7 @@ export class EditorService {
   }
 
   handleRemoteRangeRemoveNEW(editorTextModel: any, crdtStrs: string[]): void {
-    const crdts = crdtStrs.map(crdtStr => CRDT.parse(crdtStr));
+    const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
     const deletingIndices = new Array<number>(crdts.length);
 
     for (let i = 0; i < crdts.length; i++) {
