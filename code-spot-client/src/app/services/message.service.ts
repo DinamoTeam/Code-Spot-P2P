@@ -68,6 +68,11 @@ export class MessageService {
     // TODO: Call ExecuteRangeInsert() in MessageHub.cs
   }
 
+  // new
+  broadcastRangeRemoveNEW(crdtStrings: string[], roomName: string): void {
+    // TODO: Call ExecuteRangeRemove() in MessageHub.cs
+  }
+
   broadcastRangeRemove(
     crdts: string[],
     startIndex: string,

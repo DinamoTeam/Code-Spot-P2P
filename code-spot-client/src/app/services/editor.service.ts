@@ -77,7 +77,27 @@ export class EditorService {
     this.messageService.broadcastRangeInsert(listCRDTString, roomName);
   }
 
-  
+  // new
+  handleLocalRangeRemoveNEW(
+    editorTextModel: any,
+    startIndex: number,
+    length: number,
+    roomName: string
+  ): void {
+    if (EditorService.siteId === -1) {
+      throw new Error('Error: call handleLocalRemove before setting siteId');
+    }
+
+    const removedCRDTString: string[] = [];
+    for (let i = 0; i < length; i++) {
+      const crdtToBeRemoved = this.bst.getDataAt(startIndex);
+      removedCRDTString.push(crdtToBeRemoved.toString());
+      this.bst.remove(crdtToBeRemoved);
+    }
+
+    this.messageService.broadcastRangeRemoveNEW(removedCRDTString, roomName);
+  }
+
   handleLocalInsert(
     editorTextModel: any,
     ch: string,
