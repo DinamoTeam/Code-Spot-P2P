@@ -5,6 +5,7 @@ import { MessageService, MessageType } from '../services/message.service';
 import { Message } from '../shared/Message';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { range } from 'rxjs';
 
 declare const monaco: any;
 
@@ -146,8 +147,7 @@ export class CodeEditorComponent implements OnInit {
             this.editorTextModel,
             rangeDetails.startLineNumber,
             rangeDetails.startColumn,
-            rangeDetails.endLineNumber,
-            rangeDetails.endColumn,
+            rangeLen,
             this.roomName
           );
         }

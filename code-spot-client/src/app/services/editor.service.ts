@@ -79,25 +79,18 @@ export class EditorService {
     editorTextModel: any,
     startLineNumber: number,
     startColumn: number,
-    endLineNumber: number,
-    endColumn: number,
+    rangeLen: number,
     roomName: string
   ): void {
     let startIndex = this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // because we have beg limit
-    let endIndex = this.posToIndex(editorTextModel, endLineNumber, endColumn) + 1; // because we have beg limit
 
-    console.log("--------------------");
-    console.log(startLineNumber);
-    console.log(endLineNumber);
-    console.log(startIndex);
-    console.log(endIndex);
-    console.log(this.arr);
-    console.log("--------------------");
-
-    for (var index = startIndex; index <= endIndex; index++) {
+    let index = startIndex;
+    while (rangeLen >= 0) {
+      console.log(this.arr[index]);
       let crdtToBeRemoved = this.arr[index];
       this.arr.splice(index, 1);
       this.messageService.broadcastRemove(crdtToBeRemoved.toString(), roomName);
+      rangeLen--;
     }
   }
 
