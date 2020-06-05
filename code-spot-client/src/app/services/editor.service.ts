@@ -90,7 +90,11 @@ export class EditorService {
 
     // Right now: Naively insert each char for testing purposes
     for (let i = 0; i < crdts.length; i++) {
-      this.writeCharToScreenAtIndex(editorTextModel, insertingChar[i], insertingIndices[i]);
+      this.writeCharToScreenAtIndex(
+        editorTextModel,
+        insertingChar[i],
+        insertingIndices[i]
+      );
     }
     // TODO: Do smart stuff to insert each char to the correct position on the screen
   }
@@ -123,6 +127,19 @@ export class EditorService {
     for (let i = 0; i < crdts.length; i++) {
       const deleteingIndex = this.bst.remove(crdts[i]);
       deletingIndices[i] = deleteingIndex;
+    }
+
+    // Right now: Naively delete each char from the screen
+    for (let i = 0; i < crdts.length; i++) {
+      const startPos = this.indexToPos(editorTextModel, deletingIndices[i] - 1);
+      const endPos = this.indexToPos(editorTextModel, deletingIndices[i]);
+      this.deleteTextInRange(
+        editorTextModel,
+        startPos.lineNumber,
+        startPos.column,
+        endPos.lineNumber,
+        endPos.column
+      );
     }
 
     // TODO: Do smart stuff to delete at the correct positions on the screen
