@@ -11,7 +11,7 @@ declare const monaco: any;
 @Component({
   selector: 'app-code-editor',
   templateUrl: './code-editor.component.html',
-  styleUrls: ['./code-editor.component.css']
+  styleUrls: ['./code-editor.component.css'],
 })
 export class CodeEditorComponent implements OnInit {
   roomName: string;
@@ -109,51 +109,61 @@ export class CodeEditorComponent implements OnInit {
     }
 
     const change = event.changes[0];
-
-    // The range that got replaced
     const rangeDetails = change.range;
-
-    // Length of the range that got replaced
     const rangeLen = change.rangeLength;
-
     // The new text for the range (! \n can't see)
     const newText = change.text;
+    console.log('Range Len' + rangeLen);
     console.log('New text: |' + newText + '|');
     console.log(rangeDetails);
 
     // It's a remove event
     if (newText.length === 0) {
-      this.editorService.handleLocalRemove(
-        this.editorTextModel,
-        rangeDetails.startLineNumber,
-        rangeDetails.startColumn,
-        this.roomName
-      );
-    } else if (newText.length === 1) {
-      // It's insert char event
-      this.editorService.handleLocalInsert(
-        this.editorTextModel,
-        newText,
-        rangeDetails.endLineNumber,
-        rangeDetails.endColumn,
-        this.roomName
-      );
-    } else if (newText.length > 1) {
-      // !!! It can be pasted / or use auto-suggest
-      // TODO: handle auto-suggest
-      this.handlePasteEvent(
-        newText,
-        rangeDetails.endLineNumber,
-        rangeDetails.endColumn
-      );
+      if (rangeLen === 1) {
+        this.editorService.handleLocalRemove(
+          this.editorTextModel,
+          rangeDetails.startLineNumber,
+          rangeDetails.startColumn,
+          this.roomName
+        );
+      } else {
+        console.log('Multiple letters got removed!');
+      }
+
+      return;
     }
+
+    // It's insert event
+    if (rangeLen === 0) {
+      // It's either insert one char or paste event
+      if (newText.length === 1) {
+        this.editorService.handleLocalInsert(
+          this.editorTextModel,
+          newText,
+          rangeDetails.endLineNumber,
+          rangeDetails.endColumn,
+          this.roomName
+        );
+      } else {
+        this.handlePasteEvent(
+          newText,
+          rangeDetails.endLineNumber,
+          rangeDetails.endColumn
+        );
+      }
+
+      return;
+    }
+
+    // TODO: handle auto-suggest
+    // Handle select a text and type in/paste in sth
+    console.log('TO BE HANDDLED SOON ...');
   }
 
   handlePasteEvent(text: string, endLineNumber: number, endColumn: number) {
     const letters = text.split('');
     //console.log(letters);
     for (var i = 0; i < letters.length; i++) {
-      console.log(letters[i] + ' ' + endLineNumber + ' ' + endColumn);
       this.editorService.handleLocalInsert(
         this.editorTextModel,
         letters[i],
@@ -226,7 +236,6 @@ export class CodeEditorComponent implements OnInit {
       (successful: boolean) => {
         if (successful) {
           this.roomName = this.actRoute.snapshot.params['roomName'];
-          console.log(this.actRoute.snapshot);
           if (this.roomName == 'NONE')
             this.messageService.sendSignalCreateNewRoom();
           else {

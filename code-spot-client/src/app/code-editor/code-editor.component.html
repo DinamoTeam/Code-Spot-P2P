@@ -1,26 +1,44 @@
-<div *ngIf="showSuccessAlert" class="alert alert-success" role="alert" style="position: absolute">
+<div
+  *ngIf="showSuccessAlert"
+  class="alert alert-success"
+  role="alert"
+  style="position: absolute;"
+>
   Link copied to clipboard!
   <button type="button" class="close" (click)="closeAlert()">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 <div class="container mt-3">
-  <!--<h3>{{roomName}}</h3>-->
   <div class="col-md-12">
     <form class="form-horizontal" [formGroup]="languageForm">
       <!--Select Language-->
       <div class="form-group">
         <div class="col-sm-4">
-          <select class="form-control" formControlName="language" (change)="onLanguageChange($event.target.value)">
-            <option *ngFor="let language of languages" [ngValue]="language.value">{{language.name}}</option>
+          <select
+            class="form-control"
+            formControlName="language"
+            (change)="onLanguageChange($event.target.value)"
+          >
+            <option
+              *ngFor="let language of languages"
+              [ngValue]="language.value"
+              >{{ language.name }}</option
+            >
           </select>
         </div>
       </div>
       <!--Editor-->
       <div>
-        <ngx-monaco-editor class="solution-code-editor" [options]="editorOptions" (onInit)="onInitHandler($event)"></ngx-monaco-editor>
+        <ngx-monaco-editor
+          class="solution-code-editor"
+          [options]="editorOptions"
+          (onInit)="onInitHandler($event)"
+        ></ngx-monaco-editor>
       </div>
     </form>
   </div>
-  <button class="btn btn-md mb-3 btn-navy" (click)="copyLink()">Get shareable link!</button>
+  <button class="btn btn-md mb-3 btn-navy" (click)="copyLink()">
+    Get shareable link!
+  </button>
 </div>
