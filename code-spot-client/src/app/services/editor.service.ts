@@ -75,13 +75,19 @@ export class EditorService {
 
     const beg = startIndex;
     let end = startIndex + rangeLen - 1;
+    let crdtsStr = new Array<string>();
     while (end >= beg) {
-      let crdtToBeRemoved = this.arr[end];
-      this.messageService.broadcastRemove(crdtToBeRemoved.toString(), roomName);
+      crdtsStr.push(this.arr[end].toString());
       end--;
     }
 
     this.arr.splice(startIndex, rangeLen);
+    this.messageService.broadcastRangeRemove(
+      crdtsStr,
+      String(startIndex),
+      String(rangeLen),
+      roomName
+    );
   }
 
   handleRemoteInsert(editorTextModel: any, crdtStr: string): void {
@@ -90,10 +96,22 @@ export class EditorService {
     this.writeCharToScreenAtIndex(editorTextModel, crdt.ch, index - 1);
   }
 
-  handleRemoteRemove(editorTextModel: any, crdtStr: string): void {
-    let crdt = CRDT.parse(crdtStr);
-    const index = Utils.removeCrdtFromSortedCrdtArr(crdt, this.arr);
-    this.deleteCharFromScreenAtIndex(editorTextModel, crdt.ch, index - 1);
+  handleRemoteRangeRemove(
+    editorTextModel: any,
+    startIndex: number,
+    rangeLen: number
+  ): void {
+    const startPos = this.indexToPos(editorTextModel, startIndex - 1);
+    const endPos = this.indexToPos(editorTextModel, startIndex + rangeLen - 1);
+
+    this.deleteTextInRange(
+      editorTextModel,
+      startPos.lineNumber,
+      startPos.column,
+      endPos.lineNumber,
+      endPos.column
+    );
+    this.arr.splice(startIndex, rangeLen);
   }
 
   handleAllMessages(editorTextModel: any, crdts: string[]): void {
@@ -125,6 +143,30 @@ export class EditorService {
   ): void {
     const pos = this.indexToPos(editorTextModel, index);
     this.executeRemove(editorTextModel, ch, pos.lineNumber, pos.column);
+  }
+
+  deleteTextInRange(
+    editorTextModel: any,
+    startLineNumber: number,
+    startColumn: number,
+    endLineNumber: number,
+    endColumn: number
+  ): void {
+    const range = new monaco.Range(
+      startLineNumber,
+      startColumn,
+      endLineNumber,
+      endColumn
+    );
+    editorTextModel.pushEditOperations(
+      [],
+      [
+        {
+          range: range,
+          text: null,
+        },
+      ]
+    );
   }
 
   // Delete text from the screen
