@@ -3,6 +3,7 @@ import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
 import { Utils } from '../shared/Utils';
 import { MessageService } from './message.service';
+import { BalancedBST } from '../shared/BalancedBST';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ export class EditorService {
   static siteId: number = -1;
   arr: CRDT[];
   curClock: number = 0;
+  bst: BalancedBST<CRDT>; // new
 
   static setSiteId(id: number): void {
     EditorService.siteId = id;
@@ -28,8 +30,54 @@ export class EditorService {
         new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], this.curClock++)
       )
     );
+
+    // new
+    this.bst.insert(
+      new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
+    );
+    this.bst.insert(
+      new CRDT(
+        '_end',
+        new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], this.curClock++)
+      )
+    );
   }
 
+  // new
+  handleLocalRangeInsert(
+    editorTextModel: any,
+    chArr: string[],
+    startIndex: number,
+    roomName: string
+  ): void {
+    if (EditorService.siteId === -1) {
+      throw new Error('Error: call handleLocalInsert before setting siteId');
+    }
+    startIndex += 1; // Because we have beg limit
+
+    const N = chArr.length;
+    let chArrIndex = 0;
+    const crdtIdBefore = this.bst.getDataAt(startIndex - 1).id;
+    const crdtIdAfter = this.bst.getDataAt(startIndex).id;
+    const listCrdtIdsBetween = CRDTId.generateNPositionsBetween(
+      crdtIdBefore,
+      crdtIdAfter,
+      N,
+      EditorService.siteId,
+      this.curClock
+    );
+    this.curClock += N; // Generate N new CRDTId therefore increment curClock by N
+    const listCRDTBetween = listCrdtIdsBetween.map(
+      (crdtId) => new CRDT(chArr[chArrIndex++], crdtId)
+    );
+    for (let i = 0; i < listCRDTBetween.length; i++) {
+      this.bst.insert(listCRDTBetween[i]);
+    }
+    const listCRDTString = listCRDTBetween.map((crdt) => crdt.toString());
+    this.messageService.broadcastRangeInsert(listCRDTString, roomName);
+  }
+
+  
   handleLocalInsert(
     editorTextModel: any,
     ch: string,

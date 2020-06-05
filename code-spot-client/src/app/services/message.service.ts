@@ -63,6 +63,11 @@ export class MessageService {
     this.hubConnection.invoke('ExecuteInsert', crdtString, roomName);
   }
 
+  // new
+  broadcastRangeInsert(crdtStrings: string[], roomName: string): void {
+    // TODO: Call ExecuteRangeInsert() in MessageHub.cs
+  }
+
   broadcastRangeRemove(
     crdts: string[],
     startIndex: string,
