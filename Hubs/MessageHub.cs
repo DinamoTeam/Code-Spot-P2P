@@ -59,12 +59,10 @@ namespace CodeSpot.Hubs
 		public async Task ExecuteInsert(string content, string roomName)
 		{
 			string crdtObject = content;
-			CRDT crdtFromDb = await _database.CRDTs.FirstOrDefaultAsync(
-				c => c.CRDTObject == crdtObject && c.RoomName == roomName);
 
-			if (crdtFromDb == null)
+			if (! await _database.CRDTs.AnyAsync(c => c.CRDTObject == crdtObject && c.RoomName == roomName))
 			{
-				_database.CRDTs.Add(new CRDT(crdtObject, roomName));
+				await _database.CRDTs.AddAsync(new CRDT(crdtObject, roomName));
 				await _database.SaveChangesAsync();
 				await SendMessageToOtherClientsInGroup(roomName, MessageType.RemoteInsert, content);
 			}
