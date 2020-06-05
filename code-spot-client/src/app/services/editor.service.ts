@@ -77,6 +77,19 @@ export class EditorService {
     this.messageService.broadcastRangeInsert(listCRDTString, roomName);
   }
 
+  handleRemoveRangeInsert(editorTextModel: any, crdtStrs: string[]) {
+    const crdts = crdtStrs.map(crdtStr => CRDT.parse(crdtStr));
+    const insertingChar = crdts.map(crdt => crdt.ch);
+    const insertingIndices = new Array<number>(crdts.length);
+
+    for (let i = 0; i < crdts.length; i++) {
+      const insertingIndex = this.bst.insert(crdts[i]);
+      insertingIndices[i] = insertingIndex;
+    }
+
+    // TODO: Do smart stuff to insert each char to the correct position on the screen
+  }
+
   // new
   handleLocalRangeRemoveNEW(
     editorTextModel: any,
@@ -97,6 +110,7 @@ export class EditorService {
 
     this.messageService.broadcastRangeRemoveNEW(removedCRDTString, roomName);
   }
+
 
   handleLocalInsert(
     editorTextModel: any,
