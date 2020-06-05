@@ -55,4 +55,8 @@ II/ TODO LIST:
 	- Handle the case where User's wifi goes down
 	
 	
-*** IMPORTANT: Make sure Minh understands how to delete a range of text and insert a range of text on Monaco
+*** IMPORTANT: Make sure Minh understands:
+- How to delete a range of text and insert a range of text on Monaco
+- Dùng executeInsert để insert cả 1 đoạn text right?
+- Dùng deleteTextInRange để delete cả 1 đoạn text right?
+- Ngoài EditorTextModel, tao còn thấy Editor. 2 cái đấy khác nhau như nào?
