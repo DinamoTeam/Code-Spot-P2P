@@ -63,8 +63,19 @@ export class MessageService {
     this.hubConnection.invoke('ExecuteInsert', crdtString, roomName);
   }
 
-  broadcastRemove(crdtString: string, roomName: string) {
-    this.hubConnection.invoke('ExecuteRemove', crdtString, roomName);
+  broadcastRangeRemove(
+    crdts: string[],
+    startIndex: string,
+    rangeLen: string,
+    roomName: string
+  ) {
+    this.hubConnection.invoke(
+      'ExecuteRangeRemove',
+      crdts,
+      startIndex,
+      rangeLen,
+      roomName
+    );
   }
 
   private stopConnection() {

@@ -46,10 +46,10 @@ namespace CodeSpot.Hubs
 		{
 			// TODO: Check if roomName exists. If not, somehow tell that to user
 			await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
-			await GetAllPreviousMessages(roomName);
+			await SendAllPreviousMessagesToCaller(roomName);
 		}
 
-		public async Task GetAllPreviousMessages(string roomName)
+		public async Task SendAllPreviousMessagesToCaller(string roomName)
 		{
 			List<string> messages = await _database.CRDTs.Where(c => c.RoomName == roomName).Select(e => e.CRDTObject).ToListAsync();
 
@@ -68,18 +68,30 @@ namespace CodeSpot.Hubs
 			}
 		}
 
-		public async Task ExecuteRemove(string content, string roomName)
+		public async Task ExecuteRangeRemove(List<string> crdts, string startIndex, string rangeLen, string roomName)
 		{
-			string crdtObject = content;
-			CRDT crdtFromDb = await _database.CRDTs.FirstOrDefaultAsync(
-				c => c.CRDTObject == crdtObject && c.RoomName == roomName);
-
-			if (crdtFromDb != null)
+			foreach (var crdt in crdts)
 			{
-				_database.CRDTs.Remove(crdtFromDb);
-				await _database.SaveChangesAsync();
-				await SendMessageToOtherClientsInGroup(roomName, MessageType.RemoteRemove, content);
+				CRDT crdtFromDb = await _database.CRDTs.FirstOrDefaultAsync(
+				c => c.CRDTObject == crdt && c.RoomName == roomName);
+
+				if (crdt != null)
+				{
+					_database.CRDTs.Remove(crdtFromDb);
+					await _database.SaveChangesAsync();
+				}
+				else
+				{
+					throw new Exception("Delete non-existed CRDT!");
+				}
 			}
+
+			List<string> messages = new List<string>()
+			{
+				startIndex, rangeLen
+			};
+
+			await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRemove, messages);
 		}
 
 		private string GenerateRoomName()
@@ -108,6 +120,11 @@ namespace CodeSpot.Hubs
 		public async Task SendMessageToOtherClientsInGroup(string roomName, string type, string content)
 		{
 			await Clients.OthersInGroup(roomName).SendAsync("MessageFromServer", new MessageDTO() { Type = type, Content = content });
+		}
+
+		public async Task SendMessagesToOtherClientsInGroup(string roomName, string type, List<string> content)
+		{
+			await Clients.OthersInGroup(roomName).SendAsync("MessageFromServer", new MessagesDTO() { Type = type, Messages = content });
 		}
 	}
 

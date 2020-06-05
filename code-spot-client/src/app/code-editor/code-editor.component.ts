@@ -5,7 +5,6 @@ import { MessageService, MessageType } from '../services/message.service';
 import { Message } from '../shared/Message';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { range } from 'rxjs';
 
 declare const monaco: any;
 
@@ -201,14 +200,14 @@ export class CodeEditorComponent implements OnInit {
             break;
           case MessageType.RemoteRemove:
             this.remoteOpLeft = 1;
-            this.editorService.handleRemoteRemove(
+            this.editorService.handleRemoteRangeRemove(
               this.editorTextModel,
-              message.content
+              parseInt(message.messages[0]),  // startIndex
+              parseInt(message.messages[1])   // rangeLen
             );
             break;
           case MessageType.AllMessages:
             if (message.content !== '') {
-              //let crdtArr = message.content.split('~');
               this.remoteOpLeft = message.messages.length;
 
               // Duplicate tab or refresh tab don't generate new editorTextModel
@@ -223,6 +222,8 @@ export class CodeEditorComponent implements OnInit {
             }
             break;
           default:
+            console.log('UNHANDLED MESSAGES!');
+            console.log(message);
             break;
         }
       });
