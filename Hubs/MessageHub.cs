@@ -75,20 +75,7 @@ namespace CodeSpot.Hubs
 			await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeInsert, crdtStrs);
 		}
 
-		public async Task ExecuteInsert(string content, string roomName)
-		{
-			string crdtObject = content;
-
-			if (! await _database.CRDTs.AnyAsync(
-				c => c.CRDTObject == crdtObject && c.RoomName == roomName))
-			{
-				await _database.CRDTs.AddAsync(new CRDT(crdtObject, roomName));
-				await _database.SaveChangesAsync();
-				await SendMessageToOtherClientsInGroup(roomName, MessageType.RemoteInsert, content);
-			}
-		}
-
-		public async Task ExecuteRangeRemove(List<string> crdts, string startIndex, string rangeLen, string roomName)
+		public async Task ExecuteRangeRemove(List<string> crdts, string roomName)
 		{
 			foreach (var crdt in crdts)
 			{
@@ -98,20 +85,15 @@ namespace CodeSpot.Hubs
 				if (crdt != null)
 				{
 					_database.CRDTs.Remove(crdtFromDb);
-					await _database.SaveChangesAsync();
 				}
 				else
 				{
 					throw new Exception("Delete non-existed CRDT!");
 				}
 			}
-
-			List<string> messages = new List<string>()
-			{
-				startIndex, rangeLen
-			};
-
-			await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRemove, messages);
+			await _database.SaveChangesAsync();
+			
+			await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeRemove, crdts);
 		}
 
 		private string GenerateRoomName()
@@ -152,8 +134,6 @@ namespace CodeSpot.Hubs
 	{
 		public const string SiteId = "SiteId";
 		public const string RoomName = "RoomName";
-		public const string RemoteInsert = "RemoteInsert";
-		public const string RemoteRemove = "RemoteRemove";
 		public const string AllMessages = "AllMessages";
 		public const string RemoteRangeInsert = "RemoteRangeInsert";
 		public const string RemoteRangeRemove = "RemoteRangeRemove";

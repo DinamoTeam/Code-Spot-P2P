@@ -119,7 +119,7 @@ export class CodeEditorComponent implements OnInit {
 
     // It's a remove event
     if (newText.length === 0) {
-      this.editorService.handleLocalRangeRemoveNEW(
+      this.editorService.handleLocalRangeRemove(
         this.editorTextModel,
         rangeDetails.startLineNumber,
         rangeDetails.startColumn,
@@ -132,16 +132,13 @@ export class CodeEditorComponent implements OnInit {
 
     // It's insert event
     if (rangeLen === 0) {
-      // It's either insert one char or paste event
-      if (newText.length === 1) {
-        this.editorService.handleLocalRangeInsert(
-          this.editorTextModel,
-          newText,
-          rangeDetails.startLineNumber,
-          rangeDetails.startColumn,
-          this.roomName
-        );
-      }
+      this.editorService.handleLocalRangeInsert(
+        this.editorTextModel,
+        newText,
+        rangeDetails.startLineNumber,
+        rangeDetails.startColumn,
+        this.roomName
+      );
 
       return;
     }
@@ -149,27 +146,6 @@ export class CodeEditorComponent implements OnInit {
     // TODO: handle auto-suggest
     // Handle select a text and type in/paste in sth
     console.log('TO BE HANDDLED SOON ...');
-  }
-
-  handlePasteEvent(text: string, endLineNumber: number, endColumn: number) {
-    const letters = text.split('');
-    //console.log(letters);
-    for (var i = 0; i < letters.length; i++) {
-      this.editorService.handleLocalInsert(
-        this.editorTextModel,
-        letters[i],
-        endLineNumber,
-        endColumn,
-        this.roomName
-      );
-
-      if (letters[i] === '\n') {
-        endLineNumber++;
-        endColumn = 0;
-      }
-
-      endColumn++;
-    }
   }
 
   subscribeToSignalrEvents(): void {
@@ -186,32 +162,17 @@ export class CodeEditorComponent implements OnInit {
             this.location.replaceState('/editor/' + this.roomName);
             break;
           case MessageType.RemoteRangeInsert:
-            this.remoteOpLeft = 1;
+            this.remoteOpLeft = message.messages.length;
             this.editorService.handleRemoteRangeInsert(
               this.editorTextModel,
-              message.content
+              message.messages
             );
             break;
           case MessageType.RemoteRangeRemove:
-            this.remoteOpLeft = 1;
-            this.editorService.handleRemoteRangeRemoveNEW(
-              this.editorTextModel,
-              message.content
-            );
-            break;
-          case MessageType.RemoteInsert:
-            this.remoteOpLeft = 1;
-            this.editorService.handleRemoteInsert(
-              this.editorTextModel,
-              message.content
-            );
-            break;
-          case MessageType.RemoteRemove:
-            this.remoteOpLeft = 1;
+            this.remoteOpLeft = message.messages.length;
             this.editorService.handleRemoteRangeRemove(
               this.editorTextModel,
-              parseInt(message.messages[0]), // startIndex
-              parseInt(message.messages[1]) // rangeLen
+              message.messages
             );
             break;
           case MessageType.AllMessages:

@@ -59,33 +59,14 @@ export class MessageService {
     this.hubConnection.invoke('JoinExistingRoom', roomName);
   }
 
-  broadcastInsert(crdtString: string, roomName: string) {
-    this.hubConnection.invoke('ExecuteInsert', crdtString, roomName);
-  }
-
   // new
   broadcastRangeInsert(crdtStrings: string[], roomName: string): void {
     this.hubConnection.invoke('ExecuteRangeInsert', crdtStrings, roomName);
   }
 
   // new
-  broadcastRangeRemoveNEW(crdtStrings: string[], roomName: string): void {
+  broadcastRangeRemove(crdtStrings: string[], roomName: string): void {
     this.hubConnection.invoke('ExecuteRangeRemove', crdtStrings, roomName);
-  }
-
-  broadcastRangeRemove(
-    crdts: string[],
-    startIndex: string,
-    rangeLen: string,
-    roomName: string
-  ) {
-    this.hubConnection.invoke(
-      'ExecuteRangeRemove',
-      crdts,
-      startIndex,
-      rangeLen,
-      roomName
-    );
   }
 
   private stopConnection() {
@@ -111,8 +92,6 @@ export class MessageService {
 export const enum MessageType {
   SiteId = 'SiteId',
   RoomName = 'RoomName',
-  RemoteInsert = 'RemoteInsert',
-  RemoteRemove = 'RemoteRemove',
   RemoteRangeInsert = 'RemoteRangeInsert',
   RemoteRangeRemove = 'RemoteRangeRemove',
   AllMessages = 'AllMessages',

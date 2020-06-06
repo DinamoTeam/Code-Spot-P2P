@@ -11,7 +11,6 @@ import { BalancedBST } from '../shared/BalancedBST';
 // This is a new branch
 export class EditorService {
   static siteId: number = -1;
-  arr: CRDT[];
   curClock: number = 0;
   bst: BalancedBST<CRDT>; // new
 
@@ -20,6 +19,7 @@ export class EditorService {
   }
 
   constructor(private messageService: MessageService) {
+    this.bst = new BalancedBST<CRDT>();
     // new
     this.bst.insert(
       new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
@@ -35,7 +35,7 @@ export class EditorService {
   // new
   handleLocalRangeInsert(
     editorTextModel: any,
-    text: string,
+    newText: string,
     startLineNumber: number,
     startColumn: number,
     roomName: string
@@ -46,7 +46,7 @@ export class EditorService {
     const startIndex =
       this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
 
-    const chArr = text.split('');
+    const chArr = newText.split('');
     const N = chArr.length;
     let chArrIndex = 0;
     const crdtIdBefore = this.bst.getDataAt(startIndex - 1).id;
@@ -67,19 +67,29 @@ export class EditorService {
     }
     const listCRDTString = listCRDTBetween.map((crdt) => crdt.toString());
     this.messageService.broadcastRangeInsert(listCRDTString, roomName);
+
+    console.log('DONE handleLocalRangeInsert');
   }
 
   // new
-  handleRemoteRangeInsert(editorTextModel: any, crdtStrs: string[]) {
+  handleRemoteRangeInsert(
+    editorTextModel: any,
+    crdtStrs: string[],
+    isAllMessages = false
+  ) {
     const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
+    if (isAllMessages) {
+      crdts.sort((crdt1, crdt2) => crdt1.compareTo(crdt2)); // Sort by descending order
+    }
     const insertingChar = crdts.map((crdt) => crdt.ch);
     const insertingIndices = new Array<number>(crdts.length);
 
     for (let i = 0; i < crdts.length; i++) {
       const insertingIndex = this.bst.insert(crdts[i]);
-      insertingIndices[i] = insertingIndex;
+      insertingIndices[i] = insertingIndex - 1; // Because of beg limit
     }
 
+    console.log('Start writing to text');
     // Right now: Naively insert each char for testing purposes
     for (let i = 0; i < crdts.length; i++) {
       this.writeCharToScreenAtIndex(
@@ -88,11 +98,12 @@ export class EditorService {
         insertingIndices[i]
       );
     }
+    console.log('Done writing to text');
     // TODO: Do smart stuff to insert each char to the correct position on the screen
   }
 
   // new
-  handleLocalRangeRemoveNEW(
+  handleLocalRangeRemove(
     editorTextModel: any,
     startLineNumber: number,
     startColumn: number,
@@ -113,10 +124,11 @@ export class EditorService {
       this.bst.remove(crdtToBeRemoved);
     }
 
-    this.messageService.broadcastRangeRemoveNEW(removedCRDTString, roomName);
+    this.messageService.broadcastRangeRemove(removedCRDTString, roomName);
   }
 
-  handleRemoteRangeRemoveNEW(editorTextModel: any, crdtStrs: string[]): void {
+  // new
+  handleRemoteRangeRemove(editorTextModel: any, crdtStrs: string[]): void {
     const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
     const deletingIndices = new Array<number>(crdts.length);
 
@@ -141,98 +153,9 @@ export class EditorService {
     // TODO: Do smart stuff to delete at the correct positions on the screen
   }
 
-  // old: one by one
-  handleLocalInsert(
-    editorTextModel: any,
-    ch: string,
-    endLineNumber: number,
-    endColumn: number,
-    roomName: string
-  ): void {
-    if (EditorService.siteId === -1) {
-      throw new Error('Error: call handleLocalInsert before setting siteId');
-    }
-
-    let index = this.posToIndex(editorTextModel, endLineNumber, endColumn);
-    index += 1; // because we have beg limit
-    const crdtIdBefore = this.arr[index - 1].id;
-    const crdtIdAfter = this.arr[index].id;
-
-    const crdtIdBetween = CRDTId.generatePositionBetween(
-      crdtIdBefore,
-      crdtIdAfter,
-      EditorService.siteId,
-      this.curClock++
-    );
-
-    const crdtBetween = new CRDT(ch, crdtIdBetween);
-
-    Utils.insertCrdtToSortedCrdtArr(crdtBetween, this.arr);
-    this.messageService.broadcastInsert(crdtBetween.toString(), roomName);
-  }
-
-  // old: range
-  handleLocalRangeRemove(
-    editorTextModel: any,
-    startLineNumber: number,
-    startColumn: number,
-    rangeLen: number,
-    roomName: string
-  ): void {
-    if (EditorService.siteId === -1) {
-      throw new Error('Error: call handleLocalRemove before setting siteId');
-    }
-
-    let startIndex =
-      this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // because we have beg limit
-
-    const beg = startIndex;
-    let end = startIndex + rangeLen - 1;
-    let crdtsStr = new Array<string>();
-    while (end >= beg) {
-      crdtsStr.push(this.arr[end].toString());
-      end--;
-    }
-
-    this.arr.splice(startIndex, rangeLen);
-    this.messageService.broadcastRangeRemove(
-      crdtsStr,
-      String(startIndex),
-      String(rangeLen),
-      roomName
-    );
-  }
-
-  // old: 1 by one
-  handleRemoteInsert(editorTextModel: any, crdtStr: string): void {
-    let crdt = CRDT.parse(crdtStr);
-    const index = Utils.insertCrdtToSortedCrdtArr(crdt, this.arr);
-    this.writeCharToScreenAtIndex(editorTextModel, crdt.ch, index - 1);
-  }
-
-  // old: range
-  handleRemoteRangeRemove(
-    editorTextModel: any,
-    startIndex: number,
-    rangeLen: number
-  ): void {
-    const startPos = this.indexToPos(editorTextModel, startIndex - 1);
-    const endPos = this.indexToPos(editorTextModel, startIndex + rangeLen - 1);
-
-    this.deleteTextInRange(
-      editorTextModel,
-      startPos.lineNumber,
-      startPos.column,
-      endPos.lineNumber,
-      endPos.column
-    );
-    this.arr.splice(startIndex, rangeLen);
-  }
-
   handleAllMessages(editorTextModel: any, crdts: string[]): void {
-    for (let i = 0; i < crdts.length; i++) {
-      this.handleRemoteInsert(editorTextModel, crdts[i]);
-    }
+    // if isAllMessages=true => need to sort arr in handleRemoteRangeInsert
+    this.handleRemoteRangeInsert(editorTextModel, crdts, true);
   }
 
   writeCharToScreenAtIndex(
