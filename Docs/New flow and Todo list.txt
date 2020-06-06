@@ -42,7 +42,7 @@ II/ TODO LIST:
 		+ replace a chunk of text (replace = remove and then insert)
 		+ code suggestion
 		+ Select text and move it by mouse. We need to either hand this case or disable this feature
-	- Get AllMessage: When User1 just inserted 1000 characters, User2 enters the room, User2 gets error -> fix that (Maybe not, we will change to P2P anyway)
+	- Get AllMessages: When User1 just inserted 1000 characters, User2 enters the room, User2 gets error -> fix that (Maybe not, we will change to P2P anyway)
 	- User1 is typing lots of text. User2 move cursor to where User1 is typing -> User2's text is selected -> Fix that
 
 2.	Server side:
@@ -53,10 +53,25 @@ II/ TODO LIST:
 	- Optimize generateLessThan() for shorter CRDTId
 	- Peer to Peer 
 	- Handle the case where User's wifi goes down
-	
+	- Database key: chuyển thành AutoIncrement ID, (CRDTObject, RoomName) is unique
 	
 *** IMPORTANT: Make sure Minh understands:
 - How to delete a range of text and insert a range of text on Monaco
-- Dùng executeInsert để insert cả 1 đoạn text right?
-- Dùng deleteTextInRange để delete cả 1 đoạn text right?
+	+ Dùng executeInsert để insert cả 1 đoạn text right?
+	+ Dùng deleteTextInRange để delete cả 1 đoạn text right?
 - Ngoài EditorTextModel, tao còn thấy Editor. 2 cái đấy khác nhau như nào?
++ 
+
+- Branch: git branch abc 
+git checkout abc
+
+
+1.	Việc của Giang:
+	- Fix messagesDTO
+	- Auto suggestion
+
+2. Việc của Minh:
+	- Insert Range, Remove Range
+	- Nối các function bên Editor và Server lại với nhau
+
+
