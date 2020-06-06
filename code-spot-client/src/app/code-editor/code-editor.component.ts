@@ -107,6 +107,7 @@ export class CodeEditorComponent implements OnInit {
       this.remoteOpLeft--;
       return;
     }
+    console.log(event);
 
     const change = event.changes[0];
     const rangeDetails = change.range;
@@ -117,8 +118,8 @@ export class CodeEditorComponent implements OnInit {
     console.log('New text: |' + newText + '|');
     console.log(rangeDetails);
 
-    // It's a remove event
-    if (newText.length === 0) {
+    // Handle remove if any
+    if (rangeLen > 0) {
       this.editorService.handleLocalRangeRemove(
         this.editorTextModel,
         rangeDetails.startLineNumber,
@@ -126,12 +127,10 @@ export class CodeEditorComponent implements OnInit {
         rangeLen,
         this.roomName
       );
-
-      return;
     }
 
-    // It's insert event
-    if (rangeLen === 0) {
+    // Handle insert if any
+    if (newText !== '') {
       this.editorService.handleLocalRangeInsert(
         this.editorTextModel,
         newText,
@@ -139,13 +138,8 @@ export class CodeEditorComponent implements OnInit {
         rangeDetails.startColumn,
         this.roomName
       );
-
-      return;
     }
 
-    // TODO: handle auto-suggest
-    // Handle select a text and type in/paste in sth
-    console.log('TO BE HANDDLED SOON ...');
   }
 
   subscribeToSignalrEvents(): void {
