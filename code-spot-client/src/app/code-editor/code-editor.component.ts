@@ -119,7 +119,7 @@ export class CodeEditorComponent implements OnInit {
 
     // It's a remove event
     if (newText.length === 0) {
-      this.editorService.handleLocalRangeRemove(
+      this.editorService.handleLocalRangeRemoveNEW(
         this.editorTextModel,
         rangeDetails.startLineNumber,
         rangeDetails.startColumn,
@@ -134,18 +134,12 @@ export class CodeEditorComponent implements OnInit {
     if (rangeLen === 0) {
       // It's either insert one char or paste event
       if (newText.length === 1) {
-        this.editorService.handleLocalInsert(
+        this.editorService.handleLocalRangeInsert(
           this.editorTextModel,
           newText,
-          rangeDetails.endLineNumber,
-          rangeDetails.endColumn,
+          rangeDetails.startLineNumber,
+          rangeDetails.startColumn,
           this.roomName
-        );
-      } else {
-        this.handlePasteEvent(
-          newText,
-          rangeDetails.endLineNumber,
-          rangeDetails.endColumn
         );
       }
 
@@ -191,6 +185,20 @@ export class CodeEditorComponent implements OnInit {
             this.roomName = message.content;
             this.location.replaceState('/editor/' + this.roomName);
             break;
+          case MessageType.RemoteRangeInsert:
+            this.remoteOpLeft = 1;
+            this.editorService.handleRemoteRangeInsert(
+              this.editorTextModel,
+              message.content
+            );
+            break;
+          case MessageType.RemoteRangeRemove:
+            this.remoteOpLeft = 1;
+            this.editorService.handleRemoteRangeRemoveNEW(
+              this.editorTextModel,
+              message.content
+            );
+            break;
           case MessageType.RemoteInsert:
             this.remoteOpLeft = 1;
             this.editorService.handleRemoteInsert(
@@ -202,8 +210,8 @@ export class CodeEditorComponent implements OnInit {
             this.remoteOpLeft = 1;
             this.editorService.handleRemoteRangeRemove(
               this.editorTextModel,
-              parseInt(message.messages[0]),  // startIndex
-              parseInt(message.messages[1])   // rangeLen
+              parseInt(message.messages[0]), // startIndex
+              parseInt(message.messages[1]) // rangeLen
             );
             break;
           case MessageType.AllMessages:

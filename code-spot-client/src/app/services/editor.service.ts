@@ -20,18 +20,6 @@ export class EditorService {
   }
 
   constructor(private messageService: MessageService) {
-    this.arr = new Array<CRDT>();
-    this.arr.push(
-      new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
-    );
-
-    this.arr.push(
-      new CRDT(
-        '_end',
-        new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], this.curClock++)
-      )
-    );
-
     // new
     this.bst.insert(
       new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
@@ -47,15 +35,18 @@ export class EditorService {
   // new
   handleLocalRangeInsert(
     editorTextModel: any,
-    chArr: string[],
-    startIndex: number,
+    text: string,
+    startLineNumber: number,
+    startColumn: number,
     roomName: string
   ): void {
     if (EditorService.siteId === -1) {
       throw new Error('Error: call handleLocalInsert before setting siteId');
     }
-    startIndex += 1; // Because we have beg limit
+    const startIndex =
+      this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
 
+    const chArr = text.split('');
     const N = chArr.length;
     let chArrIndex = 0;
     const crdtIdBefore = this.bst.getDataAt(startIndex - 1).id;
@@ -103,13 +94,17 @@ export class EditorService {
   // new
   handleLocalRangeRemoveNEW(
     editorTextModel: any,
-    startIndex: number,
+    startLineNumber: number,
+    startColumn: number,
     length: number,
     roomName: string
   ): void {
     if (EditorService.siteId === -1) {
       throw new Error('Error: call handleLocalRemove before setting siteId');
     }
+
+    const startIndex =
+      this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
 
     const removedCRDTString: string[] = [];
     for (let i = 0; i < length; i++) {
@@ -146,6 +141,7 @@ export class EditorService {
     // TODO: Do smart stuff to delete at the correct positions on the screen
   }
 
+  // old: one by one
   handleLocalInsert(
     editorTextModel: any,
     ch: string,
@@ -175,6 +171,7 @@ export class EditorService {
     this.messageService.broadcastInsert(crdtBetween.toString(), roomName);
   }
 
+  // old: range
   handleLocalRangeRemove(
     editorTextModel: any,
     startLineNumber: number,
@@ -206,12 +203,14 @@ export class EditorService {
     );
   }
 
+  // old: 1 by one
   handleRemoteInsert(editorTextModel: any, crdtStr: string): void {
     let crdt = CRDT.parse(crdtStr);
     const index = Utils.insertCrdtToSortedCrdtArr(crdt, this.arr);
     this.writeCharToScreenAtIndex(editorTextModel, crdt.ch, index - 1);
   }
 
+  // old: range
   handleRemoteRangeRemove(
     editorTextModel: any,
     startIndex: number,
@@ -231,7 +230,7 @@ export class EditorService {
   }
 
   handleAllMessages(editorTextModel: any, crdts: string[]): void {
-    for (var i = 0; i < crdts.length; i++) {
+    for (let i = 0; i < crdts.length; i++) {
       this.handleRemoteInsert(editorTextModel, crdts[i]);
     }
   }

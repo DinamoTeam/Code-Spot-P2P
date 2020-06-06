@@ -65,12 +65,12 @@ export class MessageService {
 
   // new
   broadcastRangeInsert(crdtStrings: string[], roomName: string): void {
-    // TODO: Call ExecuteRangeInsert() in MessageHub.cs
+    this.hubConnection.invoke('ExecuteRangeInsert', crdtStrings, roomName);
   }
 
   // new
   broadcastRangeRemoveNEW(crdtStrings: string[], roomName: string): void {
-    // TODO: Call ExecuteRangeRemove() in MessageHub.cs
+    this.hubConnection.invoke('ExecuteRangeRemove', crdtStrings, roomName);
   }
 
   broadcastRangeRemove(
