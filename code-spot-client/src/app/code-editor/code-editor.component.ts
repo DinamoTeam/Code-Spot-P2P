@@ -120,6 +120,7 @@ export class CodeEditorComponent implements OnInit {
 
     // Handle remove if any
     if (rangeLen > 0) {
+      // TODO: Handle Ctrl-Z
       this.editorService.handleLocalRangeRemove(
         this.editorTextModel,
         rangeDetails.startLineNumber,
