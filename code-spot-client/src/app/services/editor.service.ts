@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
 import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
-import { Utils } from '../shared/Utils';
 import { MessageService } from './message.service';
 import { BalancedBST } from '../shared/BalancedBST';
 
 @Injectable({
   providedIn: 'root',
 })
-// This is a new branch
+
 export class EditorService {
   static siteId: number = -1;
   curClock: number = 0;
-  bst: BalancedBST<CRDT>; // new
+  bst: BalancedBST<CRDT>; 
 
   static setSiteId(id: number): void {
     EditorService.siteId = id;
@@ -20,7 +19,6 @@ export class EditorService {
 
   constructor(private messageService: MessageService) {
     this.bst = new BalancedBST<CRDT>();
-    // new
     this.bst.insert(
       new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
     );
@@ -32,7 +30,6 @@ export class EditorService {
     );
   }
 
-  // new
   handleLocalRangeInsert(
     editorTextModel: any,
     newText: string,
@@ -71,7 +68,6 @@ export class EditorService {
     console.log('DONE handleLocalRangeInsert');
   }
 
-  // new
   handleRemoteRangeInsert(
     editorTextModel: any,
     crdtStrs: string[],
@@ -89,7 +85,7 @@ export class EditorService {
       insertingIndices[i] = insertingIndex - 1; // Because of beg limit
     }
 
-    console.log('Start writing to text');
+    //console.log('Start writing to text');
     // Right now: Naively insert each char for testing purposes
     for (let i = 0; i < crdts.length; i++) {
       this.writeCharToScreenAtIndex(
@@ -98,11 +94,10 @@ export class EditorService {
         insertingIndices[i]
       );
     }
-    console.log('Done writing to text');
+    //console.log('Done writing to text');
     // TODO: Do smart stuff to insert each char to the correct position on the screen
   }
 
-  // new
   handleLocalRangeRemove(
     editorTextModel: any,
     startLineNumber: number,
@@ -127,7 +122,6 @@ export class EditorService {
     this.messageService.broadcastRangeRemove(removedCRDTString, roomName);
   }
 
-  // new
   handleRemoteRangeRemove(editorTextModel: any, crdtStrs: string[]): void {
     const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
     const deletingIndices = new Array<number>(crdts.length);

@@ -103,8 +103,7 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeModelContentHandler(event: any): void {
-    console.log('You just change something on the editor');
-    console.log('RemoteOpLeft: ' + this.remoteOpLeft);
+    //console.log('RemoteOpLeft: ' + this.remoteOpLeft);
     if (this.remoteOpLeft > 0) {
       this.remoteOpLeft--;
       return;
@@ -112,24 +111,29 @@ export class CodeEditorComponent implements OnInit {
     console.log(event);
 
     const change = event.changes[0];
+    const isUndo = event.isUndoing;
     const rangeDetails = change.range;
     const rangeLen = change.rangeLength;
     // The new text for the range (! \n can't see)
     const newText = change.text;
-    console.log('Range Len: ' + rangeLen);
-    console.log('New text: |' + newText + '|');
-    console.log(rangeDetails);
+    //console.log('Range Len: ' + rangeLen);
+    //console.log('New text: |' + newText + '|');
+    //console.log(rangeDetails);
 
     // Handle remove if any
     if (rangeLen > 0) {
-      // TODO: Handle Ctrl-Z
-      this.editorService.handleLocalRangeRemove(
-        this.editorTextModel,
-        rangeDetails.startLineNumber,
-        rangeDetails.startColumn,
-        rangeLen,
-        this.roomName
-      );
+      if (!isUndo) {
+        this.editorService.handleLocalRangeRemove(
+          this.editorTextModel,
+          rangeDetails.startLineNumber,
+          rangeDetails.startColumn,
+          rangeLen,
+          this.roomName
+        );
+      } else {
+        // TODO: Handle Ctrl-Z
+        console.log("Undo!!!");
+      }   
     }
 
     // Handle insert if any
