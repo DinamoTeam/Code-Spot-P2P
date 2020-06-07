@@ -354,3 +354,6 @@ MigrationBackup/
 
 # VisualStudio Code
 .vscode/
+
+# Package Lock
+package-lock.json
