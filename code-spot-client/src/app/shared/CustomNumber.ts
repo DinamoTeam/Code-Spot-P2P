@@ -150,6 +150,11 @@ export class CustomNumber {
 
   // Decrease some digits to generate a number less than n
   static generateLessThan(n: CustomNumber): CustomNumber {
+    // If n is bigger than 100: just return something from 1 to 100 inclusive
+    if (n.compareTo(new CustomNumber([100])) > 0) {
+      const randomDigit = Math.floor(Math.random() * 100) + 1;
+      return new CustomNumber([randomDigit]);
+    }
     // If only 1 digit
     if (n.arr.length === 1) {
       const newDigit = Math.floor(Math.random() * (n.arr[0] - 1)) + 1; // newDigit = 1->oldDigit-1. Never 0
