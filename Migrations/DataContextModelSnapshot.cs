@@ -17,11 +17,14 @@ namespace CodeSpot.Migrations
 
             modelBuilder.Entity("Code_Spot.Models.CRDT", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
                     b.Property<string>("CRDTObject");
 
                     b.Property<string>("RoomName");
 
-                    b.HasKey("CRDTObject", "RoomName");
+                    b.HasKey("Id");
 
                     b.HasIndex("RoomName")
                         .IsUnique();
@@ -43,8 +46,7 @@ namespace CodeSpot.Migrations
                 {
                     b.HasOne("Code_Spot.Models.Room", "Room")
                         .WithOne("Crdt")
-                        .HasForeignKey("Code_Spot.Models.CRDT", "RoomName")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("Code_Spot.Models.CRDT", "RoomName");
                 });
 #pragma warning restore 612, 618
         }

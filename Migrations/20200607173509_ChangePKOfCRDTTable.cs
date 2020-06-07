@@ -2,7 +2,7 @@
 
 namespace CodeSpot.Migrations
 {
-    public partial class RoomAndCRDTMigrations : Migration
+    public partial class ChangePKOfCRDTTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -21,12 +21,14 @@ namespace CodeSpot.Migrations
                 name: "CRDTs",
                 columns: table => new
                 {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
                     CRDTObject = table.Column<string>(nullable: false),
                     RoomName = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CRDTs", x => new { x.CRDTObject, x.RoomName });
+                    table.PrimaryKey("PK_CRDTs", x => x.Id);
                     table.ForeignKey(
                         name: "FK_CRDTs_Rooms_RoomName",
                         column: x => x.RoomName,

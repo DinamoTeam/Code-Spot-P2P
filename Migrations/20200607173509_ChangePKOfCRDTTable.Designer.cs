@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeSpot.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200529182457_RoomAndCRDTMigrations")]
-    partial class RoomAndCRDTMigrations
+    [Migration("20200607173509_ChangePKOfCRDTTable")]
+    partial class ChangePKOfCRDTTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -19,13 +19,17 @@ namespace CodeSpot.Migrations
 
             modelBuilder.Entity("Code_Spot.Models.CRDT", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
                     b.Property<string>("CRDTObject");
 
                     b.Property<string>("RoomName");
 
-                    b.HasKey("CRDTObject", "RoomName");
+                    b.HasKey("Id");
 
-                    b.HasIndex("RoomName");
+                    b.HasIndex("RoomName")
+                        .IsUnique();
 
                     b.ToTable("CRDTs");
                 });
@@ -43,9 +47,8 @@ namespace CodeSpot.Migrations
             modelBuilder.Entity("Code_Spot.Models.CRDT", b =>
                 {
                     b.HasOne("Code_Spot.Models.Room", "Room")
-                        .WithMany("Crdt")
-                        .HasForeignKey("Code_Spot.Models.CRDT", "RoomName")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithOne("Crdt")
+                        .HasForeignKey("Code_Spot.Models.CRDT", "RoomName");
                 });
 #pragma warning restore 612, 618
         }

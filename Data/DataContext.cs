@@ -13,10 +13,5 @@ namespace CodeSpot.Data
 
         public DbSet<Room> Rooms { get; set; }
         public DbSet<CRDT> CRDTs { get; set; }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<CRDT>().
-                HasKey(c => new { c.CRDTObject, c.RoomName});
-        }
     }
 }
