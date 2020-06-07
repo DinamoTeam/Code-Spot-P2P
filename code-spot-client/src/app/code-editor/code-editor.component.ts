@@ -150,16 +150,16 @@ export class CodeEditorComponent implements OnInit {
   }
 
   subscribeToSignalrEvents(): void {
-    this.messageService.messageReceived.subscribe((message: any) => {
+    this.messageService.messageReceived.subscribe((message: Message) => {
       this.ngZone.run(() => {
         const messageType = message.type;
         switch (messageType) {
           case MessageType.SiteId:
-            const siteId = parseInt(message.content, 10);
+            const siteId = parseInt(message.messages[0], 10);
             EditorService.setSiteId(siteId);
             break;
           case MessageType.RoomName:
-            this.roomName = message.content;
+            this.roomName = message.messages[0];
             this.location.replaceState('/editor/' + this.roomName);
             break;
           case MessageType.RemoteRangeInsert:
@@ -177,18 +177,16 @@ export class CodeEditorComponent implements OnInit {
             );
             break;
           case MessageType.AllMessages:
-            if (message.content !== '') {
-              this.remoteOpLeft = message.messages.length;
+            this.remoteOpLeft = message.messages.length;
 
-              // Duplicate tab or refresh tab don't generate new editorTextModel
-              if (this.editorTextModel === undefined) {
-                this.allMessages = message.messages;
-              } else {
-                this.editorService.handleAllMessages(
-                  this.editorTextModel,
-                  message.messages
-                );
-              }
+            // Duplicate tab or refresh tab don't generate new editorTextModel
+            if (this.editorTextModel === undefined) {
+              this.allMessages = message.messages;
+            } else {
+              this.editorService.handleAllMessages(
+                this.editorTextModel,
+                message.messages
+              );
             }
             break;
           default:

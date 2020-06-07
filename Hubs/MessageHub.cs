@@ -1,5 +1,4 @@
-﻿using Code_Spot.Data.DTO;
-using Code_Spot.Models;
+﻿using Code_Spot.Models;
 using CodeSpot.Data;
 using CodeSpot.Data.DTO;
 using Microsoft.AspNetCore.SignalR;
@@ -24,7 +23,7 @@ namespace CodeSpot.Hubs
 		public override async Task OnConnectedAsync()
 		{
 			string clientId = (curId++).ToString();
-			await Clients.Client(Context.ConnectionId).SendAsync("MessageFromServer", new MessageDTO() { Type = MessageType.SiteId, Content = clientId });
+			await Clients.Client(Context.ConnectionId).SendAsync("MessageFromServer", new MessagesDTO() { Type = MessageType.SiteId, Messages = new List<string>() { clientId } });
 			await base.OnConnectedAsync();
 		}
 
@@ -39,7 +38,7 @@ namespace CodeSpot.Hubs
 			_database.Rooms.Add(new Room(roomName));
 			await _database.SaveChangesAsync();
 			await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
-			await SendMessageToCallerClient(MessageType.RoomName, roomName);
+			await SendMessagesToCallerClient(MessageType.RoomName, new List<string>() { roomName });
 		}
 
 		public async Task JoinExistingRoom(string roomName)
@@ -55,29 +54,28 @@ namespace CodeSpot.Hubs
 
 			await SendMessagesToCallerClient(MessageType.AllMessages, messages);
 		}
-
-		// New 
+ 
 		public async Task ExecuteRangeInsert(List<string> crdtStrs, string roomName)
 		{
-			/*foreach (var crdtStr in crdtStrs) 
+			foreach (var crdtStr in crdtStrs)
 			{
-				if (! await _database.CRDTs.AnyAsync(
+				if (!await _database.CRDTs.AnyAsync(
 					c => c.CRDTObject == crdtStr && c.RoomName == roomName))
 				{
 					await _database.AddAsync(new CRDT(crdtStr, roomName));
 				}
-				else 
+				else
 				{
 					throw new Exception("Insert existed CRDT item. This should NOT happen in client-server model");
 				}
 			}
-			await _database.SaveChangesAsync();*/
+			await _database.SaveChangesAsync();
 			await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeInsert, crdtStrs);
 		}
 
 		public async Task ExecuteRangeRemove(List<string> crdts, string roomName)
 		{
-			/*foreach (var crdt in crdts)
+			foreach (var crdt in crdts)
 			{
 				CRDT crdtFromDb = await _database.CRDTs.FirstOrDefaultAsync(
 				c => c.CRDTObject == crdt && c.RoomName == roomName);
@@ -89,15 +87,15 @@ namespace CodeSpot.Hubs
 					{
 						await _database.SaveChangesAsync();
 					}
-					catch(DbUpdateConcurrencyException) 
+					catch (DbUpdateConcurrencyException)
 					{
 						// When 2 users delete the same text concurrently, 1 might remove before the other
 						// has the chance to saveChangesAsync()
 						// Just catch Exception and DO NOTHING, since we only need to delete once.
 					}
 				}
-			}*/
-			
+			}
+
 			// We don't need to create successfullyDeletedCRDTs list. Client code will handle the case
 			// where we try to delete something that doesn't exist.
 			await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeRemove, crdts);
@@ -119,16 +117,6 @@ namespace CodeSpot.Hubs
 		public async Task SendMessagesToCallerClient(string type, List<string> content)
 		{
 			await Clients.Caller.SendAsync("MessageFromServer", new MessagesDTO() { Type = type, Messages = content });
-		}
-
-		public async Task SendMessageToCallerClient(string type, string content)
-		{
-			await Clients.Caller.SendAsync("MessageFromServer", new MessageDTO() { Type = type, Content = content });
-		}
-
-		public async Task SendMessageToOtherClientsInGroup(string roomName, string type, string content)
-		{
-			await Clients.OthersInGroup(roomName).SendAsync("MessageFromServer", new MessageDTO() { Type = type, Content = content });
 		}
 
 		public async Task SendMessagesToOtherClientsInGroup(string roomName, string type, List<string> content)
