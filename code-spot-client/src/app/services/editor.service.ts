@@ -139,6 +139,10 @@ export class EditorService {
 
     // Right now: Naively delete each char from the screen
     for (let i = 0; i < crdts.length; i++) {
+      if (deletingIndices[i] === -1) {
+        // CRDT doesn't exist. Somebody's already deleted it!
+        continue;
+      }
       const startPos = this.indexToPos(editorTextModel, deletingIndices[i] - 1);
       const endPos = this.indexToPos(editorTextModel, deletingIndices[i]);
       this.deleteTextInRange(

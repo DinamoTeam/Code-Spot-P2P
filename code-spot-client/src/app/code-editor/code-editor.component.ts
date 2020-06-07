@@ -103,6 +103,8 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeModelContentHandler(event: any): void {
+    console.log('You just change something on the editor');
+    console.log('RemoteOpLeft: ' + this.remoteOpLeft);
     if (this.remoteOpLeft > 0) {
       this.remoteOpLeft--;
       return;
