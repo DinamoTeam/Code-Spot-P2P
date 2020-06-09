@@ -59,14 +59,14 @@ export class EditorService {
     const listCRDTBetween = listCrdtIdsBetween.map(
       (crdtId) => new CRDT(chArr[chArrIndex++], crdtId)
     );
-    console.log('To be inserted: ' + listCRDTBetween);
+    //console.log('To be inserted: ' + listCRDTBetween);
     for (let i = 0; i < listCRDTBetween.length; i++) {
       this.bst.insert(listCRDTBetween[i]);
     }
     const listCRDTString = listCRDTBetween.map((crdt) => crdt.toString());
     this.messageService.broadcastRangeInsert(listCRDTString, roomName);
 
-    console.log('DONE handleLocalRangeInsert');
+    //console.log('DONE handleLocalRangeInsert');
   }
 
   handleRemoteRangeInsert(

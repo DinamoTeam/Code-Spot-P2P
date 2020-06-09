@@ -82,7 +82,6 @@ export class CodeEditorComponent implements OnInit {
     this.editorTextModel = this.editor.getModel();
     this.editorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
-    this.editor.onDidPaste((e: any) => this.onDidPasteHandler(e));
     this.editor.onDidChangeModelContent((e: any) =>
       this.onDidChangeModelContentHandler(e)
     );
@@ -96,22 +95,51 @@ export class CodeEditorComponent implements OnInit {
     }
   }
 
-  onDidPasteHandler(event: any) {
-    const rangeDetails = event;
-    //console.log('Pasted range' + rangeDetails);
-    //console.log(rangeDetails);
-  }
-
   onDidChangeModelContentHandler(event: any): void {
     //console.log('RemoteOpLeft: ' + this.remoteOpLeft);
     if (this.remoteOpLeft > 0) {
       this.remoteOpLeft--;
       return;
     }
-    console.log(event);
+
+    //console.log(event);
+
+    const isUndo = event.isUndoing;
+    const isRedo = event.isRedoing;
+
+    if (isUndo) {
+      let changes = event.changes;
+      //console.log(changes);
+      for (var i = 0; i < changes.length; i++) {
+        let range = changes[i].range;
+        this.editorService.handleLocalRangeRemove(
+          this.editorTextModel,
+          range.startLineNumber,
+          range.startColumn,
+          changes[i].rangeLength,
+          this.roomName
+        );
+      }
+      return;
+    }
+
+    if (isRedo) {
+      let changes = event.changes;
+      //console.log(changes);
+      for (var i = 0; i < changes.length; i++) {
+        let range = changes[i].range;
+        this.editorService.handleLocalRangeInsert(
+          this.editorTextModel,
+          changes[i].text,
+          range.startLineNumber,
+          range.startColumn,
+          this.roomName
+        );
+      }
+      return;
+    }
 
     const change = event.changes[0];
-    const isUndo = event.isUndoing;
     const rangeDetails = change.range;
     const rangeLen = change.rangeLength;
     // The new text for the range (! \n can't see)
@@ -122,18 +150,13 @@ export class CodeEditorComponent implements OnInit {
 
     // Handle remove if any
     if (rangeLen > 0) {
-      if (!isUndo) {
-        this.editorService.handleLocalRangeRemove(
-          this.editorTextModel,
-          rangeDetails.startLineNumber,
-          rangeDetails.startColumn,
-          rangeLen,
-          this.roomName
-        );
-      } else {
-        // TODO: Handle Ctrl-Z
-        console.log("Undo!!!");
-      }   
+      this.editorService.handleLocalRangeRemove(
+        this.editorTextModel,
+        rangeDetails.startLineNumber,
+        rangeDetails.startColumn,
+        rangeLen,
+        this.roomName
+      );
     }
 
     // Handle insert if any
@@ -146,7 +169,6 @@ export class CodeEditorComponent implements OnInit {
         this.roomName
       );
     }
-
   }
 
   subscribeToSignalrEvents(): void {
