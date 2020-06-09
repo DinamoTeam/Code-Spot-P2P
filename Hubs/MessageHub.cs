@@ -57,48 +57,48 @@ namespace CodeSpot.Hubs
  
 		public async Task ExecuteRangeInsert(List<string> crdtStrs, string roomName)
 		{
-			foreach (var crdtStr in crdtStrs)
-			{
-				if (!await _database.CRDTs.AnyAsync(
-					c => c.CRDTObject == crdtStr && c.RoomName == roomName))
-				{
-					await _database.AddAsync(new CRDT(crdtStr, roomName));
-				}
-				else
-				{
-					throw new Exception("Insert existed CRDT item. This should NOT happen in client-server model");
-				}
-			}
-			await _database.SaveChangesAsync();
-			await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeInsert, crdtStrs);
+            foreach (var crdtStr in crdtStrs)
+            {
+                if (!await _database.CRDTs.AnyAsync(
+                    c => c.CRDTObject == crdtStr && c.RoomName == roomName))
+                {
+                    await _database.AddAsync(new CRDT(crdtStr, roomName));
+                }
+                else
+                {
+                    throw new Exception("Insert existed CRDT item. This should NOT happen in client-server model");
+                }
+            }
+            await _database.SaveChangesAsync();
+            await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeInsert, crdtStrs);
 		}
 
 		public async Task ExecuteRangeRemove(List<string> crdts, string roomName)
 		{
-			foreach (var crdt in crdts)
-			{
-				CRDT crdtFromDb = await _database.CRDTs.FirstOrDefaultAsync(
-				c => c.CRDTObject == crdt && c.RoomName == roomName);
+            foreach (var crdt in crdts)
+            {
+                CRDT crdtFromDb = await _database.CRDTs.FirstOrDefaultAsync(
+                c => c.CRDTObject == crdt && c.RoomName == roomName);
 
-				if (crdtFromDb != null)
-				{
-					_database.CRDTs.Remove(crdtFromDb);
-					try
-					{
-						await _database.SaveChangesAsync();
-					}
-					catch (DbUpdateConcurrencyException)
-					{
-						// When 2 users delete the same text concurrently, 1 might remove before the other
-						// has the chance to saveChangesAsync()
-						// Just catch Exception and DO NOTHING, since we only need to delete once.
-					}
-				}
-			}
+                if (crdtFromDb != null)
+                {
+                    _database.CRDTs.Remove(crdtFromDb);
+                    try
+                    {
+                        await _database.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        // When 2 users delete the same text concurrently, 
+                        // 1 might remove before the other has the chance to saveChangesAsync()
+                        // Just catch Exception and DO NOTHING, since we only need to delete once.
+                    }
+                }
+            }
 
-			// We don't need to create successfullyDeletedCRDTs list. Client code will handle the case
-			// where we try to delete something that doesn't exist.
-			await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeRemove, crdts);
+            // We don't need to create successfullyDeletedCRDTs list. Client code will handle the case
+            // where we try to delete something that doesn't exist.
+            await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeRemove, crdts);
 		}
 
 		private string GenerateRoomName()

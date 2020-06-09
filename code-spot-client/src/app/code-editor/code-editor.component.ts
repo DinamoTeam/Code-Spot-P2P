@@ -89,86 +89,118 @@ export class CodeEditorComponent implements OnInit {
     if (this.allMessages != null) {
       this.editorService.handleAllMessages(
         this.editorTextModel,
-        this.allMessages
+        this.allMessages,
+        this
       );
       this.allMessages = null;
     }
   }
 
   onDidChangeModelContentHandler(event: any): void {
-    //console.log('RemoteOpLeft: ' + this.remoteOpLeft);
     if (this.remoteOpLeft > 0) {
       this.remoteOpLeft--;
       return;
     }
 
-    //console.log(event);
+    console.log(event);
 
-    const isUndo = event.isUndoing;
-    const isRedo = event.isRedoing;
-
-    if (isUndo) {
-      let changes = event.changes;
-      //console.log(changes);
-      for (var i = 0; i < changes.length; i++) {
-        let range = changes[i].range;
-        this.editorService.handleLocalRangeRemove(
-          this.editorTextModel,
-          range.startLineNumber,
-          range.startColumn,
-          changes[i].rangeLength,
-          this.roomName
-        );
-      }
-      return;
-    }
-
-    if (isRedo) {
-      let changes = event.changes;
-      //console.log(changes);
-      for (var i = 0; i < changes.length; i++) {
-        let range = changes[i].range;
-        this.editorService.handleLocalRangeInsert(
-          this.editorTextModel,
-          changes[i].text,
-          range.startLineNumber,
-          range.startColumn,
-          this.roomName
-        );
-      }
-      return;
-    }
-
-    const change = event.changes[0];
-    const rangeDetails = change.range;
-    const rangeLen = change.rangeLength;
-    // The new text for the range (! \n can't see)
-    const newText = change.text;
-    //console.log('Range Len: ' + rangeLen);
-    //console.log('New text: |' + newText + '|');
-    //console.log(rangeDetails);
-
-    // Handle remove if any
-    if (rangeLen > 0) {
+    const changes = event.changes;
+    // Handle all remove and insert requests
+    for (let i = 0; i < changes.length; i++) {
+      const range = changes[i].range;
       this.editorService.handleLocalRangeRemove(
         this.editorTextModel,
-        rangeDetails.startLineNumber,
-        rangeDetails.startColumn,
-        rangeLen,
-        this.roomName
+        range.startLineNumber,
+        range.startColumn,
+        changes[i].rangeLength,
+        this.roomName,
+      );
+      this.editorService.handleLocalRangeInsert(
+        this.editorTextModel,
+        changes[i].text,
+        range.startLineNumber,
+        range.startColumn,
+        this.roomName,
       );
     }
 
-    // Handle insert if any
-    if (newText !== '') {
-      this.editorService.handleLocalRangeInsert(
-        this.editorTextModel,
-        newText,
-        rangeDetails.startLineNumber,
-        rangeDetails.startColumn,
-        this.roomName
-      );
-    }
+    // const isUndo = event.isUndoing;
+    // const isRedo = event.isRedoing;
+
+    // if (isUndo) {
+    //   let changes = event.changes;
+    //   for (var i = 0; i < changes.length; i++) {
+    //     let range = changes[i].range;
+    //     this.editorService.handleLocalRangeRemove(
+    //       this.editorTextModel,
+    //       range.startLineNumber,
+    //       range.startColumn,
+    //       changes[i].rangeLength,
+    //       this.roomName
+    //     );
+    //     this.editorService.handleLocalRangeInsert(
+    //       this.editorTextModel,
+    //       changes[i].text,
+    //       range.startLineNumber,
+    //       range.startColumn,
+    //       this.roomName
+    //     );
+    //   }
+    //   return;
+    // }
+
+    // if (isRedo) {
+    //   let changes = event.changes;
+    //   for (var i = 0; i < changes.length; i++) {
+    //     let range = changes[i].range;
+    //     this.editorService.handleLocalRangeRemove(
+    //       this.editorTextModel,
+    //       range.startLineNumber,
+    //       range.startColumn,
+    //       changes[i].rangeLength,
+    //       this.roomName
+    //     );
+    //     this.editorService.handleLocalRangeInsert(
+    //       this.editorTextModel,
+    //       changes[i].text,
+    //       range.startLineNumber,
+    //       range.startColumn,
+    //       this.roomName
+    //     );
+    //   }
+    //   return;
+    // }
+
+    // const change = event.changes[0];
+    // const rangeDetails = change.range;
+    // const rangeLen = change.rangeLength;
+    // // The new text for the range (! \n can't see)
+    // const newText = change.text;
+    // //console.log('Range Len: ' + rangeLen);
+    // //console.log('New text: |' + newText + '|');
+    // //console.log(rangeDetails);
+
+    // // Handle remove if any
+    // if (rangeLen > 0) {
+    //   this.editorService.handleLocalRangeRemove(
+    //     this.editorTextModel,
+    //     rangeDetails.startLineNumber,
+    //     rangeDetails.startColumn,
+    //     rangeLen,
+    //     this.roomName
+    //   );
+    // }
+
+    // // Handle insert if any
+    // if (newText !== '') {
+    //   this.editorService.handleLocalRangeInsert(
+    //     this.editorTextModel,
+    //     newText,
+    //     rangeDetails.startLineNumber,
+    //     rangeDetails.startColumn,
+    //     this.roomName
+    //   );
+    // }
   }
 
   subscribeToSignalrEvents(): void {
@@ -185,21 +217,23 @@ export class CodeEditorComponent implements OnInit {
             this.location.replaceState('/editor/' + this.roomName);
             break;
           case MessageType.RemoteRangeInsert:
-            this.remoteOpLeft = message.messages.length;
+            // RemoteOpLeft will be set inside handleRemoteRangeInsert
             this.editorService.handleRemoteRangeInsert(
               this.editorTextModel,
-              message.messages
+              message.messages,
+              this
             );
             break;
           case MessageType.RemoteRangeRemove:
-            this.remoteOpLeft = message.messages.length;
+            // RemoteOpLeft will be set inside handleRemoteRangeRemove
             this.editorService.handleRemoteRangeRemove(
               this.editorTextModel,
-              message.messages
+              message.messages,
+              this
             );
             break;
           case MessageType.AllMessages:
-            this.remoteOpLeft = message.messages.length;
+            // RemoteOpLeft will be set inside handleAllMessages
 
             // Duplicate tab or refresh tab don't generate new editorTextModel
             if (this.editorTextModel === undefined) {
@@ -207,7 +241,8 @@ export class CodeEditorComponent implements OnInit {
             } else {
               this.editorService.handleAllMessages(
                 this.editorTextModel,
-                message.messages
+                message.messages,
+                this
               );
             }
             break;
@@ -254,5 +289,9 @@ export class CodeEditorComponent implements OnInit {
 
   closeAlert() {
     this.showSuccessAlert = false;
+  }
+
+  incrementRemoteOpLeft(num: number) {
+    this.remoteOpLeft += num;
   }
 }

@@ -3,15 +3,15 @@ import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
 import { MessageService } from './message.service';
 import { BalancedBST } from '../shared/BalancedBST';
+import { CodeEditorComponent } from '../code-editor/code-editor.component';
 
 @Injectable({
   providedIn: 'root',
 })
-
 export class EditorService {
   static siteId: number = -1;
   curClock: number = 0;
-  bst: BalancedBST<CRDT>; 
+  bst: BalancedBST<CRDT>;
 
   static setSiteId(id: number): void {
     EditorService.siteId = id;
@@ -40,6 +40,9 @@ export class EditorService {
     if (EditorService.siteId === -1) {
       throw new Error('Error: call handleLocalInsert before setting siteId');
     }
+    if (newText === '') {
+      return;
+    }
     const startIndex =
       this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
 
@@ -59,19 +62,17 @@ export class EditorService {
     const listCRDTBetween = listCrdtIdsBetween.map(
       (crdtId) => new CRDT(chArr[chArrIndex++], crdtId)
     );
-    //console.log('To be inserted: ' + listCRDTBetween);
     for (let i = 0; i < listCRDTBetween.length; i++) {
       this.bst.insert(listCRDTBetween[i]);
     }
     const listCRDTString = listCRDTBetween.map((crdt) => crdt.toString());
     this.messageService.broadcastRangeInsert(listCRDTString, roomName);
-
-    //console.log('DONE handleLocalRangeInsert');
   }
 
   handleRemoteRangeInsert(
     editorTextModel: any,
     crdtStrs: string[],
+    codeEditorComponent: CodeEditorComponent,
     isAllMessages = false
   ) {
     const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
@@ -83,19 +84,28 @@ export class EditorService {
 
     for (let i = 0; i < crdts.length; i++) {
       const insertingIndex = this.bst.insert(crdts[i]);
-      insertingIndices[i] = insertingIndex - 1; // Because of beg limit
+      if (insertingIndex === -1) {
+        insertingIndices[i] = -1;
+      } else {
+        insertingIndices[i] = insertingIndex - 1; // Because of beg limit
+      }
     }
 
-    //console.log('Start writing to text');
+    const numToBeInserted = insertingIndices.filter(index => index !== -1).length;
+    codeEditorComponent.incrementRemoteOpLeft(numToBeInserted);
+
     // Right now: Naively insert each char for testing purposes
     for (let i = 0; i < crdts.length; i++) {
-      this.writeCharToScreenAtIndex(
-        editorTextModel,
-        insertingChar[i],
-        insertingIndices[i]
-      );
+      // Only insert not existed element
+      if (insertingIndices[i] !== -1) {
+        this.writeCharToScreenAtIndex(
+          editorTextModel,
+          insertingChar[i],
+          insertingIndices[i]
+        );
+      }
     }
-    //console.log('Done writing to text');
+
     // TODO: Do smart stuff to insert each char to the correct position on the screen
   }
 
@@ -108,6 +118,9 @@ export class EditorService {
   ): void {
     if (EditorService.siteId === -1) {
       throw new Error('Error: call handleLocalRemove before setting siteId');
+    }
+    if (length === 0) {
+      return;
     }
 
     const startIndex =
@@ -123,23 +136,33 @@ export class EditorService {
     this.messageService.broadcastRangeRemove(removedCRDTString, roomName);
   }
 
-  handleRemoteRangeRemove(editorTextModel: any, crdtStrs: string[]): void {
+  handleRemoteRangeRemove(
+    editorTextModel: any,
+    crdtStrs: string[],
+    codeEditorComponent: CodeEditorComponent
+  ): void {
     const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
     const deletingIndices = new Array<number>(crdts.length);
 
     for (let i = 0; i < crdts.length; i++) {
-      const deleteingIndex = this.bst.remove(crdts[i]);
-      deletingIndices[i] = deleteingIndex;
+      const deletingIndex = this.bst.remove(crdts[i]);
+      if (deletingIndex === -1) {
+        deletingIndices[i] = -1;
+      } else {
+        deletingIndices[i] = deletingIndex - 1; // Because of beg limit
+      }
     }
 
+    const numToBeInserted = deletingIndices.filter(index => index !== -1).length;
+    codeEditorComponent.incrementRemoteOpLeft(numToBeInserted);
     // Right now: Naively delete each char from the screen
     for (let i = 0; i < crdts.length; i++) {
       if (deletingIndices[i] === -1) {
         // CRDT doesn't exist. Somebody's already deleted it!
         continue;
       }
-      const startPos = this.indexToPos(editorTextModel, deletingIndices[i] - 1);
-      const endPos = this.indexToPos(editorTextModel, deletingIndices[i]);
+      const startPos = this.indexToPos(editorTextModel, deletingIndices[i]);
+      const endPos = this.indexToPos(editorTextModel, deletingIndices[i] + 1);
       this.deleteTextInRange(
         editorTextModel,
         startPos.lineNumber,
@@ -152,9 +175,18 @@ export class EditorService {
     // TODO: Do smart stuff to delete at the correct positions on the screen
   }
 
-  handleAllMessages(editorTextModel: any, crdts: string[]): void {
+  handleAllMessages(
+    editorTextModel: any,
+    crdts: string[],
+    codeEditorComponent: CodeEditorComponent
+  ): void {
     // if isAllMessages=true => need to sort arr in handleRemoteRangeInsert
-    this.handleRemoteRangeInsert(editorTextModel, crdts, true);
+    this.handleRemoteRangeInsert(
+      editorTextModel,
+      crdts,
+      codeEditorComponent,
+      true
+    );
   }
 
   writeCharToScreenAtIndex(
