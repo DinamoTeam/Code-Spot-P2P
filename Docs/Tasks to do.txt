@@ -12,7 +12,7 @@
 		+ Stuff that Peer to Peer MUST be able to handle
 			. Mass insertion and mass deletion (10,000+ characters, 1 khi đã handle đc 10,000 thì 100,000+ chắc cũng no problem)
 			. Works correct no matter how crazily people insert, delete, leave room, enter room
-	- Turn on code suggestion, make code highlighting works (Right now, code highlighting doesn't work correctly when receive remoteInsert)
+	- Add more languages, turn on code suggestion for all languages
 	
 2.	Lower priority, but very nice to have:
 	- Show other users' cursor positions, show when other users are selecting a text (with their names and using different color). Just like Google docs
