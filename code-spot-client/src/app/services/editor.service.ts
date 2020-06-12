@@ -108,6 +108,9 @@ export class EditorService {
     for (let i = 0; i < crdts.length; i++) {
       // Only insert not existed element
       if (insertingIndices[i] !== -1) {
+        if (crdts[i].ch === ' ' || crdts[i].ch === '\n')
+          editorTextModel.pushStackElement();
+
         this.writeCharToScreenAtIndex(
           editorTextModel,
           insertingChar[i],
