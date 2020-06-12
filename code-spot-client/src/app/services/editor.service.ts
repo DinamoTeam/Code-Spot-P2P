@@ -104,6 +104,7 @@ export class EditorService {
           insertingIndices[i]
         );
       }
+      editorTextModel.pushStackElement();
     }
 
     // TODO: Do smart stuff to insert each char to the correct position on the screen
@@ -170,6 +171,7 @@ export class EditorService {
         endPos.lineNumber,
         endPos.column
       );
+      editorTextModel.pushStackElement();
     }
 
     // TODO: Do smart stuff to delete at the correct positions on the screen

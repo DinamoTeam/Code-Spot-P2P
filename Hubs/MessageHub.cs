@@ -57,7 +57,7 @@ namespace CodeSpot.Hubs
  
 		public async Task ExecuteRangeInsert(List<string> crdtStrs, string roomName)
 		{
-            foreach (var crdtStr in crdtStrs)
+            /*foreach (var crdtStr in crdtStrs)
             {
                 if (!await _database.CRDTs.AnyAsync(
                     c => c.CRDTObject == crdtStr && c.RoomName == roomName))
@@ -69,13 +69,13 @@ namespace CodeSpot.Hubs
                     throw new Exception("Insert existed CRDT item. This should NOT happen in client-server model");
                 }
             }
-            await _database.SaveChangesAsync();
+            await _database.SaveChangesAsync();*/
             await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeInsert, crdtStrs);
 		}
 
 		public async Task ExecuteRangeRemove(List<string> crdts, string roomName)
 		{
-            foreach (var crdt in crdts)
+            /*foreach (var crdt in crdts)
             {
                 CRDT crdtFromDb = await _database.CRDTs.FirstOrDefaultAsync(
                 c => c.CRDTObject == crdt && c.RoomName == roomName);
@@ -94,7 +94,7 @@ namespace CodeSpot.Hubs
                         // Just catch Exception and DO NOTHING, since we only need to delete once.
                     }
                 }
-            }
+            }*/
 
             // We don't need to create successfullyDeletedCRDTs list. Client code will handle the case
             // where we try to delete something that doesn't exist.
