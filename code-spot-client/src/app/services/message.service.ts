@@ -59,12 +59,10 @@ export class MessageService {
     this.hubConnection.invoke('JoinExistingRoom', roomName);
   }
 
-  // new
   broadcastRangeInsert(crdtStrings: string[], roomName: string): void {
     this.hubConnection.invoke('ExecuteRangeInsert', crdtStrings, roomName);
   }
 
-  // new
   broadcastRangeRemove(crdtStrings: string[], roomName: string): void {
     this.hubConnection.invoke('ExecuteRangeRemove', crdtStrings, roomName);
   }

@@ -51,7 +51,6 @@ export class CodeEditorComponent implements OnInit {
   ];
 
   editorOptions = { theme: 'vs-dark', language: 'cpp' };
-  code: string = 'function x() {\nconsole.log("Hello world!");\n}';
 
   onLanguageChange(res) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);
@@ -79,15 +78,10 @@ export class CodeEditorComponent implements OnInit {
     }
   }
 
-  onInitHandler(event: any) {
+  onInitEditorHandler(event: any) {
     this.editor = event;
     this.editorTextModel = this.editor.getModel();
     this.editorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
-
-    // Auxiliary editor
-    this.auxEditor = monaco.editor.create(document.getElementById('container'));
-    this.auxEditorTextModel = this.auxEditor.getModel();
-    this.auxEditorTextModel.setEOL(0);
 
     this.editor.onDidChangeModelContent((e: any) =>
       this.onDidChangeModelContentHandler(e)
@@ -104,14 +98,17 @@ export class CodeEditorComponent implements OnInit {
     }
   }
 
+  onInitAuxEditorHandler(event: any) {
+    this.auxEditor = event;
+    this.auxEditorTextModel = this.auxEditor.getModel();
+    this.auxEditorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
+  }
+
   onDidChangeModelContentHandler(event: any): void {
-    console.log('RemoteOpLeft: ' + this.remoteOpLeft);
     if (this.remoteOpLeft > 0) {
       this.remoteOpLeft--;
       return;
     }
-
-    console.log(event);
 
     const changes = event.changes;
     // Handle all remove and insert requests
@@ -124,17 +121,16 @@ export class CodeEditorComponent implements OnInit {
         range.endLineNumber,
         range.endColumn,
         changes[i].rangeLength,
-        this.roomName,
+        this.roomName
       );
       this.editorService.handleLocalRangeInsert(
         this.auxEditorTextModel, // AuxEditorTextModel is the last version of editorTextModel
         changes[i].text,
         range.startLineNumber,
         range.startColumn,
-        this.roomName,
+        this.roomName
       );
     }
-
   }
 
   subscribeToSignalrEvents(): void {
@@ -170,7 +166,6 @@ export class CodeEditorComponent implements OnInit {
             break;
           case MessageType.AllMessages:
             // RemoteOpLeft will be set inside handleAllMessages
-
             // Duplicate tab or refresh tab don't generate new editorTextModel
             if (this.editorTextModel === undefined) {
               this.allMessages = message.messages;

@@ -37,38 +37,44 @@ export class EditorService {
     startColumn: number,
     roomName: string
   ): void {
-    if (EditorService.siteId === -1) {
+    if (EditorService.siteId === -1)
       throw new Error('Error: call handleLocalInsert before setting siteId');
-    }
-    if (newText === '') {
-      return;
-    }
 
+    if (newText === '') return;
+
+    // IMPORTANT: Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
     const startIndex =
-      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
-
-    // Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
-    this.executeInsert(auxEditorTextModel, newText, startLineNumber, startColumn);
+      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have __beg limit
+    this.writeCharToScreenAtPos(
+      auxEditorTextModel,
+      newText,
+      startLineNumber,
+      startColumn
+    );
 
     const chArr = newText.split('');
-    const N = chArr.length;
-    let chArrIndex = 0;
+
     const crdtIdBefore = this.bst.getDataAt(startIndex - 1).id;
     const crdtIdAfter = this.bst.getDataAt(startIndex).id;
     const listCrdtIdsBetween = CRDTId.generateNPositionsBetween(
       crdtIdBefore,
       crdtIdAfter,
-      N,
+      chArr.length,
       EditorService.siteId,
       this.curClock
     );
-    this.curClock += N; // Generate N new CRDTId therefore increment curClock by N
+
+    this.curClock += chArr.length; // Generate N new CRDTId therefore increment curClock by N
+
+    let chArrIndex = 0;
     const listCRDTBetween = listCrdtIdsBetween.map(
       (crdtId) => new CRDT(chArr[chArrIndex++], crdtId)
     );
+
     for (let i = 0; i < listCRDTBetween.length; i++) {
       this.bst.insert(listCRDTBetween[i]);
     }
+
     const listCRDTString = listCRDTBetween.map((crdt) => crdt.toString());
     this.messageService.broadcastRangeInsert(listCRDTString, roomName);
   }
@@ -84,16 +90,13 @@ export class EditorService {
     if (isAllMessages) {
       crdts.sort((crdt1, crdt2) => crdt1.compareTo(crdt2)); // Sort by descending order
     }
-    const insertingChar = crdts.map((crdt) => crdt.ch);
+
     const insertingIndices = new Array<number>(crdts.length);
 
     for (let i = 0; i < crdts.length; i++) {
       const insertingIndex = this.bst.insert(crdts[i]);
-      if (insertingIndex === -1) {
-        insertingIndices[i] = -1;
-      } else {
-        insertingIndices[i] = insertingIndex - 1; // Because of beg limit
-      }
+      if (insertingIndex === -1) insertingIndices[i] = -1;
+      else insertingIndices[i] = insertingIndex - 1; // Because of __beg limit
     }
 
     const numToBeInserted = insertingIndices.filter((index) => index !== -1)
@@ -101,6 +104,7 @@ export class EditorService {
     codeEditorComponent.incrementRemoteOpLeft(numToBeInserted);
 
     // Right now: Naively insert each char for testing purposes
+    const insertingChar = crdts.map((crdt) => crdt.ch);
     for (let i = 0; i < crdts.length; i++) {
       // Only insert not existed element
       if (insertingIndices[i] !== -1) {
@@ -116,7 +120,6 @@ export class EditorService {
           insertingIndices[i]
         );
       }
-      // editorTextModel.pushStackElement();
     }
 
     // TODO: Do smart stuff to insert ranges of chars to the correct position on the screen
@@ -131,18 +134,21 @@ export class EditorService {
     length: number,
     roomName: string
   ): void {
-    if (EditorService.siteId === -1) {
+    if (EditorService.siteId === -1)
       throw new Error('Error: call handleLocalRemove before setting siteId');
-    }
-    if (length === 0) {
-      return;
-    }
 
+    if (length === 0) return;
+
+    // IMPORTANT: Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
     const startIndex =
-      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
-
-    // Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
-    this.deleteTextInRange(auxEditorTextModel, startLineNumber, startColumn, endLineNumber, endColumn);
+      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have __beg limit
+    this.deleteTextInRange(
+      auxEditorTextModel,
+      startLineNumber,
+      startColumn,
+      endLineNumber,
+      endColumn
+    );
 
     const removedCRDTString: string[] = [];
     for (let i = 0; i < length; i++) {
@@ -165,22 +171,18 @@ export class EditorService {
 
     for (let i = 0; i < crdts.length; i++) {
       const deletingIndex = this.bst.remove(crdts[i]);
-      if (deletingIndex === -1) {
-        deletingIndices[i] = -1;
-      } else {
-        deletingIndices[i] = deletingIndex - 1; // Because of beg limit
-      }
+      if (deletingIndex === -1) deletingIndices[i] = -1;
+      else deletingIndices[i] = deletingIndex - 1; // Because of __beg limit
     }
 
     const numToBeInserted = deletingIndices.filter((index) => index !== -1)
       .length;
     codeEditorComponent.incrementRemoteOpLeft(numToBeInserted);
+
     // Right now: Naively delete each char from the screen
     for (let i = 0; i < crdts.length; i++) {
-      if (deletingIndices[i] === -1) {
-        // CRDT doesn't exist. Somebody's already deleted it!
-        continue;
-      }
+      if (deletingIndices[i] === -1) continue; // CRDT doesn't exist. Somebody's already deleted it!
+
       const startPos = this.indexToPos(editorTextModel, deletingIndices[i]);
       const endPos = this.indexToPos(editorTextModel, deletingIndices[i] + 1);
       this.deleteTextInRange(
@@ -197,8 +199,6 @@ export class EditorService {
         endPos.lineNumber,
         endPos.column
       );
-      // auxiliary editor
-      // editorTextModel.pushStackElement();
     }
 
     // TODO: Do smart stuff to delete ranges of chars at the correct positions on the screen
@@ -226,7 +226,7 @@ export class EditorService {
     index: number
   ): void {
     const pos = this.indexToPos(editorTextModel, index);
-    this.executeInsert(
+    this.writeCharToScreenAtPos(
       editorTextModel,
       text,
       pos.lineNumber,
@@ -258,14 +258,12 @@ export class EditorService {
     );
   }
 
-  // Write text to the screen, NO DELETE
-  executeInsert(
+  writeCharToScreenAtPos(
     editorTextModel: any,
     text: string,
     startLineNumber: number,
     startColumn: number
   ) {
-    // range.length === 0
     const range = new monaco.Range(
       startLineNumber,
       startColumn,
@@ -284,7 +282,7 @@ export class EditorService {
     );
   }
 
-  posToIndex(
+  private posToIndex(
     editorTextModel: any,
     endLineNumber: number,
     endColumn: number
@@ -297,7 +295,7 @@ export class EditorService {
     // console.log("(" + this.editorTextModel.getValueInRange(new monaco.Range(1, 0, endLineNumber, endColumn)) + ")");
   }
 
-  indexToPos(editorTextModel: any, index: number): any {
+  private indexToPos(editorTextModel: any, index: number): any {
     return editorTextModel.getPositionAt(index);
   }
 }
