@@ -18,6 +18,7 @@ const monacoConfig: NgxMonacoEditorConfig = {
     wordWrap: "on",
     showUnused: true,
     tabCompletion: "onlySnippets",
+    dragAndDrop: false,
   },
   onMonacoLoad: () => {
     /* Change Config here */
