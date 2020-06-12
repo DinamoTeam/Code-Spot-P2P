@@ -31,7 +31,7 @@ export class EditorService {
   }
 
   handleLocalRangeInsert(
-    editorTextModel: any,
+    auxEditorTextModel: any,
     newText: string,
     startLineNumber: number,
     startColumn: number,
@@ -43,8 +43,12 @@ export class EditorService {
     if (newText === '') {
       return;
     }
+
     const startIndex =
-      this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
+      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
+
+    // Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
+    this.executeInsert(auxEditorTextModel, newText, startLineNumber, startColumn);
 
     const chArr = newText.split('');
     const N = chArr.length;
@@ -71,6 +75,7 @@ export class EditorService {
 
   handleRemoteRangeInsert(
     editorTextModel: any,
+    auxEditorTextModel: any,
     crdtStrs: string[],
     codeEditorComponent: CodeEditorComponent,
     isAllMessages = false
@@ -91,7 +96,8 @@ export class EditorService {
       }
     }
 
-    const numToBeInserted = insertingIndices.filter(index => index !== -1).length;
+    const numToBeInserted = insertingIndices.filter((index) => index !== -1)
+      .length;
     codeEditorComponent.incrementRemoteOpLeft(numToBeInserted);
 
     // Right now: Naively insert each char for testing purposes
@@ -103,17 +109,25 @@ export class EditorService {
           insertingChar[i],
           insertingIndices[i]
         );
+        // auxiliary editor
+        this.writeCharToScreenAtIndex(
+          auxEditorTextModel,
+          insertingChar[i],
+          insertingIndices[i]
+        );
       }
-      editorTextModel.pushStackElement();
+      // editorTextModel.pushStackElement();
     }
 
-    // TODO: Do smart stuff to insert each char to the correct position on the screen
+    // TODO: Do smart stuff to insert ranges of chars to the correct position on the screen
   }
 
   handleLocalRangeRemove(
-    editorTextModel: any,
+    auxEditorTextModel: any,
     startLineNumber: number,
     startColumn: number,
+    endLineNumber: number,
+    endColumn: number,
     length: number,
     roomName: string
   ): void {
@@ -125,7 +139,10 @@ export class EditorService {
     }
 
     const startIndex =
-      this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
+      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have beg limit
+
+    // Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
+    this.deleteTextInRange(auxEditorTextModel, startLineNumber, startColumn, endLineNumber, endColumn);
 
     const removedCRDTString: string[] = [];
     for (let i = 0; i < length; i++) {
@@ -139,6 +156,7 @@ export class EditorService {
 
   handleRemoteRangeRemove(
     editorTextModel: any,
+    auxEditorTextModel: any,
     crdtStrs: string[],
     codeEditorComponent: CodeEditorComponent
   ): void {
@@ -154,7 +172,8 @@ export class EditorService {
       }
     }
 
-    const numToBeInserted = deletingIndices.filter(index => index !== -1).length;
+    const numToBeInserted = deletingIndices.filter((index) => index !== -1)
+      .length;
     codeEditorComponent.incrementRemoteOpLeft(numToBeInserted);
     // Right now: Naively delete each char from the screen
     for (let i = 0; i < crdts.length; i++) {
@@ -171,20 +190,30 @@ export class EditorService {
         endPos.lineNumber,
         endPos.column
       );
-      editorTextModel.pushStackElement();
+      this.deleteTextInRange(
+        auxEditorTextModel,
+        startPos.lineNumber,
+        startPos.column,
+        endPos.lineNumber,
+        endPos.column
+      );
+      // auxiliary editor
+      // editorTextModel.pushStackElement();
     }
 
-    // TODO: Do smart stuff to delete at the correct positions on the screen
+    // TODO: Do smart stuff to delete ranges of chars at the correct positions on the screen
   }
 
   handleAllMessages(
     editorTextModel: any,
+    auxEditorTextModel: any,
     crdts: string[],
     codeEditorComponent: CodeEditorComponent
   ): void {
     // if isAllMessages=true => need to sort arr in handleRemoteRangeInsert
     this.handleRemoteRangeInsert(
       editorTextModel,
+      auxEditorTextModel,
       crdts,
       codeEditorComponent,
       true
@@ -200,8 +229,6 @@ export class EditorService {
     this.executeInsert(
       editorTextModel,
       text,
-      pos.lineNumber,
-      pos.column,
       pos.lineNumber,
       pos.column
     );
@@ -231,20 +258,19 @@ export class EditorService {
     );
   }
 
-  // Write text to the screen
+  // Write text to the screen, NO DELETE
   executeInsert(
     editorTextModel: any,
     text: string,
     startLineNumber: number,
-    startColumn: number,
-    endLineNumber: number,
-    endColumn: number
+    startColumn: number
   ) {
+    // range.length === 0
     const range = new monaco.Range(
       startLineNumber,
       startColumn,
-      endLineNumber,
-      endColumn
+      startLineNumber,
+      startColumn
     );
 
     editorTextModel.pushEditOperations(

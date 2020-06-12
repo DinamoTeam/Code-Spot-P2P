@@ -16,7 +16,9 @@ declare const monaco: any;
 export class CodeEditorComponent implements OnInit {
   roomName: string;
   editor: any;
+  auxEditor: any;
   editorTextModel: any;
+  auxEditorTextModel: any;
   remoteOpLeft: number = 0;
   allMessages: string[] = null;
   selectedLang: string;
@@ -82,6 +84,11 @@ export class CodeEditorComponent implements OnInit {
     this.editorTextModel = this.editor.getModel();
     this.editorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
+    // Auxiliary editor
+    this.auxEditor = monaco.editor.create(document.getElementById('container'));
+    this.auxEditorTextModel = this.auxEditor.getModel();
+    this.auxEditorTextModel.setEOL(0);
+
     this.editor.onDidChangeModelContent((e: any) =>
       this.onDidChangeModelContentHandler(e)
     );
@@ -89,6 +96,7 @@ export class CodeEditorComponent implements OnInit {
     if (this.allMessages != null) {
       this.editorService.handleAllMessages(
         this.editorTextModel,
+        this.auxEditorTextModel,
         this.allMessages,
         this
       );
@@ -110,14 +118,16 @@ export class CodeEditorComponent implements OnInit {
     for (let i = 0; i < changes.length; i++) {
       const range = changes[i].range;
       this.editorService.handleLocalRangeRemove(
-        this.editorTextModel,
+        this.auxEditorTextModel, // AuxEditorTextModel is the last version of editorTextModel
         range.startLineNumber,
         range.startColumn,
+        range.endLineNumber,
+        range.endColumn,
         changes[i].rangeLength,
         this.roomName,
       );
       this.editorService.handleLocalRangeInsert(
-        this.editorTextModel,
+        this.auxEditorTextModel, // AuxEditorTextModel is the last version of editorTextModel
         changes[i].text,
         range.startLineNumber,
         range.startColumn,
@@ -125,83 +135,6 @@ export class CodeEditorComponent implements OnInit {
       );
     }
 
-    // const isUndo = event.isUndoing;
-    // const isRedo = event.isRedoing;
-
-    // if (isUndo) {
-    //   let changes = event.changes;
-    //   for (var i = 0; i < changes.length; i++) {
-    //     let range = changes[i].range;
-    //     this.editorService.handleLocalRangeRemove(
-    //       this.editorTextModel,
-    //       range.startLineNumber,
-    //       range.startColumn,
-    //       changes[i].rangeLength,
-    //       this.roomName
-    //     );
-    //     this.editorService.handleLocalRangeInsert(
-    //       this.editorTextModel,
-    //       changes[i].text,
-    //       range.startLineNumber,
-    //       range.startColumn,
-    //       this.roomName
-    //     );
-    //   }
-    //   return;
-    // }
-
-    // if (isRedo) {
-    //   let changes = event.changes;
-    //   for (var i = 0; i < changes.length; i++) {
-    //     let range = changes[i].range;
-    //     this.editorService.handleLocalRangeRemove(
-    //       this.editorTextModel,
-    //       range.startLineNumber,
-    //       range.startColumn,
-    //       changes[i].rangeLength,
-    //       this.roomName
-    //     );
-    //     this.editorService.handleLocalRangeInsert(
-    //       this.editorTextModel,
-    //       changes[i].text,
-    //       range.startLineNumber,
-    //       range.startColumn,
-    //       this.roomName
-    //     );
-    //   }
-    //   return;
-    // }
-
-    // const change = event.changes[0];
-    // const rangeDetails = change.range;
-    // const rangeLen = change.rangeLength;
-    // // The new text for the range (! \n can't see)
-    // const newText = change.text;
-    // //console.log('Range Len: ' + rangeLen);
-    // //console.log('New text: |' + newText + '|');
-    // //console.log(rangeDetails);
-
-    // // Handle remove if any
-    // if (rangeLen > 0) {
-    //   this.editorService.handleLocalRangeRemove(
-    //     this.editorTextModel,
-    //     rangeDetails.startLineNumber,
-    //     rangeDetails.startColumn,
-    //     rangeLen,
-    //     this.roomName
-    //   );
-    // }
-
-    // // Handle insert if any
-    // if (newText !== '') {
-    //   this.editorService.handleLocalRangeInsert(
-    //     this.editorTextModel,
-    //     newText,
-    //     rangeDetails.startLineNumber,
-    //     rangeDetails.startColumn,
-    //     this.roomName
-    //   );
-    // }
   }
 
   subscribeToSignalrEvents(): void {
@@ -221,6 +154,7 @@ export class CodeEditorComponent implements OnInit {
             // RemoteOpLeft will be set inside handleRemoteRangeInsert
             this.editorService.handleRemoteRangeInsert(
               this.editorTextModel,
+              this.auxEditorTextModel,
               message.messages,
               this
             );
@@ -229,6 +163,7 @@ export class CodeEditorComponent implements OnInit {
             // RemoteOpLeft will be set inside handleRemoteRangeRemove
             this.editorService.handleRemoteRangeRemove(
               this.editorTextModel,
+              this.auxEditorTextModel,
               message.messages,
               this
             );
@@ -242,6 +177,7 @@ export class CodeEditorComponent implements OnInit {
             } else {
               this.editorService.handleAllMessages(
                 this.editorTextModel,
+                this.auxEditorTextModel,
                 message.messages,
                 this
               );
