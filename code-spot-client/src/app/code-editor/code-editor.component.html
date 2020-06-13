@@ -30,6 +30,13 @@
       </div>
       <!--Editor-->
       <div>
+        <ngx-monaco-editor class="solution-code-editor"
+                           [options]="editorOptions"
+                           (onInit)="onInitAuxEditorHandler($event)"
+                           style="display:none">
+        </ngx-monaco-editor>
+      </div>
+      <div>
         <ngx-monaco-editor
           class="solution-code-editor"
           [options]="editorOptions"
@@ -41,11 +48,4 @@
   <button class="btn btn-md mb-3 btn-navy" (click)="copyLink()">
     Get shareable link!
   </button>
-  <div>
-    <ngx-monaco-editor class="solution-code-editor"
-                       [options]="editorOptions"
-                       (onInit)="onInitAuxEditorHandler($event)"
-                       style="display:none">
-    </ngx-monaco-editor>
-  </div>
 </div>
