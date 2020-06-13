@@ -113,7 +113,7 @@ export class CodeEditorComponent implements OnInit {
     for (let i = 0; i < changes.length; i++) {
       const range = changes[i].range;
       this.editorService.handleLocalRangeRemove(
-        this.auxEditorTextModel, // AuxEditorTextModel is the last version of editorTextModel
+        this.auxEditorTextModel,
         range.startLineNumber,
         range.startColumn,
         range.endLineNumber,
@@ -122,7 +122,7 @@ export class CodeEditorComponent implements OnInit {
         this.roomName
       );
       this.editorService.handleLocalRangeInsert(
-        this.auxEditorTextModel, // AuxEditorTextModel is the last version of editorTextModel
+        this.auxEditorTextModel,
         changes[i].text,
         range.startLineNumber,
         range.startColumn,

@@ -1,7 +1,7 @@
 import { CRDT } from './CRDT';
 
 export class EditStack {
-  arr: Array<Edit>;
+  private arr: Array<Edit>;
   constructor() {
     this.arr = new Array<Edit>();
   }
@@ -28,6 +28,9 @@ export class EditStack {
     if (this.arr.length > 0) {
       this.arr[this.arr.length - 1].isStop = true;
     }
+  }
+  clear(): void {
+      this.arr = new Array<Edit>();
   }
   isEmpty(): boolean {
     return this.arr.length === 0;
