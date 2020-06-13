@@ -101,6 +101,11 @@ namespace CodeSpot.Hubs
             await SendMessagesToOtherClientsInGroup(roomName, MessageType.RemoteRangeRemove, crdts);
 		}
 
+		public async Task ChangeLanguage(string lang, string roomName)
+		{
+			await SendMessagesToOtherClientsInGroup(roomName, MessageType.Language, new List<string>() { lang });
+		}
+
 		private string GenerateRoomName()
 		{
 			while (true)
@@ -129,6 +134,7 @@ namespace CodeSpot.Hubs
 	{
 		public const string SiteId = "SiteId";
 		public const string RoomName = "RoomName";
+		public const string Language = "Language";
 		public const string AllMessages = "AllMessages";
 		public const string RemoteRangeInsert = "RemoteRangeInsert";
 		public const string RemoteRangeRemove = "RemoteRangeRemove";

@@ -70,6 +70,7 @@ export class CodeEditorComponent implements OnInit {
     this.editorOptions = Object.assign({}, this.editorOptions, {
       language: this.selectedLang,
     });
+    this.messageService.sendSignalChangeLanguage(this.selectedLang, this.roomName);
   }
 
   onInitEditorHandler(event: any) {
@@ -138,6 +139,13 @@ export class CodeEditorComponent implements OnInit {
           case MessageType.RoomName:
             this.roomName = message.messages[0];
             this.location.replaceState('/editor/' + this.roomName);
+            break;
+          case MessageType.Language:
+            this.selectedLang = message.messages[0];
+            this.editorOptions = Object.assign({}, this.editorOptions, {
+              language: this.selectedLang,
+            });
+            this.languageForm.patchValue({ language: this.selectedLang });
             break;
           case MessageType.RemoteRangeInsert:
             // RemoteOpLeft will be set inside handleRemoteRangeInsert

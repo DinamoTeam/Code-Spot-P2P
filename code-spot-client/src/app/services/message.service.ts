@@ -59,6 +59,10 @@ export class MessageService {
     this.hubConnection.invoke('JoinExistingRoom', roomName);
   }
 
+  sendSignalChangeLanguage(lang: string, roomName: string): void {
+    this.hubConnection.invoke('ChangeLanguage', lang, roomName);
+  }
+
   broadcastRangeInsert(crdtStrings: string[], roomName: string): void {
     this.hubConnection.invoke('ExecuteRangeInsert', crdtStrings, roomName);
   }
@@ -90,6 +94,7 @@ export class MessageService {
 export const enum MessageType {
   SiteId = 'SiteId',
   RoomName = 'RoomName',
+  Language = 'Language',
   RemoteRangeInsert = 'RemoteRangeInsert',
   RemoteRangeRemove = 'RemoteRangeRemove',
   AllMessages = 'AllMessages',
