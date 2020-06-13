@@ -42,39 +42,34 @@ export class CodeEditorComponent implements OnInit {
   }
 
   @Input() languages = [
+    { name: 'Bat', value: 'bat' },
+    { name: 'C', value: 'c' },
     { name: 'C++', value: 'cpp' },
     { name: 'C#', value: 'csharp' },
+    { name: 'Go', value: 'go' },
+    { name: 'HTML', value: 'html' },
     { name: 'Java', value: 'java' },
-    { name: 'Python', value: 'python' },
+    { name: 'Kotlin', value: 'kotlin' },
+    { name: 'MySQL', value: 'mysql' },
     { name: 'JavaScript', value: 'javascript' },
+    { name: 'PgSQL', value: 'pgsql' },
+    { name: 'Plain Text', value: 'plaintext' },
+    { name: 'Python', value: 'python' },
+    { name: 'Ruby', value: 'ruby' },
+    { name: 'Scheme', value: 'scheme' },
+    { name: 'Shell', value: 'shell' },
+    { name: 'SQL', value: 'sql' },
+    { name: 'Swift', value: 'swift' },
+    { name: 'Typescript', value: 'typescript' },
   ];
 
   editorOptions = { theme: 'vs-dark', language: 'cpp' };
 
   onLanguageChange(res) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);
-
-    if (this.selectedLang === 'cpp') {
-      this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: 'cpp',
-      });
-    } else if (this.selectedLang === 'javascript') {
-      this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: 'javascript',
-      });
-    } else if (this.selectedLang === 'csharp') {
-      this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: 'csharp',
-      });
-    } else if (this.selectedLang === 'java') {
-      this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: 'java',
-      });
-    } else if (this.selectedLang === 'python') {
-      this.editorOptions = Object.assign({}, this.editorOptions, {
-        language: 'python',
-      });
-    }
+    this.editorOptions = Object.assign({}, this.editorOptions, {
+      language: this.selectedLang,
+    });
   }
 
   onInitEditorHandler(event: any) {
