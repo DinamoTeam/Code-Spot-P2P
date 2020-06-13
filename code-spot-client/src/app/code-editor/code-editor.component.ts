@@ -19,7 +19,6 @@ export class CodeEditorComponent implements OnInit {
   auxEditor: any;
   editorTextModel: any;
   auxEditorTextModel: any;
-  remoteOpLeft: number = 0;
   allMessages: string[] = null;
   selectedLang: string;
   languageForm = new FormGroup({
@@ -91,8 +90,7 @@ export class CodeEditorComponent implements OnInit {
       this.editorService.handleAllMessages(
         this.editorTextModel,
         this.auxEditorTextModel,
-        this.allMessages,
-        this
+        this.allMessages
       );
       this.allMessages = null;
     }
@@ -105,8 +103,8 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeModelContentHandler(event: any): void {
-    if (this.remoteOpLeft > 0) {
-      this.remoteOpLeft--;
+    if (EditorService.remoteOpLeft > 0) {
+      EditorService.remoteOpLeft--;
       return;
     }
 
@@ -151,21 +149,17 @@ export class CodeEditorComponent implements OnInit {
             this.editorService.handleRemoteRangeInsert(
               this.editorTextModel,
               this.auxEditorTextModel,
-              message.messages,
-              this
+              message.messages
             );
             break;
           case MessageType.RemoteRangeRemove:
-            // RemoteOpLeft will be set inside handleRemoteRangeRemove
             this.editorService.handleRemoteRangeRemove(
               this.editorTextModel,
               this.auxEditorTextModel,
-              message.messages,
-              this
+              message.messages
             );
             break;
           case MessageType.AllMessages:
-            // RemoteOpLeft will be set inside handleAllMessages
             // Duplicate tab or refresh tab don't generate new editorTextModel
             if (this.editorTextModel === undefined) {
               this.allMessages = message.messages;
@@ -173,8 +167,7 @@ export class CodeEditorComponent implements OnInit {
               this.editorService.handleAllMessages(
                 this.editorTextModel,
                 this.auxEditorTextModel,
-                message.messages,
-                this
+                message.messages
               );
             }
             break;
@@ -221,9 +214,5 @@ export class CodeEditorComponent implements OnInit {
 
   closeAlert() {
     this.showSuccessAlert = false;
-  }
-
-  incrementRemoteOpLeft(num: number) {
-    this.remoteOpLeft += num;
   }
 }

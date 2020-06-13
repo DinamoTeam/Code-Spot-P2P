@@ -3,13 +3,13 @@ import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
 import { MessageService } from './message.service';
 import { BalancedBST } from '../shared/BalancedBST';
-import { CodeEditorComponent } from '../code-editor/code-editor.component';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EditorService {
   static siteId: number = -1;
+  static remoteOpLeft: number = 0;
   curClock: number = 0;
   bst: BalancedBST<CRDT>;
 
@@ -83,7 +83,6 @@ export class EditorService {
     editorTextModel: any,
     auxEditorTextModel: any,
     crdtStrs: string[],
-    codeEditorComponent: CodeEditorComponent,
     isAllMessages = false
   ) {
     const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
@@ -101,7 +100,7 @@ export class EditorService {
 
     const numToBeInserted = insertingIndices.filter((index) => index !== -1)
       .length;
-    codeEditorComponent.incrementRemoteOpLeft(numToBeInserted);
+    EditorService.remoteOpLeft += numToBeInserted;
 
     // Right now: Naively insert each char for testing purposes
     const insertingChar = crdts.map((crdt) => crdt.ch);
@@ -166,8 +165,7 @@ export class EditorService {
   handleRemoteRangeRemove(
     editorTextModel: any,
     auxEditorTextModel: any,
-    crdtStrs: string[],
-    codeEditorComponent: CodeEditorComponent
+    crdtStrs: string[]
   ): void {
     const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
     const deletingIndices = new Array<number>(crdts.length);
@@ -180,7 +178,7 @@ export class EditorService {
 
     const numToBeInserted = deletingIndices.filter((index) => index !== -1)
       .length;
-    codeEditorComponent.incrementRemoteOpLeft(numToBeInserted);
+    EditorService.remoteOpLeft += numToBeInserted;
 
     // Right now: Naively delete each char from the screen
     for (let i = 0; i < crdts.length; i++) {
@@ -210,15 +208,13 @@ export class EditorService {
   handleAllMessages(
     editorTextModel: any,
     auxEditorTextModel: any,
-    crdts: string[],
-    codeEditorComponent: CodeEditorComponent
+    crdts: string[]
   ): void {
     // if isAllMessages=true => need to sort arr in handleRemoteRangeInsert
     this.handleRemoteRangeInsert(
       editorTextModel,
       auxEditorTextModel,
       crdts,
-      codeEditorComponent,
       true
     );
   }
