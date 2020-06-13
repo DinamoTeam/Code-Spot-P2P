@@ -24,6 +24,11 @@ export class EditStack {
     }
     return editArr;
   }
+  markStop(): void {
+    if (this.arr.length > 0) {
+      this.arr[this.arr.length - 1].isStop = true;
+    }
+  }
   isEmpty(): boolean {
     return this.arr.length === 0;
   }
