@@ -1,0 +1,29 @@
+Some useful links about P2P, Peerjs and Peer-server:
+	- Simple chat using peerjs: https://github.com/thewh1teagle/PeerJS-simplest-chat-example
+	- Video set up Peerjs, đăng ký tài khoản peer-server cloud các thứ: https://www.youtube.com/watch?v=LHGntYJWqds
+	- Nếu muốn tự host peer-server: https://github.com/peers/peerjs-server
+
+1.	High priority tasks:
+	- Move from Client-Server to Peer to Peer model
+		+ Tìm hiểu và set up PeerJS
+		+ Nghiên cứu xem dùng cái peer-server như nào, how much control do we have over it
+		+ Design the Peer to Peer system. Some problems that will need to be handled:
+			. Since WebRTC Protocol use UDP protocol, requests will not be sent in order. Problem like delete comes before insert might happen
+				-> Use a version vector for this (Cái version vector của anh Conclave tao chưa thấy convincing lắm)
+			. Handle cases such as: 
+				A user who many others are connecting to leaves
+				A user's wifi goes down for a few seconds / minutes (Changes that user make when offline has to be sent to others when they go online again)
+				Is there any problem if some users are far away and some are closer? How to best distribute the connections
+		+ Stuff that Peer to Peer MUST be able to handle
+			. Works correct no matter how crazily people insert, delete, leave room, enter room
+			. Mass insertion and mass deletion (10,000+ characters, 1 khi đã handle đc 10,000 thì 100,000+ chắc cũng no problem)
+	
+2.	Lower priority, but very nice to have:
+	- Show other users' cursor positions, show when other users are selecting a text (with their names and using different color). Just like Google docs
+	- Enable video call, voice call, group chat
+	- Store code on server when a user hit 'Save' (Even when we are using P2P). Minh has a solution for this :) Store text only, not CRDT
+	- Decorate the website, make it looks awesome!
+	- Implement our own Undo stack so that U1 can only undo U1's changes
+	- Find out the performance bottle necks and fix them
+	- Write a case study / article like Conclave and digitalFreePen
+	- Deploy to Azure / Heroku /...
