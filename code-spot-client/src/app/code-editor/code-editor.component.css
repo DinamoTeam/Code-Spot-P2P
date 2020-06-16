@@ -6,3 +6,9 @@
   color: white;
   background-color: #52658F;
 }
+
+vertical-center {
+  display: flex;
+  height: 95vh;
+  align-items: center;
+}

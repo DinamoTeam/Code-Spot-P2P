@@ -1,4 +1,41 @@
-.nav-item {
-  padding: 2px;
-  margin-left: 7px;
+.masthead {
+  margin-bottom: 2rem;
 }
+
+.masthead-brand {
+  margin-bottom: 0;
+}
+
+.nav-masthead .nav-link {
+  padding: .25rem 0;
+  font-weight: 700;
+  color: rgba(51, 58, 86, .5);
+  background-color: transparent;
+  border-bottom: .25rem solid transparent;
+}
+
+  .nav-masthead .nav-link:hover,
+  .nav-masthead .nav-link:focus {
+    border-bottom-color: rgba(51, 58, 86, .25);
+  }
+
+  .nav-masthead .nav-link + .nav-link {
+    margin-left: 1rem;
+  }
+
+.nav-masthead .active {
+  color: #333A56;
+  border-bottom-color: #333A56;
+}
+
+@media (min-width: 48em) {
+  .masthead-brand {
+    float: left;
+  }
+
+  .nav-masthead {
+    float: right;
+  }
+}
+
+
