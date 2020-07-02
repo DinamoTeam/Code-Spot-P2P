@@ -1,13 +1,5 @@
 nav {
-  height: 60px;
-  padding: 0 200px;
   box-shadow: 0 3px 10px -2px gray;
-}
-
-@media screen and (max-width: 768px) {
-  nav {
-      padding: 0 0;
-  }
 }
 
 html {
@@ -18,4 +10,9 @@ html {
   html {
     font-size: 16px;
   }
+}
+
+.nav-item {
+  padding: 2px;
+  margin-left: 7px;
 }
