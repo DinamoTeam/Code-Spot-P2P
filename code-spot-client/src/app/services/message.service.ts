@@ -23,7 +23,7 @@ export class MessageService {
     /// !!! IMPORTANT: Remove configureLogging for PROD
     this.hubConnection = new HubConnectionBuilder()
       .configureLogging(LogLevel.Information)
-      .withUrl('https://localhost:44394/ServerMessageHub')
+      .withUrl('https://localhost:44395/ServerMessageHub')
       .build();
   }
 
