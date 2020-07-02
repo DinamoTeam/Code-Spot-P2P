@@ -1,6 +1,6 @@
 ﻿using Code_Spot.Models;
-using CodeSpot.Data;
-using CodeSpot.Data.DTO;
+using CodeSpotP2P.Data;
+using CodeSpotP2P.Data.DTO;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CodeSpot.Hubs
+namespace CodeSpotP2P.Hubs
 {
 	public class MessageHub : Hub
 	{

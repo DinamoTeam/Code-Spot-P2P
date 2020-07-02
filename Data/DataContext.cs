@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CodeSpot.Data
+namespace CodeSpotP2P.Data
 {
     public class DataContext: DbContext
     {

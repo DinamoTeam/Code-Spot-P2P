@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CodeSpot.Data.DTO
+namespace CodeSpotP2P.Data.DTO
 {
 	public class MessagesDTO
 	{

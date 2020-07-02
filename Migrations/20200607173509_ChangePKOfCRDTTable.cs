@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace CodeSpot.Migrations
+namespace CodeSpotP2P.Migrations
 {
     public partial class ChangePKOfCRDTTable : Migration
     {
