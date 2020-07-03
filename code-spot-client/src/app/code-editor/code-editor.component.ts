@@ -5,6 +5,7 @@ import { MessageService, MessageType } from '../services/message.service';
 import { Message } from '../shared/Message';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { PeerService } from '../services/peer.service';
 
 declare const monaco: any;
 
@@ -26,13 +27,14 @@ export class CodeEditorComponent implements OnInit {
   });
 
   constructor(
+    private peerService: PeerService,
     public editorService: EditorService,
     private messageService: MessageService,
     private ngZone: NgZone,
     private actRoute: ActivatedRoute,
     private location: Location
   ) {
-    this.subscribeToSignalrEvents();
+    // this.subscribeToSignalrEvents();
     this.getRoomName();
   }
 
@@ -127,7 +129,7 @@ export class CodeEditorComponent implements OnInit {
     }
   }
 
-  subscribeToSignalrEvents(): void {
+  /*subscribeToSignalrEvents(): void {
     this.messageService.messageReceived.subscribe((message: Message) => {
       this.ngZone.run(() => {
         const messageType = message.type;
@@ -181,7 +183,7 @@ export class CodeEditorComponent implements OnInit {
         }
       });
     });
-  }
+  }*/
 
   getRoomName(): void {
     this.messageService.connectionEstablished.subscribe(

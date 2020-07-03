@@ -13,6 +13,7 @@ import { FooterComponent } from './footer/footer.component';
 import { AboutComponent } from './about/about.component';
 import { CodeEditorComponent } from './code-editor/code-editor.component';
 import { ChatboxComponent } from './chatbox/chatbox.component';
+import { HttpClientModule } from '@angular/common/http';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   defaultOptions: {
@@ -37,6 +38,7 @@ const monacoConfig: NgxMonacoEditorConfig = {
     ChatboxComponent,
   ],
   imports: [
+    HttpClientModule,
     BrowserModule,
     AppRoutingModule,
     RouterModule,
