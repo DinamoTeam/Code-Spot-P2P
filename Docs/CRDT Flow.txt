@@ -1,0 +1,83 @@
+// Ê từ giờ insert / remove thì luôn luôn là 'range' insert / remove nhé. bỏ chữ range đi cho ngắn
+1.	4 Important files:
+	- code.editor.component.ts
+	- editor.service.ts
+	- peer.service.ts
+	- PeerMessagesTracker.ts
+	
+2.	Flow
+	2.1	Local + Remote Insert:
+		- User 1 inserts
+			-> codeEditor.onDidChangeModelContentHandler()
+				-> editorService.handleLocalInsert()
+					-> peerService.broadcastInsert() (Remember to setTimeOut for ackOrResend)
+		- User 2 3 4 receive remote insert
+			-> peerService.on('data', type="Remote Insert")
+				-> send Ack
+				-> peerService.handleRemoteInsert() *
+					-> peerMessagesTracker.receiveRemoteInserts(CRDT[]): void // update newestMessages arr, hasNotReceived arr, deleteBuffer arr
+					-> editorService.handleRemoteInsert(CRDT[])
+					-> peerMessagesTracker.processDeleteBuffer(): void // Delete 'ready' characters
+	
+	2.2 Local + Remote Remove: 
+		- Similar to above
+		- Differences:
+				-> peerService.handleRemoteRemove() *
+					-> peerMessagesTracker.receiveRemoteRemoves(CRDT[]): void
+					-> editorService.handleRemoteRemove(CRDT[])
+					// No need to processDeleteBuffer
+					
+3.	Some new files:
+	3.1	peer.service.ts: 
+		- Similar to RapidChat
+	
+	// Note: Remember the difference between SiteId(1,2,3,4,...) from C#, and PeerId(1y5-31dfs-sas6-efw1) from PeerServer
+	3.2	PeerMessagesTracker.ts: 
+		- We need it because the orders of messages sent are not preserved in UDP protocol.
+		class PeerMessagesTracker {
+			private newestMessages: array of {SiteId: number, newestMessageClock: number}
+			private hasNotReceived: array of {SiteId: number, hasNotReceivedMessages: number[]}
+			private deleteBuffer: array of {SiteId: string, crdtNotReceivedButIsRequestedToBeDeleted: CRDT[]}
+			
+			// NOTE: SiteId (1,2,3,4,...) of ANY CRDT object can be found at crdt.lastIndentifier.id. This is the person who created that character
+			
+			receiveRemoteInserts(crdts: CRDT[]): void {} // update newestMessage for each site, update hasNotReceived, 
+																			see which CRDTs in deleteBuffer are ready to be deleted
+			
+			processDeleteBuffer(): void {} // editorService.handleRemoteRemove(readyToBeDeletedCRDT)
+			
+			receiveRemoteRemoves(crdts: CRDT[]): void {} // See which CRDT hasn't been received yet, add them to deleteBuffer
+		
+		}
+					
+	3.3 Site-PeerIdConverter.ts { // Convert from SiteId(1,2,3,4,...) to PeerId(1y5-31dfs-sas6-efw1) and vice versa
+			// Have a look up table?
+			
+			populateTable(array of {SiteId, CorrespondingPeerId}): void {}
+			
+			addNewId(siteId: number, peerId: string): void {}
+			removeId(peerId) {}
+			
+			getSiteId(peerId) {}
+			getPeerId(siteId) {}
+			
+			// More functions?
+		}
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+		
+	
