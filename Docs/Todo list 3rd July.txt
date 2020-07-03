@@ -1,0 +1,5 @@
+1.	Deploy RapidChat
+2.	Set up PeerJs, PeerServer
+3.	Rename: rangeInsert / rangeRemove => insert / remove
+4.	Viết và test PeerMessagesTracker.ts
+5.	Viết Peer.Service.ts và nối các thứ lại với nhau

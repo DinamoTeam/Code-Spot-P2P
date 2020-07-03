@@ -12,7 +12,7 @@
 				-> editorService.handleLocalInsert()
 					-> peerService.broadcastInsert() (Remember to setTimeOut for ackOrResend)
 		- User 2 3 4 receive remote insert
-			-> peerService.on('data', type="Remote Insert")
+			-> peerService.on('data', MessageType="Remote Insert")
 				-> send Ack
 				-> peerService.handleRemoteInsert() *
 					-> peerMessagesTracker.receiveRemoteInserts(CRDT[]): void // update newestMessages arr, hasNotReceived arr, deleteBuffer arr
@@ -27,6 +27,15 @@
 					-> editorService.handleRemoteRemove(CRDT[])
 					// No need to processDeleteBuffer
 					
+	2.3	Join room:
+		2.3.1 Join new room:
+			- U1 gets PeerId from PeerServer. It then creates new room in C# Db and get its SiteId from Db
+
+		2.3.2 Join existing room:
+			- U4 gets PeerId from PeerServer and go to C# Db to get U4's SiteId and PeerId of other people in Room
+			- U4 pick a random User, let's say U2, and getOldMessages from U2
+			- After done getting old messages (acknowledge blabla), U4 connects with the rest in room
+			
 3.	Some new files:
 	3.1	peer.service.ts: 
 		- Similar to RapidChat
@@ -50,22 +59,8 @@
 		
 		}
 					
-	3.3 Site-PeerIdConverter.ts { // Convert from SiteId(1,2,3,4,...) to PeerId(1y5-31dfs-sas6-efw1) and vice versa
-			// Have a look up table?
-			
-			populateTable(array of {SiteId, CorrespondingPeerId}): void {}
-			
-			addNewId(siteId: number, peerId: string): void {}
-			removeId(peerId) {}
-			
-			getSiteId(peerId) {}
-			getPeerId(siteId) {}
-			
-			// More functions?
-		}
-					
-					
-					
+	3.3	AcknowledgementCenter.ts (Later)
+		- Handle ack and resend. 
 					
 					
 					
