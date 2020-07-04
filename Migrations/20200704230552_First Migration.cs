@@ -1,56 +1,55 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace CodeSpotP2P.Migrations
+namespace CodeSpot.Migrations
 {
-    public partial class ChangePKOfCRDTTable : Migration
+    public partial class FirstMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Rooms",
+                name: "rooms",
                 columns: table => new
                 {
-                    Name = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Rooms", x => x.Name);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CRDTs",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CRDTObject = table.Column<string>(nullable: false),
                     RoomName = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CRDTs", x => x.Id);
+                    table.PrimaryKey("PK_rooms", x => x.RoomName);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "peers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    PeerId = table.Column<string>(nullable: false),
+                    RoomName = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_peers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CRDTs_Rooms_RoomName",
+                        name: "FK_peers_rooms_RoomName",
                         column: x => x.RoomName,
-                        principalTable: "Rooms",
-                        principalColumn: "Name",
-                        onDelete: ReferentialAction.Cascade);
+                        principalTable: "rooms",
+                        principalColumn: "RoomName",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CRDTs_RoomName",
-                table: "CRDTs",
-                column: "RoomName",
-                unique: false);
+                name: "IX_peers_RoomName",
+                table: "peers",
+                column: "RoomName");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CRDTs");
+                name: "peers");
 
             migrationBuilder.DropTable(
-                name: "Rooms");
+                name: "rooms");
         }
     }
 }

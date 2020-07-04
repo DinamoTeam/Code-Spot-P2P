@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CodeSpotP2P.Data;
-using CodeSpotP2P.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -52,10 +51,6 @@ namespace CodeSpotP2P
 			}
 
 			app.UseCors("CorsPolicy");
-			// app.UseSignalR must come before Use Mvc! Order matters!
-			app.UseSignalR(config => {
-				config.MapHub<MessageHub>("/ServerMessageHub");
-			});
 			app.UseHttpsRedirection();
 			app.UseMvc();
 		}

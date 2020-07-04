@@ -1,15 +1,18 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Code_Spot.Models
+namespace CodeSpotP2P.Model
 {
     public class Room
     {
-        public Room(string name)
-        {
-            this.Name = name;
-        }
         [Key]
-        public string Name { get; set; }
-        public CRDT Crdt { get; set; }
+        public string RoomName { get; set; }
+        public ICollection<Peer> peers { get; set; }
+        public Room(string roomName)
+        {
+            this.RoomName = roomName;
+        }
+
+        public Room() {}
     }
 }

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace CodeSpotP2P.Migrations
+namespace CodeSpot.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200607173509_ChangePKOfCRDTTable")]
-    partial class ChangePKOfCRDTTable
+    [Migration("20200704230552_First Migration")]
+    partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -17,38 +17,37 @@ namespace CodeSpotP2P.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.14-servicing-32113");
 
-            modelBuilder.Entity("Code_Spot.Models.CRDT", b =>
+            modelBuilder.Entity("CodeSpotP2P.Model.Peer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("CRDTObject");
+                    b.Property<string>("PeerId");
 
                     b.Property<string>("RoomName");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoomName")
-                        .IsUnique();
+                    b.HasIndex("RoomName");
 
-                    b.ToTable("CRDTs");
+                    b.ToTable("peers");
                 });
 
-            modelBuilder.Entity("Code_Spot.Models.Room", b =>
+            modelBuilder.Entity("CodeSpotP2P.Model.Room", b =>
                 {
-                    b.Property<string>("Name")
+                    b.Property<string>("RoomName")
                         .ValueGeneratedOnAdd();
 
-                    b.HasKey("Name");
+                    b.HasKey("RoomName");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("rooms");
                 });
 
-            modelBuilder.Entity("Code_Spot.Models.CRDT", b =>
+            modelBuilder.Entity("CodeSpotP2P.Model.Peer", b =>
                 {
-                    b.HasOne("Code_Spot.Models.Room", "Room")
-                        .WithOne("Crdt")
-                        .HasForeignKey("Code_Spot.Models.CRDT", "RoomName");
+                    b.HasOne("CodeSpotP2P.Model.Room", "Room")
+                        .WithMany("peers")
+                        .HasForeignKey("RoomName");
                 });
 #pragma warning restore 612, 618
         }
