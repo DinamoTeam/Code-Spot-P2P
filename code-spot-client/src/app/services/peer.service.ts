@@ -1,12 +1,12 @@
-import { EventEmitter, Injectable } from "@angular/core";
-import { Message, MessageType } from "../shared/Message";
-import { RoomService } from "./room.service";
-import { Router } from "@angular/router";
+import { EventEmitter, Injectable } from '@angular/core';
+import { Message, MessageType } from '../shared/Message';
+import { RoomService } from './room.service';
+import { Router } from '@angular/router';
 
 declare const Peer: any;
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class PeerService {
   private timeWaitForAck = 1000; // Millisecond
@@ -16,7 +16,7 @@ export class PeerService {
   private connToGetOldMessages: any;
   private peerIdsInRoom: any[] = [];
   private connectionsIAmHolding: any[] = [];
-  private previousMessages: Message[] = [];
+  private previousCRDTs: Message[] = [];
   private messagesToBeAcknowledged: Message[] = [];
   private hasReceivedAllMessages = false;
   connectionEstablished = new EventEmitter<Boolean>();
@@ -25,19 +25,19 @@ export class PeerService {
   constructor(private roomService: RoomService, private router: Router) {
     // Create a new peer and connect to peerServer. We can get our id from this.peer.id
     this.peer = new Peer({
-      host: "localhost",
+      host: 'localhost',
       port: 9000,
-      path: "/myapp"
+      path: '/myapp',
     });
     this.connectToPeerServer();
-    /*this.registerConnectToMeEvent();
-    this.reconnectToPeerServer();*/
+    // this.registerConnectToMeEvent();
+    // this.reconnectToPeerServer();
   }
 
   //************* Connect + Reconnect to PeerServer *************
   private connectToPeerServer() {
     this.peer.on(PeerEvent.Open, (myId: string) => {
-      console.log("I have connected to peerServer. My id: " + myId);
+      console.log('I have connected to peerServer. My id: ' + myId);
       this.connectionEstablished.emit(true);
     });
   }
@@ -54,7 +54,7 @@ export class PeerService {
   private registerConnectToMeEvent() {
     this.peer.on(PeerEvent.Connection, (conn: any) => {
       console.log(
-        "A peer with connectionId: " + conn.peer + " have just connected to me"
+        'A peer with connectionId: ' + conn.peer + ' have just connected to me'
       );
       this.setupListenerForConnection(conn);
     });
@@ -63,14 +63,14 @@ export class PeerService {
   private connectToPeer(otherPeerId: any, getOldMessages: boolean) {
     const conn = this.peer.connect(otherPeerId, {
       reliable: true,
-      serialization: "json",
+      serialization: 'json',
     });
     this.addUnique([conn], this.connectionsIAmHolding);
 
     if (getOldMessages === true) {
       this.connToGetOldMessages = conn;
     }
-    console.log("I just connected to peer with id: " + otherPeerId);
+    console.log('I just connected to peer with id: ' + otherPeerId);
     this.setupListenerForConnection(conn);
   }
 
@@ -84,22 +84,51 @@ export class PeerService {
 
   private setupListenerForConnection(conn: any) {
     this.addUnique([conn], this.connectionsIAmHolding);
+    // When the connection first establish
     conn.on(ConnectionEvent.Open, () => {
       // If we chose this peer to give us all messages
       if (this.connToGetOldMessages === conn) {
-        this.requestOldMessages(conn);
+        this.requestOldCRDTs(conn);
       }
-    }); // When the connection first establish
+    });
+    // the other peer send us some data
     conn.on(ConnectionEvent.Data, (message) =>
       this.handleMessageFromPeer(message, conn)
-    ); // the other peer send us some data
-    conn.on(ConnectionEvent.Close, () => this.handleConnectionClose(conn)); // either us or the other peer close the connection
+    );
+    // either us or the other peer close the connection
+    conn.on(ConnectionEvent.Close, () => this.handleConnectionClose(conn));
   }
 
   private handleMessageFromPeer(messageJson: string, fromConn: any) {
     const message: Message = JSON.parse(messageJson);
     switch (message.messageType) {
-      case MessageType.Message:
+      case MessageType.RemoteInsert:
+        // handle remote insert
+        break;
+      case MessageType.RemoteRemove:
+        // handle remote remove
+        break;
+      case MessageType.OldCRDTs:
+        // receive all messages
+        break;
+      case MessageType.RequestOldCRDTs:
+        if (!this.hasReceivedAllMessages) {
+          console.log(
+            "I haven't received allMessages yet. Can't send to that peer"
+          );
+        } else {
+          this.sendOldCRDTs(fromConn);
+        }
+        break;
+      case MessageType.Acknowledge:
+        const indexDelete = this.messagesToBeAcknowledged.findIndex(
+          (mes) => mes.time === message.time
+        );
+        if (indexDelete !== -1) {
+          this.messagesToBeAcknowledged.splice(indexDelete, 1);
+        }
+        break;
+      /*case MessageType.Message:
         this.addUniqueMessages([message], this.previousMessages);
         this.infoBroadcasted.emit(BroadcastInfo.UpdateAllMessages);
         // Send Acknowledgement
@@ -140,15 +169,15 @@ export class PeerService {
         }
         break;
       default:
-        throw new Error("Unhandled message type");
+        throw new Error('Unhandled message type');*/
     }
   }
 
   private handleConnectionClose(conn: any) {
     console.log(
-      "Connection to " +
+      'Connection to ' +
         conn.peer +
-        " is closed. It will be deleted in the connectionsIAmHolding list!"
+        ' is closed. It will be deleted in the connectionsIAmHolding list!'
     );
     const index = this.connectionsIAmHolding.findIndex(
       (connection) => connection === conn
@@ -160,11 +189,10 @@ export class PeerService {
   private handleFirstJoinRoom(peerIds: any[]) {
     if (peerIds.length === 0) {
       // DO NOTHING
-      console.log("I am the first one in this room");
+      console.log('I am the first one in this room');
       this.hasReceivedAllMessages = true;
     } else {
       this.peerIdsInRoom = peerIds;
-      // this.connectToPeer(peerIds[0], true);
       const randIndex = Math.floor(Math.random() * peerIds.length);
       this.connectToPeer(peerIds[randIndex], true);
       const that = this;
@@ -172,7 +200,7 @@ export class PeerService {
         if (!that.hasReceivedAllMessages) {
           // The peer we intended to get old messages from just left the room or is taking to long to answer
           console.log(
-            "The peer we intended to get old messages from just left the room or is taking to long to answer. Reloading"
+            'The peer we intended to get old messages from just left the room or is taking to long to answer. Reloading'
           );
           window.location.reload(true);
         }
@@ -180,10 +208,10 @@ export class PeerService {
     }
   }
 
-  private requestOldMessages(conn: any) {
+  private requestOldCRDTs(conn: any) {
     const message = new Message(
       null,
-      MessageType.RequestAllMessages,
+      MessageType.RequestOldCRDTs,
       null,
       null,
       this.time++
@@ -191,10 +219,11 @@ export class PeerService {
     conn.send(JSON.stringify(message));
   }
 
-  private sendOldMessages(conn: any) {
+  private sendOldCRDTs(conn: any) {
+    // TODO: Lấy all CRDTs từ BST và send cho user kia. => Send JSON.stringify(CRDT[])
     const message = new Message(
-      JSON.stringify(this.previousMessages),
-      MessageType.AllMessages,
+      JSON.stringify(this.previousCRDTs),
+      MessageType.OldCRDTs,
       this.peer.id,
       conn.peer,
       this.time++
@@ -216,28 +245,10 @@ export class PeerService {
     });
   }
 
-  private addUniqueMessages(list: Message[], listToBeAddedTo: Message[]) {
-    list.forEach((message) => {
-      let weHadThatMessage = false;
-      for (let i = 0; i < listToBeAddedTo.length; i++) {
-        if (
-          listToBeAddedTo[i].fromPeerId === message.fromPeerId &&
-          listToBeAddedTo[i].time === message.time
-        ) {
-          weHadThatMessage = true;
-          break;
-        }
-      }
-      if (!weHadThatMessage) {
-        listToBeAddedTo.push(message);
-      }
-    });
-  }
-
   createNewRoom() {
     this.roomService.joinNewRoom(this.peer.id).subscribe((data: string) => {
       this.roomName = data;
-      console.log("roomName: " + this.roomName);
+      console.log('roomName: ' + this.roomName);
       // No peerId
       this.handleFirstJoinRoom([]);
       this.infoBroadcasted.emit(BroadcastInfo.RoomName);
@@ -249,11 +260,11 @@ export class PeerService {
     this.roomService.joinExistingRoom(this.peer.id, this.roomName).subscribe(
       (peerIds) => {
         console.log(peerIds);
-        if (peerIds.length === 1 && peerIds[0] === "ROOM_NOT_EXIST") {
+        if (peerIds.length === 1 && peerIds[0] === 'ROOM_NOT_EXIST') {
           // Either room not exists or has been deleted
 
-          window.location.replace("/");
-          alert("Room not exists, navigating back to home");
+          window.location.replace('/');
+          alert('Room not exists, navigating back to home');
         }
         this.handleFirstJoinRoom(peerIds);
       },
@@ -263,12 +274,12 @@ export class PeerService {
     );
   }
 
-  sendMessage(content: string) {
+  /*sendMessage(content: string) {
     if (content.length === 0) {
       return;
     }
 
-    this.previousMessages.push(
+    this.previousCRDTs.push(
       new Message(content, MessageType.Message, this.peer.id, null, this.time)
     );
 
@@ -289,7 +300,7 @@ export class PeerService {
       }, that.timeWaitForAck);
     });
     this.time++;
-  }
+  }*/
 
   acknowledgeOrResend(mess: Message, hasSent = 0) {
     // If message hasn't been received
@@ -312,7 +323,7 @@ export class PeerService {
       // If that peer hasn't disconnect
       if (conn) {
         conn.send(JSON.stringify(mess));
-        console.log("Waiting too long for ack. Resent messages");
+        console.log('Waiting too long for ack. Resent messages');
         const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
         setTimeout(function () {
           that.acknowledgeOrResend(mess, hasSent + 1);
@@ -321,14 +332,14 @@ export class PeerService {
     }
   }
 
-  hasReceivedMessage(message: Message): boolean {
+  /*hasReceivedMessage(message: Message): boolean {
     return (
-      this.previousMessages.find(
+      this.previousCRDTs.find(
         (mes) =>
           mes.fromPeerId === message.fromPeerId && mes.time === message.time
       ) != null
     );
-  }
+  }*/
 
   getPeerId(): string {
     return this.peer.id;
@@ -339,7 +350,7 @@ export class PeerService {
   }
 
   getAllMessages(): any[] {
-    return this.previousMessages;
+    return this.previousCRDTs;
   }
 
   getAllPeerIds(): string[] {
@@ -352,19 +363,19 @@ export class PeerService {
 }
 
 export const enum PeerEvent {
-  Open = "open",
-  Close = "close",
-  Connection = "connection",
-  Data = "data",
-  Disconnected = "disconnected",
-  Error = "error",
+  Open = 'open',
+  Close = 'close',
+  Connection = 'connection',
+  Data = 'data',
+  Disconnected = 'disconnected',
+  Error = 'error',
 }
 
 export const enum ConnectionEvent {
-  Open = "open",
-  Close = "close",
-  Data = "data",
-  Error = "error",
+  Open = 'open',
+  Close = 'close',
+  Data = 'data',
+  Error = 'error',
 }
 
 export const enum BroadcastInfo {

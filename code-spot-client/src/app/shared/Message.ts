@@ -24,8 +24,9 @@ export class Message {
 }
 
 export const enum MessageType {
-  Message = 0,
-  AllMessages = 1,
-  RequestAllMessages = 2,
-  Acknowledge = 3,
+  RemoteInsert = 0,
+  RemoteRemove = 1,
+  OldCRDTs = 2,
+  RequestOldCRDTs = 3,
+  Acknowledge = 4
 }
