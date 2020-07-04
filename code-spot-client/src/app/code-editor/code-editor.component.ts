@@ -135,27 +135,36 @@ export class CodeEditorComponent implements OnInit {
 
   subscribeToPeerServiceEvents(): void {
     this.peerService.getRemoteInsertObservable().subscribe((crdts) => {
+      console.log('Catch a remote insert event');
       this.editorService.handleRemoteRangeInsert(
         this.editorTextModel,
         this.auxEditorTextModel,
         crdts
       );
+    }, error => {
+      console.error(error);
     });
 
     this.peerService.getRemoteRemoveObservable().subscribe((crdts) => {
+      console.log('Catch a remote remote event');
       this.editorService.handleRemoteRangeRemove(
         this.editorTextModel,
         this.auxEditorTextModel,
         crdts
       );
+    }, error => {
+      console.log(error);
     });
 
     this.peerService.getAllMessagesObservable().subscribe((crdts) => {
+      console.log('Catch all messages event');
       this.editorService.handleAllMessages(
         this.editorTextModel,
         this.auxEditorTextModel,
         crdts
       );
+    }, error => {
+      console.log(error);
     });
   }
 
