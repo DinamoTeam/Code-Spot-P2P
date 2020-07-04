@@ -84,14 +84,15 @@ export class CodeEditorComponent implements OnInit {
       this.onDidChangeModelContentHandler(e)
     );
 
-    if (this.allMessages != null) {
+    // Moved to PeerService
+    /*if (this.allMessages != null) {
       this.editorService.handleAllMessages(
         this.editorTextModel,
         this.auxEditorTextModel,
         this.allMessages
       );
       this.allMessages = null;
-    }
+    }*/
   }
 
   onInitAuxEditorHandler(event: any) {
@@ -116,15 +117,13 @@ export class CodeEditorComponent implements OnInit {
         range.startColumn,
         range.endLineNumber,
         range.endColumn,
-        changes[i].rangeLength,
-        this.roomName
+        changes[i].rangeLength
       );
       this.editorService.handleLocalRangeInsert(
         this.auxEditorTextModel,
         changes[i].text,
         range.startLineNumber,
-        range.startColumn,
-        this.roomName
+        range.startColumn
       );
     }
   }
@@ -185,7 +184,7 @@ export class CodeEditorComponent implements OnInit {
     });
   }*/
 
-  getRoomName(): void {
+  /*getRoomName(): void {
     this.messageService.connectionEstablished.subscribe(
       (successful: boolean) => {
         if (successful) {
@@ -198,7 +197,7 @@ export class CodeEditorComponent implements OnInit {
         }
       }
     );
-  }
+  }*/
 
   showSuccessAlert: boolean = false;
   copyLink(): void {

@@ -3,6 +3,7 @@ import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
 import { MessageService } from './message.service';
 import { BalancedBST } from '../shared/BalancedBST';
+import { PeerService } from './peer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,7 @@ export class EditorService {
     EditorService.siteId = id;
   }
 
-  constructor(private messageService: MessageService) {
+  constructor(private peerService: PeerService) {
     this.bst = new BalancedBST<CRDT>();
     this.bst.insert(
       new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
@@ -34,8 +35,7 @@ export class EditorService {
     auxEditorTextModel: any,
     newText: string,
     startLineNumber: number,
-    startColumn: number,
-    roomName: string
+    startColumn: number
   ): void {
     if (EditorService.siteId === -1)
       throw new Error('Error: call handleLocalInsert before setting siteId');
@@ -75,17 +75,18 @@ export class EditorService {
       this.bst.insert(listCRDTBetween[i]);
     }
 
-    const listCRDTString = listCRDTBetween.map((crdt) => crdt.toString());
-    this.messageService.broadcastRangeInsert(listCRDTString, roomName);
+    // const listCRDTString = listCRDTBetween.map((crdt) => crdt.toString()); // VERY SLOW because of .toString()
+    // this.messageService.broadcastRangeInsert(listCRDTString, roomName); OLD MODEL - SIGNALR
+
+    this.peerService.broadcastInsertOrRemove(listCRDTBetween, true);
   }
 
   handleRemoteRangeInsert(
     editorTextModel: any,
     auxEditorTextModel: any,
-    crdtStrs: string[],
+    crdts: CRDT[],
     isAllMessages = false
   ) {
-    const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
     if (isAllMessages) {
       crdts.sort((crdt1, crdt2) => crdt1.compareTo(crdt2)); // Sort by descending order
     }
@@ -133,8 +134,7 @@ export class EditorService {
     startColumn: number,
     endLineNumber: number,
     endColumn: number,
-    length: number,
-    roomName: string
+    length: number
   ): void {
     if (EditorService.siteId === -1)
       throw new Error('Error: call handleLocalRemove before setting siteId');
@@ -152,22 +152,22 @@ export class EditorService {
       endColumn
     );
 
-    const removedCRDTString: string[] = [];
+    const removedCRDTs: CRDT[] = [];
     for (let i = 0; i < length; i++) {
       const crdtToBeRemoved = this.bst.getDataAt(startIndex);
-      removedCRDTString.push(crdtToBeRemoved.toString());
+      removedCRDTs.push(crdtToBeRemoved);
       this.bst.remove(crdtToBeRemoved);
     }
 
-    this.messageService.broadcastRangeRemove(removedCRDTString, roomName);
+    // this.messageService.broadcastRangeRemove(removedCRDTStrings, roomName); // OLD MODEL - SIGNAL R
+    this.peerService.broadcastInsertOrRemove(removedCRDTs, false);
   }
 
   handleRemoteRangeRemove(
     editorTextModel: any,
     auxEditorTextModel: any,
-    crdtStrs: string[]
+    crdts: CRDT[]
   ): void {
-    const crdts = crdtStrs.map((crdtStr) => CRDT.parse(crdtStr));
     const deletingIndices = new Array<number>(crdts.length);
 
     for (let i = 0; i < crdts.length; i++) {
@@ -208,7 +208,7 @@ export class EditorService {
   handleAllMessages(
     editorTextModel: any,
     auxEditorTextModel: any,
-    crdts: string[]
+    crdts: CRDT[]
   ): void {
     // if isAllMessages=true => need to sort arr in handleRemoteRangeInsert
     this.handleRemoteRangeInsert(
