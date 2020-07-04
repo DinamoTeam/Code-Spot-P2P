@@ -68,6 +68,8 @@ export class CRDT implements IsObject {
     return crdt;
   }
 
+  // NEVER user toString() to turn a CRDT object to a string. It's incredibly slow!
+  // USE JSON.stringify please!!!
   toString(): string {
     return this.id.toString() + this.ch;
   }

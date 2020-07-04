@@ -2,6 +2,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { Message, MessageType } from '../shared/Message';
 import { RoomService } from './room.service';
 import { Router } from '@angular/router';
+import { CRDT } from '../shared/CRDT';
 
 declare const Peer: any;
 
@@ -30,8 +31,8 @@ export class PeerService {
       path: '/myapp',
     });
     this.connectToPeerServer();
-    // this.registerConnectToMeEvent();
-    // this.reconnectToPeerServer();
+    this.registerConnectToMeEvent();
+    this.reconnectToPeerServer();
   }
 
   //************* Connect + Reconnect to PeerServer *************
@@ -274,25 +275,18 @@ export class PeerService {
     );
   }
 
-  /*sendMessage(content: string) {
-    if (content.length === 0) {
-      return;
-    }
-
-    this.previousCRDTs.push(
-      new Message(content, MessageType.Message, this.peer.id, null, this.time)
-    );
-
+  broadcastInsertOrRemove(crdts: CRDT[], isInsert: boolean) {
+    const messageType = (isInsert) ? MessageType.RemoteInsert : MessageType.RemoteRemove;
+    const crdtStrings = JSON.stringify(crdts);
     this.connectionsIAmHolding.forEach((conn) => {
       const messageToSend = new Message(
-        content,
-        MessageType.Message,
+        crdtStrings,
+        messageType,
         this.peer.id,
         conn.peer,
         this.time
       );
-      const messageInJson = JSON.stringify(messageToSend);
-      conn.send(messageInJson);
+      conn.send(messageToSend);
       this.messagesToBeAcknowledged.push(messageToSend);
       const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
       setTimeout(function () {
@@ -300,7 +294,7 @@ export class PeerService {
       }, that.timeWaitForAck);
     });
     this.time++;
-  }*/
+  }
 
   acknowledgeOrResend(mess: Message, hasSent = 0) {
     // If message hasn't been received
