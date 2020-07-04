@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using CodeSpotP2P.Data;
 using CodeSpotP2P.Model;
+using Code_Spot_P2P.Data.DTO;
 
 namespace CodeSpotP2P.Controllers
 {
@@ -15,30 +16,23 @@ namespace CodeSpotP2P.Controllers
     public class RoomController: ControllerBase
     {
         private readonly DataContext _database;
+        private static long siteId = 1;
         public RoomController(DataContext database)
         {
             _database = database;
         }
 
-        // GET: api/Room/GetPeerIds?roomName=abc
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<string>>> GetPeerIds(string roomName)
-        {
-            return await _database.peers.Where(peer => peer.RoomName == roomName)
-                                        .Select(peer => peer.PeerId)
-                                        .ToListAsync();
-        }
-
         // GET: api/Room/JoinNewRoom?peerId=abc
         [HttpGet]
-        public async Task<ActionResult<string>> JoinNewRoom(string peerId)
+        public async Task<IActionResult> JoinNewRoom(string peerId)
 		{
             string roomName = GenerateRoomName();
             _database.rooms.Add(new Room(roomName));
             _database.peers.Add(new Peer(peerId, roomName));
             await _database.SaveChangesAsync();
-
-            return roomName;
+            
+            var info = new EnterRoomInfo(RoomController.siteId++, roomName, new List<string>());
+            return Ok(info);
 		}
 
         // Get: api/Room/JoinExistingRoom?peerId=abc&roomName=def
@@ -52,9 +46,10 @@ namespace CodeSpotP2P.Controllers
                                          .ToListAsync();
                 _database.peers.Add(new Peer(peerId, roomName));
                 await _database.SaveChangesAsync();
-                return Ok(peerIds);
+                var info = new EnterRoomInfo(RoomController.siteId++, roomName, peerIds);
+                return Ok(info);
             }
-            return Ok(new List<string> { "ROOM_NOT_EXIST" });
+            return Ok(new EnterRoomInfo(-1, null, null));
         }
 
         private async Task<bool> RoomExist(string roomName)
@@ -98,7 +93,6 @@ namespace CodeSpotP2P.Controllers
                 _database.rooms.Remove(room);
                 await _database.SaveChangesAsync();
             }
-
 
             return Ok(200);
         }
