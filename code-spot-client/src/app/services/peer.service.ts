@@ -118,12 +118,15 @@ export class PeerService {
           new Message(null, MessageType.Acknowledge, null, null, message.time)
         );
         const crdts: CRDT[] = JSON.parse(message.content);
-        // Send this request to our only subscriber: code-editor.component
         if (message.messageType === MessageType.RemoteInsert) {
+          // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.remoteInsertSubject.next(crdts);
+          // peerMessagesTracker.processDeleteBuffer();
         } else if (message.messageType === MessageType.RemoteRemove) {
+          // peerMessagesTracker.receiveRemoteRemoves(crdts);
           this.remoteRemoveSubject.next(crdts);
         } else {
+          // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.hasReceivedAllMessages = true;
           this.AllMessagesSubject.next(crdts);
           this.connectToTheRestInRoom(this.connToGetOldMessages);

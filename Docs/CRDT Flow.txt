@@ -16,7 +16,7 @@
 				-> send Ack
 				-> peerService.handleRemoteInsert() *
 					-> peerMessagesTracker.receiveRemoteInserts(CRDT[]): void // update newestMessages arr, hasNotReceived arr, deleteBuffer arr
-					-> editorService.handleRemoteInsert(CRDT[])
+					-> emit event to code-editor.component, code-editor.component calls editorService.handleRemoteInsert()
 					-> peerMessagesTracker.processDeleteBuffer(): void // Delete 'ready' characters
 	
 	2.2 Local + Remote Remove: 
@@ -48,6 +48,7 @@
 			private hasNotReceived: array of {SiteId: number, hasNotReceivedMessages: number[]}
 			private deleteBuffer: array of {SiteId: string, crdtNotReceivedButIsRequestedToBeDeleted: CRDT[]}
 			
+			<<1,2><3,4>5>a
 			// NOTE: SiteId (1,2,3,4,...) of ANY CRDT object can be found at crdt.lastIndentifier.id. This is the person who created that character
 			
 			receiveRemoteInserts(crdts: CRDT[]): void {} // update newestMessage for each site, update hasNotReceived, 

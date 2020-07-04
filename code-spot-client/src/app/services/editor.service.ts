@@ -210,7 +210,7 @@ export class EditorService {
     auxEditorTextModel: any,
     crdts: CRDT[]
   ): void {
-    // if isAllMessages=true => need to sort arr in handleRemoteRangeInsert
+    // if isAllMessages=true => need to sort arr in handleRemoteRangeInsert. ACTUALLY, WE DON'T NEED TO SORT :)
     this.handleRemoteRangeInsert(
       editorTextModel,
       auxEditorTextModel,
