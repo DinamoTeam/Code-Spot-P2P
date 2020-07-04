@@ -3,6 +3,7 @@ import { Message, MessageType } from '../shared/Message';
 import { RoomService } from './room.service';
 import { Router } from '@angular/router';
 import { CRDT } from '../shared/CRDT';
+import { EditorService } from './editor.service';
 
 declare const Peer: any;
 
@@ -17,13 +18,16 @@ export class PeerService {
   private connToGetOldMessages: any;
   private peerIdsInRoom: any[] = [];
   private connectionsIAmHolding: any[] = [];
-  private previousCRDTs: Message[] = [];
   private messagesToBeAcknowledged: Message[] = [];
   private hasReceivedAllMessages = false;
   connectionEstablished = new EventEmitter<Boolean>();
   infoBroadcasted = new EventEmitter<any>();
 
-  constructor(private roomService: RoomService, private router: Router) {
+  constructor(
+    private roomService: RoomService,
+    private router: Router,
+    private editorService: EditorService
+  ) {
     // Create a new peer and connect to peerServer. We can get our id from this.peer.id
     this.peer = new Peer({
       host: 'localhost',
@@ -47,7 +51,7 @@ export class PeerService {
     this.peer.on(PeerEvent.Disconnected, () => {
       // Disconnect => destroy permanently this peer. Need to test this more!
       this.peer.destroy();
-      // Also, refresh browser or sth like that
+      // TODO: refresh browser or sth like that
     });
   }
   //*************************************************************
@@ -217,19 +221,19 @@ export class PeerService {
       null,
       this.time++
     );
-    conn.send(JSON.stringify(message));
+    conn.send(message);
   }
 
   private sendOldCRDTs(conn: any) {
-    // TODO: Lấy all CRDTs từ BST và send cho user kia. => Send JSON.stringify(CRDT[])
+    const previousCRDTs: CRDT[] = this.editorService.getOldCRDTsAsSortedArray();
     const message = new Message(
-      JSON.stringify(this.previousCRDTs),
+      JSON.stringify(previousCRDTs),
       MessageType.OldCRDTs,
       this.peer.id,
       conn.peer,
       this.time++
     );
-    conn.send(JSON.stringify(message));
+    conn.send(message);
     this.messagesToBeAcknowledged.push(message);
     const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
     setTimeout(function () {
@@ -276,7 +280,9 @@ export class PeerService {
   }
 
   broadcastInsertOrRemove(crdts: CRDT[], isInsert: boolean) {
-    const messageType = (isInsert) ? MessageType.RemoteInsert : MessageType.RemoteRemove;
+    const messageType = isInsert
+      ? MessageType.RemoteInsert
+      : MessageType.RemoteRemove;
     const crdtStrings = JSON.stringify(crdts);
     this.connectionsIAmHolding.forEach((conn) => {
       const messageToSend = new Message(
@@ -284,7 +290,7 @@ export class PeerService {
         messageType,
         this.peer.id,
         conn.peer,
-        this.time
+        this.time++
       );
       conn.send(messageToSend);
       this.messagesToBeAcknowledged.push(messageToSend);
@@ -293,7 +299,6 @@ export class PeerService {
         that.acknowledgeOrResend(messageToSend);
       }, that.timeWaitForAck);
     });
-    this.time++;
   }
 
   acknowledgeOrResend(mess: Message, hasSent = 0) {
@@ -316,7 +321,7 @@ export class PeerService {
 
       // If that peer hasn't disconnect
       if (conn) {
-        conn.send(JSON.stringify(mess));
+        conn.send(mess);
         console.log('Waiting too long for ack. Resent messages');
         const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
         setTimeout(function () {
@@ -341,10 +346,6 @@ export class PeerService {
 
   getRoomName(): string {
     return this.roomName;
-  }
-
-  getAllMessages(): any[] {
-    return this.previousCRDTs;
   }
 
   getAllPeerIds(): string[] {
