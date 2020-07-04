@@ -35,7 +35,7 @@ export class CodeEditorComponent implements OnInit {
     private location: Location
   ) {
     // this.subscribeToSignalrEvents();
-    this.getRoomName();
+    // this.getRoomName();
   }
 
   ngOnInit() {

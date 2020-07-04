@@ -104,8 +104,7 @@ export class PeerService {
     conn.on(ConnectionEvent.Close, () => this.handleConnectionClose(conn));
   }
 
-  private handleMessageFromPeer(messageJson: string, fromConn: any) {
-    const message: Message = JSON.parse(messageJson);
+  private handleMessageFromPeer(message: Message, fromConn: any) {
     switch (message.messageType) {
       case MessageType.RemoteInsert:
         // handle remote insert
