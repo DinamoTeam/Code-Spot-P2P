@@ -24,6 +24,7 @@
     "jquery": "^3.5.1",
     "monaco-editor": "^0.20.0",
     "ngx-monaco-editor": "^8.0.0",
+    "peer": "^0.5.3",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",
     "zone.js": "~0.9.1"
