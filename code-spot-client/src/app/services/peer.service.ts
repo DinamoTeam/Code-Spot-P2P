@@ -31,8 +31,8 @@ export class PeerService {
       path: '/myapp',
     });
     this.connectToPeerServer();
-    this.registerConnectToMeEvent();
-    this.reconnectToPeerServer();
+    // this.registerConnectToMeEvent();
+    // this.reconnectToPeerServer();
   }
 
   //************* Connect + Reconnect to PeerServer *************
