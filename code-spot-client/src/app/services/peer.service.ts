@@ -4,6 +4,7 @@ import { RoomService } from './room.service';
 import { Router } from '@angular/router';
 import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
+import { Subject, Observable } from 'rxjs';
 
 declare const Peer: any;
 
@@ -22,6 +23,9 @@ export class PeerService {
   private hasReceivedAllMessages = false;
   connectionEstablished = new EventEmitter<Boolean>();
   infoBroadcasted = new EventEmitter<any>();
+  private remoteInsertSubject = new Subject<CRDT[]>();
+  private remoteRemoveSubject = new Subject<CRDT[]>();
+  private AllMessagesSubject = new Subject<CRDT[]>();
 
   constructor(
     private roomService: RoomService,
@@ -107,14 +111,25 @@ export class PeerService {
   private handleMessageFromPeer(message: Message, fromConn: any) {
     switch (message.messageType) {
       case MessageType.RemoteInsert:
-        // handle remote insert
-        break;
       case MessageType.RemoteRemove:
-        // handle remote remove
-        break;
       case MessageType.OldCRDTs:
-        // receive all messages
+        // Acknowledge
+        fromConn.send(
+          new Message(null, MessageType.Acknowledge, null, null, message.time)
+        );
+        const crdts: CRDT[] = JSON.parse(message.content);
+        // Send this request to our only subscriber: code-editor.component
+        if (message.messageType === MessageType.RemoteInsert) {
+          this.remoteInsertSubject.next(crdts);
+        } else if (message.messageType === MessageType.RemoteRemove) {
+          this.remoteRemoveSubject.next(crdts);
+        } else {
+          this.hasReceivedAllMessages = true;
+          this.AllMessagesSubject.next(crdts);
+          this.connectToTheRestInRoom(this.connToGetOldMessages);
+        }
         break;
+
       case MessageType.RequestOldCRDTs:
         if (!this.hasReceivedAllMessages) {
           console.log(
@@ -124,6 +139,7 @@ export class PeerService {
           this.sendOldCRDTs(fromConn);
         }
         break;
+
       case MessageType.Acknowledge:
         const indexDelete = this.messagesToBeAcknowledged.findIndex(
           (mes) => mes.time === message.time
@@ -132,48 +148,9 @@ export class PeerService {
           this.messagesToBeAcknowledged.splice(indexDelete, 1);
         }
         break;
-      /*case MessageType.Message:
-        this.addUniqueMessages([message], this.previousMessages);
-        this.infoBroadcasted.emit(BroadcastInfo.UpdateAllMessages);
-        // Send Acknowledgement
-        fromConn.send(
-          JSON.stringify(
-            new Message(null, MessageType.Acknowledge, null, null, message.time)
-          )
-        );
-        break;
-      case MessageType.AllMessages:
-        this.hasReceivedAllMessages = true;
-        const messages: Message[] = JSON.parse(message.content);
-        this.addUniqueMessages(messages, this.previousMessages);
-        this.infoBroadcasted.emit(BroadcastInfo.UpdateAllMessages);
-        // Send Acknowledgement
-        fromConn.send(
-          JSON.stringify(
-            new Message(null, MessageType.Acknowledge, null, null, message.time)
-          )
-        );
-        this.connectToTheRestInRoom(fromConn.peer);
-        break;
-      case MessageType.RequestAllMessages:
-        if (!this.hasReceivedAllMessages) {
-          console.log(
-            "I haven't received allMessages yet. Can't send to that peer"
-          );
-        } else {
-          this.sendOldMessages(fromConn);
-        }
-        break;
-      case MessageType.Acknowledge:
-        const indexDelete = this.messagesToBeAcknowledged.findIndex(
-          (mes) => mes.time === message.time
-        );
-        if (indexDelete !== -1) {
-          this.messagesToBeAcknowledged.splice(indexDelete, 1);
-        }
-        break;
+
       default:
-        throw new Error('Unhandled message type');*/
+        throw new Error('Unhandled messageType');
     }
   }
 
@@ -282,10 +259,10 @@ export class PeerService {
     const messageType = isInsert
       ? MessageType.RemoteInsert
       : MessageType.RemoteRemove;
-    const crdtStrings = JSON.stringify(crdts);
+    const crdtJSONs = JSON.stringify(crdts);
     this.connectionsIAmHolding.forEach((conn) => {
       const messageToSend = new Message(
-        crdtStrings,
+        crdtJSONs,
         messageType,
         this.peer.id,
         conn.peer,
@@ -338,6 +315,18 @@ export class PeerService {
       ) != null
     );
   }*/
+
+  getRemoteInsertObservable(): Observable<CRDT[]> {
+    return this.remoteInsertSubject.asObservable();
+  }
+
+  getRemoteRemoveObservable(): Observable<CRDT[]> {
+    return this.remoteRemoveSubject.asObservable();
+  }
+
+  getAllMessagesObservable(): Observable<CRDT[]> {
+    return this.AllMessagesSubject.asObservable();
+  }
 
   getPeerId(): string {
     return this.peer.id;

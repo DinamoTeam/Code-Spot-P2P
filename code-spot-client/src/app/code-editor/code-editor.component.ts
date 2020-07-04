@@ -6,6 +6,7 @@ import { Message } from '../shared/Message';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { PeerService } from '../services/peer.service';
+import { CRDT } from '../shared/CRDT';
 
 declare const monaco: any;
 
@@ -34,6 +35,7 @@ export class CodeEditorComponent implements OnInit {
     private actRoute: ActivatedRoute,
     private location: Location
   ) {
+    this.subscribeToPeerServiceEvents();
     // this.subscribeToSignalrEvents();
     // this.getRoomName();
   }
@@ -72,7 +74,10 @@ export class CodeEditorComponent implements OnInit {
     this.editorOptions = Object.assign({}, this.editorOptions, {
       language: this.selectedLang,
     });
-    this.messageService.sendSignalChangeLanguage(this.selectedLang, this.roomName);
+    this.messageService.sendSignalChangeLanguage(
+      this.selectedLang,
+      this.roomName
+    );
   }
 
   onInitEditorHandler(event: any) {
@@ -126,6 +131,32 @@ export class CodeEditorComponent implements OnInit {
         range.startColumn
       );
     }
+  }
+
+  subscribeToPeerServiceEvents(): void {
+    this.peerService.getRemoteInsertObservable().subscribe((crdts) => {
+      this.editorService.handleRemoteRangeInsert(
+        this.editorTextModel,
+        this.auxEditorTextModel,
+        crdts
+      );
+    });
+
+    this.peerService.getRemoteRemoveObservable().subscribe((crdts) => {
+      this.editorService.handleRemoteRangeRemove(
+        this.editorTextModel,
+        this.auxEditorTextModel,
+        crdts
+      );
+    });
+
+    this.peerService.getAllMessagesObservable().subscribe((crdts) => {
+      this.editorService.handleAllMessages(
+        this.editorTextModel,
+        this.auxEditorTextModel,
+        crdts
+      );
+    });
   }
 
   /*subscribeToSignalrEvents(): void {
