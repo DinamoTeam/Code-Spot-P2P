@@ -219,6 +219,10 @@ export class EditorService {
     );
   }
 
+  getOldCRDTsAsSortedArray(): CRDT[] {
+    return this.bst.toSortedArray();
+  }
+
   writeCharToScreenAtIndex(
     editorTextModel: any,
     text: string,

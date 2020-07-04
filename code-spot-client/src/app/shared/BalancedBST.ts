@@ -191,6 +191,21 @@ export class BalancedBST<T extends IsObject> {
     throw new Error('Something went wrong when getDataAt(index)');
   }
 
+  toSortedArray(): T[] {
+    const resArr: T[] = [];
+    this.toSortedArrayInOrder(resArr, this.root);
+    return resArr;
+  }
+
+  private toSortedArrayInOrder(resArr: T[], curNode: Node<T>) {
+    if (!curNode) {
+      return;
+    }
+    this.toSortedArrayInOrder(resArr, curNode.left);
+    resArr.push(curNode.data);
+    this.toSortedArrayInOrder(resArr, curNode.right);
+  }
+
   goUpRebalanceAndUpdateHeightBFAndSubtreeSize(node: Node<T>): void {
     this.updateHeightBFAndSubtreeSize(node);
 
