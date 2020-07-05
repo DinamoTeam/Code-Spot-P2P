@@ -35,10 +35,15 @@ export class PeerService {
   ) {
     // Create a new peer and connect to peerServer. We can get our id from this.peer.id
     this.peer = new Peer({
+      host: 'codespotpeerserver.herokuapp.com/',
+      port: '/..',
+      secure: true
+    });
+    /*this.peer = new Peer({
       host: 'localhost',
       port: 9000,
       path: '/myapp',
-    });
+    });*/
     this.connectToPeerServer();
     this.registerConnectToMeEvent();
     this.reconnectToPeerServer();

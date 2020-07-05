@@ -24,17 +24,26 @@ namespace CodeSpotP2P
 
 		public IConfiguration Configuration { get; }
 
-		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureDevelopmentServices(IServiceCollection services)
+		{
+			services.AddDbContext<DataContext>(x => 
+				x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
+			ConfigureServices(services);
+		}
+
+		public void ConfigureProductionServices(IServiceCollection services)
+		{
+			services.AddDbContext<DataContext>(x => 
+				x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+				
+			ConfigureServices(services);
+		}
+
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
-			{
-				builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().WithOrigins("http://localhost:4200");
-			}));
-			services.AddSignalR();
+			services.AddCors();
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-			services.AddDbContext<DataContext>(x => 
-				x.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))); // Inside appsettings.json
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,10 +58,18 @@ namespace CodeSpotP2P
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
-
-			app.UseCors("CorsPolicy");
+			app.UseDeveloperExceptionPage();
+			app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 			app.UseHttpsRedirection();
-			app.UseMvc();
+			app.UseDefaultFiles();
+			app.UseStaticFiles();
+			app.UseMvc(routes =>
+			{
+				routes.MapSpaFallbackRoute(
+					name: "spa-fallback",
+					defaults: new {controller = "Fallback", action = "Index"}
+				);
+			});
 		}
 	}
 }

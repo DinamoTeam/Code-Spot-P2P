@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
-import { MessageType } from '../services/message.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { PeerService, BroadcastInfo } from '../services/peer.service';
