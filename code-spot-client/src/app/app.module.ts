@@ -14,12 +14,15 @@ import { AboutComponent } from './about/about.component';
 import { CodeEditorComponent } from './code-editor/code-editor.component';
 import { ChatboxComponent } from './chatbox/chatbox.component';
 import { HttpClientModule } from '@angular/common/http';
+import { PeerService } from './services/peer.service';
+import { EditorService } from './services/editor.service';
+import { RoomService } from './services/room.service';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   defaultOptions: {
-    wordWrap: "on",
+    wordWrap: 'on',
     showUnused: true,
-    tabCompletion: "onlySnippets"
+    tabCompletion: 'onlySnippets',
     //dragAndDrop: false,
   },
   onMonacoLoad: () => {
@@ -46,7 +49,7 @@ const monacoConfig: NgxMonacoEditorConfig = {
     ReactiveFormsModule,
     MonacoEditorModule.forRoot(monacoConfig),
   ],
-  providers: [],
+  providers: [PeerService, EditorService, RoomService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

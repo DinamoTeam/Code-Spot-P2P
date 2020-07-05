@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
-import { MessageService } from './message.service';
 import { BalancedBST } from '../shared/BalancedBST';
 import { PeerService } from './peer.service';
 
@@ -13,12 +12,14 @@ export class EditorService {
   static remoteOpLeft: number = 0;
   curClock: number = 0;
   bst: BalancedBST<CRDT>;
+  private peerService: PeerService;
 
   static setSiteId(id: number): void {
     EditorService.siteId = id;
   }
 
-  constructor(private peerService: PeerService) {
+  constructor(private injector: Injector) {
+    setTimeout(() => this.peerService = injector.get(PeerService), 200);
     this.bst = new BalancedBST<CRDT>();
     this.bst.insert(
       new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))

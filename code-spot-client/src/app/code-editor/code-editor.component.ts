@@ -1,12 +1,10 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
-import { MessageService, MessageType } from '../services/message.service';
-import { Message } from '../shared/Message';
+import { MessageType } from '../services/message.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { PeerService } from '../services/peer.service';
-import { CRDT } from '../shared/CRDT';
+import { PeerService, BroadcastInfo } from '../services/peer.service';
 
 declare const monaco: any;
 
@@ -30,14 +28,13 @@ export class CodeEditorComponent implements OnInit {
   constructor(
     private peerService: PeerService,
     public editorService: EditorService,
-    private messageService: MessageService,
     private ngZone: NgZone,
     private actRoute: ActivatedRoute,
     private location: Location
   ) {
     this.subscribeToPeerServiceEvents();
+    this.getRoomName();
     // this.subscribeToSignalrEvents();
-    // this.getRoomName();
   }
 
   ngOnInit() {
@@ -74,10 +71,6 @@ export class CodeEditorComponent implements OnInit {
     this.editorOptions = Object.assign({}, this.editorOptions, {
       language: this.selectedLang,
     });
-    this.messageService.sendSignalChangeLanguage(
-      this.selectedLang,
-      this.roomName
-    );
   }
 
   onInitEditorHandler(event: any) {
@@ -134,38 +127,56 @@ export class CodeEditorComponent implements OnInit {
   }
 
   subscribeToPeerServiceEvents(): void {
-    this.peerService.getRemoteInsertObservable().subscribe((crdts) => {
-      console.log('Catch a remote insert event');
-      this.editorService.handleRemoteRangeInsert(
-        this.editorTextModel,
-        this.auxEditorTextModel,
-        crdts
-      );
-    }, error => {
-      console.error(error);
+    this.peerService.infoBroadcasted.subscribe((message: any) => {
+      this.ngZone.run(() => {
+        if (message === BroadcastInfo.RoomName) {
+          this.roomName = this.peerService.getRoomName();
+          this.location.replaceState("/editor/" + this.roomName);
+        }
+      });
     });
 
-    this.peerService.getRemoteRemoveObservable().subscribe((crdts) => {
-      console.log('Catch a remote remote event');
-      this.editorService.handleRemoteRangeRemove(
-        this.editorTextModel,
-        this.auxEditorTextModel,
-        crdts
-      );
-    }, error => {
-      console.log(error);
-    });
+    this.peerService.getRemoteInsertObservable().subscribe(
+      (crdts) => {
+        console.log('Catch a remote insert event');
+        this.editorService.handleRemoteRangeInsert(
+          this.editorTextModel,
+          this.auxEditorTextModel,
+          crdts
+        );
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
 
-    this.peerService.getAllMessagesObservable().subscribe((crdts) => {
-      console.log('Catch all messages event');
-      this.editorService.handleAllMessages(
-        this.editorTextModel,
-        this.auxEditorTextModel,
-        crdts
-      );
-    }, error => {
-      console.log(error);
-    });
+    this.peerService.getRemoteRemoveObservable().subscribe(
+      (crdts) => {
+        console.log('Catch a remote remote event');
+        this.editorService.handleRemoteRangeRemove(
+          this.editorTextModel,
+          this.auxEditorTextModel,
+          crdts
+        );
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+
+    this.peerService.getAllMessagesObservable().subscribe(
+      (crdts) => {
+        console.log('Catch all messages event');
+        this.editorService.handleAllMessages(
+          this.editorTextModel,
+          this.auxEditorTextModel,
+          crdts
+        );
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   }
 
   /*subscribeToSignalrEvents(): void {
@@ -223,6 +234,19 @@ export class CodeEditorComponent implements OnInit {
       });
     });
   }*/
+
+  getRoomName(): void {
+    this.peerService.connectionEstablished.subscribe((successful: boolean) => {
+      if (successful) {
+        this.roomName = this.actRoute.snapshot.params["roomName"];
+        if (this.roomName == "NONE") {
+          this.peerService.createNewRoom();
+        } else {
+          this.peerService.joinExistingRoom(this.roomName);
+        }
+      }
+    });
+  }
 
   /*getRoomName(): void {
     this.messageService.connectionEstablished.subscribe(

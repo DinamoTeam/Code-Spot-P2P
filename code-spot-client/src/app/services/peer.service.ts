@@ -1,10 +1,12 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, Injector } from '@angular/core';
 import { Message, MessageType } from '../shared/Message';
 import { RoomService } from './room.service';
 import { Router } from '@angular/router';
 import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
 import { Subject, Observable } from 'rxjs';
+import { EnterRoomInfo } from '../shared/EnterRoomInfo';
+import { Edit } from '../shared/EditStack';
 
 declare const Peer: any;
 
@@ -26,12 +28,14 @@ export class PeerService {
   private remoteInsertSubject = new Subject<CRDT[]>();
   private remoteRemoveSubject = new Subject<CRDT[]>();
   private AllMessagesSubject = new Subject<CRDT[]>();
+  private editorService: EditorService;
 
   constructor(
     private roomService: RoomService,
     private router: Router,
-    private editorService: EditorService
+    private injector: Injector
   ) {
+    this.editorService = injector.get(EditorService);
     // Create a new peer and connect to peerServer. We can get our id from this.peer.id
     this.peer = new Peer({
       host: 'localhost',
@@ -39,8 +43,8 @@ export class PeerService {
       path: '/myapp',
     });
     this.connectToPeerServer();
-    // this.registerConnectToMeEvent();
-    // this.reconnectToPeerServer();
+    this.registerConnectToMeEvent();
+    this.reconnectToPeerServer();
   }
 
   //************* Connect + Reconnect to PeerServer *************
@@ -117,7 +121,8 @@ export class PeerService {
         fromConn.send(
           new Message(null, MessageType.Acknowledge, null, null, message.time)
         );
-        const crdts: CRDT[] = JSON.parse(message.content);
+        const parsedCrdts: CRDT[] = JSON.parse(message.content); // plain Javascript object
+        const crdts = parsedCrdts.map(crdt => CRDT.plainObjectToRealCRDT(crdt));
         if (message.messageType === MessageType.RemoteInsert) {
           // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.remoteInsertSubject.next(crdts);
@@ -230,27 +235,30 @@ export class PeerService {
   }
 
   createNewRoom() {
-    this.roomService.joinNewRoom(this.peer.id).subscribe((data: string) => {
-      this.roomName = data;
-      console.log('roomName: ' + this.roomName);
-      // No peerId
-      this.handleFirstJoinRoom([]);
-      this.infoBroadcasted.emit(BroadcastInfo.RoomName);
-    });
+    this.roomService
+      .joinNewRoom(this.peer.id)
+      .subscribe((data: EnterRoomInfo) => {
+        this.roomName = data.roomName;
+        console.log('roomName: ' + this.roomName);
+        EditorService.setSiteId(data.siteId);
+        // No peerId
+        this.handleFirstJoinRoom([]);
+        this.infoBroadcasted.emit(BroadcastInfo.RoomName);
+      });
   }
 
   joinExistingRoom(roomName: string) {
     this.roomName = roomName;
     this.roomService.joinExistingRoom(this.peer.id, this.roomName).subscribe(
-      (peerIds) => {
-        console.log(peerIds);
-        if (peerIds.length === 1 && peerIds[0] === 'ROOM_NOT_EXIST') {
+      (data: EnterRoomInfo) => {
+        console.log(data);
+        if (data.siteId === -1) {
           // Either room not exists or has been deleted
-
           window.location.replace('/');
           alert('Room not exists, navigating back to home');
         }
-        this.handleFirstJoinRoom(peerIds);
+        EditorService.setSiteId(data.siteId);
+        this.handleFirstJoinRoom(data.peerIds);
       },
       (error) => {
         console.error(error);

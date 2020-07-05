@@ -16,6 +16,16 @@ export class CRDT implements IsObject {
     this.id = id;
   }
 
+  /**
+   * JSON.parse() only returns a plain Javascript object.
+   * Use this function to turn that object to an actual CRDT
+   */
+  static plainObjectToRealCRDT(obj: CRDT) {
+    const identifiers = obj.id.arr.map(x => new Identifier(x.digit, x.siteId));
+    const id = new CRDTId(identifiers, obj.id.clockValue);
+    return new CRDT(obj.ch, id);
+  }
+
   static parse(crdtStr: string): CRDT {
     let tokens = crdtStr.split('');
     tokens.shift();
