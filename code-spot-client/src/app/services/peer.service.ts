@@ -76,7 +76,7 @@ export class PeerService {
       reliable: true,
       serialization: 'json',
     });
-    this.addUnique([conn], this.connectionsIAmHolding);
+    this.addUniqueConnections([conn], this.connectionsIAmHolding);
 
     if (getOldMessages === true) {
       this.connToGetOldMessages = conn;
@@ -94,7 +94,7 @@ export class PeerService {
   }
 
   private setupListenerForConnection(conn: any) {
-    this.addUnique([conn], this.connectionsIAmHolding);
+    this.addUniqueConnections([conn], this.connectionsIAmHolding);
     // When the connection first establish
     conn.on(ConnectionEvent.Open, () => {
       // If we chose this peer to give us all messages
@@ -134,6 +134,7 @@ export class PeerService {
           // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.hasReceivedAllMessages = true;
           this.AllMessagesSubject.next(crdts);
+          console.log(this.connectionsIAmHolding);
           this.connectToTheRestInRoom(this.connToGetOldMessages);
         }
         break;
@@ -226,9 +227,16 @@ export class PeerService {
   }
   //*************************************************************
 
-  private addUnique(list: any[], listToBeAddedTo: any[]) {
+  private addUniqueConnections(list: any[], listToBeAddedTo: any[]) {
     list.forEach((obj) => {
-      if (listToBeAddedTo.indexOf(obj) === -1) {
+      let hasExist = false;
+      for (let i = 0; i < listToBeAddedTo.length; i++) {
+        if (obj.peer === listToBeAddedTo[i].peer) {
+          hasExist = true;
+          break;
+        }
+      }
+      if (!hasExist) {
         listToBeAddedTo.push(obj);
       }
     });
