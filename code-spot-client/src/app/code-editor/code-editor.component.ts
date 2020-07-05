@@ -4,6 +4,7 @@ import { EditorService } from '../services/editor.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { PeerService, BroadcastInfo } from '../services/peer.service';
+import { Languages } from './languages';
 
 declare const monaco: any;
 
@@ -41,27 +42,7 @@ export class CodeEditorComponent implements OnInit {
     this.allMessages = null;
   }
 
-  @Input() languages = [
-    { name: 'Bat', value: 'bat' },
-    { name: 'C', value: 'c' },
-    { name: 'C++', value: 'cpp' },
-    { name: 'C#', value: 'csharp' },
-    { name: 'Go', value: 'go' },
-    { name: 'HTML', value: 'html' },
-    { name: 'Java', value: 'java' },
-    { name: 'Kotlin', value: 'kotlin' },
-    { name: 'MySQL', value: 'mysql' },
-    { name: 'JavaScript', value: 'javascript' },
-    { name: 'PgSQL', value: 'pgsql' },
-    { name: 'Plain Text', value: 'plaintext' },
-    { name: 'Python', value: 'python' },
-    { name: 'Ruby', value: 'ruby' },
-    { name: 'Scheme', value: 'scheme' },
-    { name: 'Shell', value: 'shell' },
-    { name: 'SQL', value: 'sql' },
-    { name: 'Swift', value: 'swift' },
-    { name: 'Typescript', value: 'typescript' },
-  ];
+  @Input() languages = Languages;
 
   editorOptions = { theme: 'vs-dark', language: 'cpp' };
 
@@ -178,62 +159,6 @@ export class CodeEditorComponent implements OnInit {
     );
   }
 
-  /*subscribeToSignalrEvents(): void {
-    this.messageService.messageReceived.subscribe((message: Message) => {
-      this.ngZone.run(() => {
-        const messageType = message.type;
-        switch (messageType) {
-          case MessageType.SiteId:
-            const siteId = parseInt(message.messages[0], 10);
-            EditorService.setSiteId(siteId);
-            break;
-          case MessageType.RoomName:
-            this.roomName = message.messages[0];
-            this.location.replaceState('/editor/' + this.roomName);
-            break;
-          case MessageType.Language:
-            this.selectedLang = message.messages[0];
-            this.editorOptions = Object.assign({}, this.editorOptions, {
-              language: this.selectedLang,
-            });
-            this.languageForm.patchValue({ language: this.selectedLang });
-            break;
-          case MessageType.RemoteRangeInsert:
-            // RemoteOpLeft will be set inside handleRemoteRangeInsert
-            this.editorService.handleRemoteRangeInsert(
-              this.editorTextModel,
-              this.auxEditorTextModel,
-              message.messages
-            );
-            break;
-          case MessageType.RemoteRangeRemove:
-            this.editorService.handleRemoteRangeRemove(
-              this.editorTextModel,
-              this.auxEditorTextModel,
-              message.messages
-            );
-            break;
-          case MessageType.AllMessages:
-            // Duplicate tab or refresh tab don't generate new editorTextModel
-            if (this.editorTextModel === undefined) {
-              this.allMessages = message.messages;
-            } else {
-              this.editorService.handleAllMessages(
-                this.editorTextModel,
-                this.auxEditorTextModel,
-                message.messages
-              );
-            }
-            break;
-          default:
-            console.log('UNHANDLED MESSAGES!');
-            console.log(message);
-            break;
-        }
-      });
-    });
-  }*/
-
   getRoomName(): void {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
       if (successful) {
@@ -246,21 +171,6 @@ export class CodeEditorComponent implements OnInit {
       }
     });
   }
-
-  /*getRoomName(): void {
-    this.messageService.connectionEstablished.subscribe(
-      (successful: boolean) => {
-        if (successful) {
-          this.roomName = this.actRoute.snapshot.params['roomName'];
-          if (this.roomName == 'NONE')
-            this.messageService.sendSignalCreateNewRoom();
-          else {
-            this.messageService.sendSignalJoinExistingRoom(this.roomName);
-          }
-        }
-      }
-    );
-  }*/
 
   showSuccessAlert: boolean = false;
   copyLink(): void {

@@ -64,7 +64,11 @@
 		- Handle ack and resend. 
 					
 					
-					
+SUGGESTED NEW FLOW: local changes -> catch event in code-editor.component.ts -> call editor service -> editor service broadcast this event -> peer service broadcase to other ppl
+
+remote changes -> peer service catch it -> code-editor component subscribe to it -> call handle remote range insert. Here we use message tracker blah blah -> decided whether to insert to BST or not AND whether to render or not
+
+
 					
 					
 					
