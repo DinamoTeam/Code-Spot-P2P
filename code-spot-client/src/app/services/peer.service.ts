@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, Injector } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Message, MessageType } from '../shared/Message';
 import { RoomService } from './room.service';
 import { Router } from '@angular/router';
@@ -6,7 +6,6 @@ import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
 import { Subject, Observable } from 'rxjs';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
-import { Edit } from '../shared/EditStack';
 
 declare const Peer: any;
 
@@ -28,14 +27,12 @@ export class PeerService {
   private remoteInsertSubject = new Subject<CRDT[]>();
   private remoteRemoveSubject = new Subject<CRDT[]>();
   private AllMessagesSubject = new Subject<CRDT[]>();
-  private editorService: EditorService;
 
   constructor(
     private roomService: RoomService,
     private router: Router,
-    private injector: Injector
+    private editorService: EditorService
   ) {
-    this.editorService = injector.get(EditorService);
     // Create a new peer and connect to peerServer. We can get our id from this.peer.id
     this.peer = new Peer({
       host: 'localhost',
@@ -45,6 +42,7 @@ export class PeerService {
     this.connectToPeerServer();
     this.registerConnectToMeEvent();
     this.reconnectToPeerServer();
+    this.subscribeToEditorServiceEvents();
   }
 
   //************* Connect + Reconnect to PeerServer *************
@@ -122,7 +120,9 @@ export class PeerService {
           new Message(null, MessageType.Acknowledge, null, null, message.time)
         );
         const parsedCrdts: CRDT[] = JSON.parse(message.content); // plain Javascript object
-        const crdts = parsedCrdts.map(crdt => CRDT.plainObjectToRealCRDT(crdt));
+        const crdts = parsedCrdts.map((crdt) =>
+          CRDT.plainObjectToRealCRDT(crdt)
+        );
         if (message.messageType === MessageType.RemoteInsert) {
           // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.remoteInsertSubject.next(crdts);
@@ -353,6 +353,16 @@ export class PeerService {
 
   getMessagesToBeAck(): any[] {
     return this.messagesToBeAcknowledged;
+  }
+
+  subscribeToEditorServiceEvents() {
+    this.editorService.crdtEvent.subscribe((insert: boolean) => {
+      if (insert) {
+        this.broadcastInsertOrRemove(this.editorService.getCrdtsToTransfer(), true);
+      } else {
+        this.broadcastInsertOrRemove(this.editorService.getCrdtsToTransfer(), false);
+      }
+    });
   }
 }
 

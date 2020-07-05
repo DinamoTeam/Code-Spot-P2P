@@ -1,8 +1,7 @@
-import { Injectable, Injector } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
 import { BalancedBST } from '../shared/BalancedBST';
-import { PeerService } from './peer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,14 +11,14 @@ export class EditorService {
   static remoteOpLeft: number = 0;
   curClock: number = 0;
   bst: BalancedBST<CRDT>;
-  private peerService: PeerService;
+  crdtEvent = new EventEmitter<boolean>();
+  crdtsToTransfer: CRDT[];
 
   static setSiteId(id: number): void {
     EditorService.siteId = id;
   }
 
-  constructor(private injector: Injector) {
-    setTimeout(() => this.peerService = injector.get(PeerService), 200);
+  constructor() {
     this.bst = new BalancedBST<CRDT>();
     this.bst.insert(
       new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
@@ -79,7 +78,8 @@ export class EditorService {
     // const listCRDTString = listCRDTBetween.map((crdt) => crdt.toString()); // VERY SLOW because of .toString()
     // this.messageService.broadcastRangeInsert(listCRDTString, roomName); OLD MODEL - SIGNALR
 
-    this.peerService.broadcastInsertOrRemove(listCRDTBetween, true);
+    this.crdtsToTransfer = listCRDTBetween;
+    this.crdtEvent.emit(true);
   }
 
   handleRemoteRangeInsert(
@@ -161,7 +161,9 @@ export class EditorService {
     }
 
     // this.messageService.broadcastRangeRemove(removedCRDTStrings, roomName); // OLD MODEL - SIGNAL R
-    this.peerService.broadcastInsertOrRemove(removedCRDTs, false);
+
+    this.crdtsToTransfer = removedCRDTs;
+    this.crdtEvent.emit(false);
   }
 
   handleRemoteRangeRemove(
@@ -294,12 +296,13 @@ export class EditorService {
     return editorTextModel.getOffsetAt(
       new monaco.Position(endLineNumber, endColumn)
     );
-
-    // FOR DEBUG: Print Value in Range
-    // console.log("(" + this.editorTextModel.getValueInRange(new monaco.Range(1, 0, endLineNumber, endColumn)) + ")");
   }
 
   private indexToPos(editorTextModel: any, index: number): any {
     return editorTextModel.getPositionAt(index);
+  }
+
+  getCrdtsToTransfer() {
+    return this.crdtsToTransfer;
   }
 }
