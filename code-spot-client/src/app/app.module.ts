@@ -49,7 +49,7 @@ const monacoConfig: NgxMonacoEditorConfig = {
     ReactiveFormsModule,
     MonacoEditorModule.forRoot(monacoConfig),
   ],
-  providers: [PeerService, EditorService, RoomService],
+  providers: [],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
