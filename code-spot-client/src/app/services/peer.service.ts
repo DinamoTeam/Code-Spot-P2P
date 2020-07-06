@@ -8,7 +8,7 @@ import { Subject, Observable } from 'rxjs';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
 
 declare const Peer: any;
-
+const MAX_CRDT_PER_SEND = 1000;
 @Injectable({
   providedIn: 'root',
 })
@@ -283,22 +283,38 @@ export class PeerService {
     const messageType = isInsert
       ? MessageType.RemoteInsert
       : MessageType.RemoteRemove;
-    const crdtJSONs = JSON.stringify(crdts);
-    this.connectionsIAmHolding.forEach((conn) => {
-      const messageToSend = new Message(
-        crdtJSONs,
-        messageType,
-        this.peer.id,
-        conn.peer,
-        this.time++
-      );
-      conn.send(messageToSend);
-      this.messagesToBeAcknowledged.push(messageToSend);
-      const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
-      setTimeout(function () {
-        that.acknowledgeOrResend(messageToSend);
-      }, that.timeWaitForAck);
-    });
+
+    // Break huge crdts array into smaller arrays and send each one to avoid connection crash
+    const crdtBatches: CRDT[][] = [];
+    const numberOfTimesSend = Math.ceil(crdts.length / MAX_CRDT_PER_SEND);
+    for (let i = 0; i < numberOfTimesSend; i++) {
+      const startInclusive = MAX_CRDT_PER_SEND * i;
+      const endExclusive = Math.min(MAX_CRDT_PER_SEND * (i + 1), crdts.length); // In case sending the last batch
+      crdtBatches.push(crdts.slice(startInclusive, endExclusive));
+    }
+
+    const crdtJSONs: string[] = [];
+    for (let i = 0; i < numberOfTimesSend; i++) {
+      crdtJSONs.push(JSON.stringify(crdtBatches[i]));
+    }
+
+    for (let i = 0; i < numberOfTimesSend; i++) {
+      this.connectionsIAmHolding.forEach((conn) => {
+        const messageToSend = new Message(
+          crdtJSONs[i],
+          messageType,
+          this.peer.id,
+          conn.peer,
+          this.time++
+        );
+        conn.send(messageToSend);
+        this.messagesToBeAcknowledged.push(messageToSend);
+        const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
+        setTimeout(function () {
+          that.acknowledgeOrResend(messageToSend);
+        }, that.timeWaitForAck);
+      });
+    }
   }
 
   acknowledgeOrResend(mess: Message, hasSent = 0) {
