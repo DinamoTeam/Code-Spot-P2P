@@ -23,12 +23,14 @@ const monacoConfig: NgxMonacoEditorConfig = {
     wordWrap: 'on',
     showUnused: true,
     tabCompletion: 'onlySnippets',
-    //dragAndDrop: false,
+    // dragAndDrop: false,
   },
-  onMonacoLoad: () => {
-    /* Change Config here */
-  },
+  onMonacoLoad
 };
+
+export function onMonacoLoad() {
+    /* Change Config here */
+}
 
 @NgModule({
   declarations: [
