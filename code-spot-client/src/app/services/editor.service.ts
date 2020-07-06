@@ -45,7 +45,7 @@ export class EditorService {
     // IMPORTANT: Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
     const startIndex =
       this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have __beg limit
-    this.writeCharToScreenAtPos(
+    this.writeRangeOfTextToScreenAtPos(
       auxEditorTextModel,
       newText,
       startLineNumber,
@@ -64,7 +64,7 @@ export class EditorService {
       this.curClock
     );
 
-    this.curClock += chArr.length; // Generate N new CRDTId therefore increment curClock by N
+    this.curClock += chArr.length; // Generate N new CRDTIds therefore increment curClock by N
 
     let chArrIndex = 0;
     const listCRDTBetween = listCrdtIdsBetween.map(
@@ -74,9 +74,6 @@ export class EditorService {
     for (let i = 0; i < listCRDTBetween.length; i++) {
       this.bst.insert(listCRDTBetween[i]);
     }
-
-    // const listCRDTString = listCRDTBetween.map((crdt) => crdt.toString()); // VERY SLOW because of .toString()
-    // this.messageService.broadcastRangeInsert(listCRDTString, roomName); OLD MODEL - SIGNALR
 
     this.crdtsToTransfer = listCRDTBetween;
     this.crdtEvent.emit(true);
@@ -89,9 +86,10 @@ export class EditorService {
     isAllMessages = false
   ) {
     if (isAllMessages) {
-      crdts.sort((crdt1, crdt2) => crdt1.compareTo(crdt2)); // Sort by descending order
+      crdts.sort((crdt1, crdt2) => crdt1.compareTo(crdt2)); // Sort by ascending order
     }
-
+    console.log('Receive remote range insert');
+    console.log(crdts);
     const insertingIndices = new Array<number>(crdts.length);
 
     for (let i = 0; i < crdts.length; i++) {
@@ -100,11 +98,67 @@ export class EditorService {
       else insertingIndices[i] = insertingIndex - 1; // Because of __beg limit
     }
 
-    const numToBeInserted = insertingIndices.filter((index) => index !== -1)
-      .length;
-    EditorService.remoteOpLeft += numToBeInserted;
+    const actuallyInsertingChars: string[] = [];
+    for (let i = 0; i < crdts.length; i++) {
+      if (insertingIndices[i] !== -1) {
+        actuallyInsertingChars.push(crdts[i].ch);
+      }
+    }
+    const actuallyInsertingIndices = insertingIndices.filter(
+      (index) => index !== -1
+    );
 
-    // Right now: Naively insert each char for testing purposes
+    // Write continuous ranges of text to screen
+    let i = 0;
+    let startIndexMonaco = -1;
+    let endIndexMonaco = -1;
+    while (i < actuallyInsertingIndices.length) {
+      // Find continuous ranges of text
+      startIndexMonaco = actuallyInsertingIndices[i];
+      endIndexMonaco = startIndexMonaco;
+      while (i < actuallyInsertingIndices.length) {
+        if (
+          endIndexMonaco !== startIndexMonaco &&
+          actuallyInsertingIndices[i] !== actuallyInsertingIndices[i - 1] + 1
+        ) {
+          i++;
+          break;
+        }
+        endIndexMonaco = actuallyInsertingIndices[i];
+        i++;
+      }
+      // Get text to be inserted
+      const numElements = endIndexMonaco - startIndexMonaco + 1;
+      const endIndexArr = i - 1;
+      const startIndexArr = endIndexArr - numElements + 1;
+      const textToInsert = actuallyInsertingChars
+        .slice(startIndexArr, endIndexArr + 1)
+        .join('');
+
+      if (
+        actuallyInsertingChars[startIndexArr] === ' ' ||
+        actuallyInsertingChars[startIndexArr] === '\n' ||
+        actuallyInsertingChars.length > 10
+      ) {
+        editorTextModel.pushStackElement();
+      }
+      // Write to screen
+      EditorService.remoteOpLeft++; // Avoid triggering monaco change event
+      this.writeRangeOfTextToScreenAtIndex(
+        editorTextModel,
+        textToInsert,
+        startIndexMonaco
+      );
+
+      // aux Editor
+      this.writeRangeOfTextToScreenAtIndex(
+        auxEditorTextModel,
+        textToInsert,
+        startIndexMonaco
+      );
+    }
+
+    /*// Right now: Naively insert each char for testing purposes
     const insertingChar = crdts.map((crdt) => crdt.ch);
     for (let i = 0; i < crdts.length; i++) {
       // Only insert not existed element
@@ -125,8 +179,7 @@ export class EditorService {
         );
       }
     }
-
-    // TODO: Do smart stuff to insert ranges of chars to the correct position on the screen
+    */
   }
 
   handleLocalRangeRemove(
@@ -145,7 +198,7 @@ export class EditorService {
     // IMPORTANT: Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
     const startIndex =
       this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have __beg limit
-    this.deleteTextInRange(
+    this.deleteTextInRangePos(
       auxEditorTextModel,
       startLineNumber,
       startColumn,
@@ -172,18 +225,63 @@ export class EditorService {
     crdts: CRDT[]
   ): void {
     const deletingIndices = new Array<number>(crdts.length);
-
+    let offSet = 0;
     for (let i = 0; i < crdts.length; i++) {
       const deletingIndex = this.bst.remove(crdts[i]);
       if (deletingIndex === -1) deletingIndices[i] = -1;
-      else deletingIndices[i] = deletingIndex - 1; // Because of __beg limit
+      else {
+        deletingIndices[i] = deletingIndex - 1 + offSet; // -1 Because of __beg limit
+        offSet++;
+      }
     }
 
-    const numToBeInserted = deletingIndices.filter((index) => index !== -1)
-      .length;
-    EditorService.remoteOpLeft += numToBeInserted;
+    const actuallyDeletingIndices = deletingIndices.filter(
+      (index) => index !== -1
+    );
 
-    // Right now: Naively delete each char from the screen
+    // Delete continuous ranges of text from the screen
+    let i = 0;
+    let startIndexMonaco = -1;
+    let endIndexMonaco = -1;
+    while (i < actuallyDeletingIndices.length) {
+      // Find continuous ranges of text
+      startIndexMonaco = actuallyDeletingIndices[i];
+      endIndexMonaco = startIndexMonaco;
+      console.log(actuallyDeletingIndices);
+      while (i < actuallyDeletingIndices.length) {
+        if (
+          endIndexMonaco !== startIndexMonaco &&
+          actuallyDeletingIndices[i] !== actuallyDeletingIndices[i - 1] + 1
+        ) {
+          i++;
+          break;
+        }
+        endIndexMonaco = actuallyDeletingIndices[i];
+        i++;
+      }
+
+      if (actuallyDeletingIndices.length > 10) {
+        editorTextModel.pushStackElement();
+      }
+
+      console.log('Delete from ' + startIndexMonaco + ' to ' + endIndexMonaco);
+      // Delete from the screen
+      EditorService.remoteOpLeft++; // Avoid triggering monaco change event
+      this.deleteTextInRangeIndex(
+        editorTextModel,
+        startIndexMonaco,
+        endIndexMonaco + 1
+      );
+
+      // aux Editor
+      this.deleteTextInRangeIndex(
+        auxEditorTextModel,
+        startIndexMonaco,
+        endIndexMonaco + 1
+      );
+    }
+
+    /*// Right now: Naively delete each char from the screen
     for (let i = 0; i < crdts.length; i++) {
       if (deletingIndices[i] === -1) continue; // CRDT doesn't exist. Somebody's already deleted it!
 
@@ -203,9 +301,7 @@ export class EditorService {
         endPos.lineNumber,
         endPos.column
       );
-    }
-
-    // TODO: Do smart stuff to delete ranges of chars at the correct positions on the screen
+    }*/
   }
 
   handleAllMessages(
@@ -226,13 +322,13 @@ export class EditorService {
     return this.bst.toSortedArray();
   }
 
-  writeCharToScreenAtIndex(
+  writeRangeOfTextToScreenAtIndex(
     editorTextModel: any,
     text: string,
     index: number
   ): void {
     const pos = this.indexToPos(editorTextModel, index);
-    this.writeCharToScreenAtPos(
+    this.writeRangeOfTextToScreenAtPos(
       editorTextModel,
       text,
       pos.lineNumber,
@@ -240,7 +336,23 @@ export class EditorService {
     );
   }
 
-  deleteTextInRange(
+  deleteTextInRangeIndex(
+    editorTextModel: any,
+    startIndex: number,
+    endIndex: number
+  ): void {
+    const startPos = this.indexToPos(editorTextModel, startIndex);
+    const endPos = this.indexToPos(editorTextModel, endIndex);
+    this.deleteTextInRangePos(
+      editorTextModel,
+      startPos.lineNumber,
+      startPos.column,
+      endPos.lineNumber,
+      endPos.column
+    );
+  }
+
+  deleteTextInRangePos(
     editorTextModel: any,
     startLineNumber: number,
     startColumn: number,
@@ -264,7 +376,7 @@ export class EditorService {
     );
   }
 
-  writeCharToScreenAtPos(
+  writeRangeOfTextToScreenAtPos(
     editorTextModel: any,
     text: string,
     startLineNumber: number,
