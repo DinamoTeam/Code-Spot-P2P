@@ -23,10 +23,14 @@ export class PeerService {
   private messagesToBeAcknowledged: Message[] = [];
   private hasReceivedAllMessages = false;
   connectionEstablished = new EventEmitter<Boolean>();
-  infoBroadcasted = new EventEmitter<any>();
-  private remoteInsertSubject = new Subject<CRDT[]>();
-  private remoteRemoveSubject = new Subject<CRDT[]>();
-  private AllMessagesSubject = new Subject<CRDT[]>();
+  infoBroadcasted = new EventEmitter<BroadcastInfo>();
+
+  receivedRemotCrdts: CRDT[];
+
+
+  //private remoteInsertSubject = new Subject<CRDT[]>();
+  //private remoteRemoveSubject = new Subject<CRDT[]>();
+  //private AllMessagesSubject = new Subject<CRDT[]>();
 
   constructor(
     private roomService: RoomService,
@@ -128,17 +132,20 @@ export class PeerService {
         const crdts = parsedCrdts.map((crdt) =>
           CRDT.plainObjectToRealCRDT(crdt)
         );
+
+        this.receivedRemotCrdts = crdts;
+
         if (message.messageType === MessageType.RemoteInsert) {
           // peerMessagesTracker.receiveRemoteInserts(crdts);
-          this.remoteInsertSubject.next(crdts);
+          this.infoBroadcasted.emit(BroadcastInfo.RemoteInsert);
           // peerMessagesTracker.processDeleteBuffer();
         } else if (message.messageType === MessageType.RemoteRemove) {
           // peerMessagesTracker.receiveRemoteRemoves(crdts);
-          this.remoteRemoveSubject.next(crdts);
+          this.infoBroadcasted.emit(BroadcastInfo.RemoteRemove);
         } else {
           // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.hasReceivedAllMessages = true;
-          this.AllMessagesSubject.next(crdts);
+          this.infoBroadcasted.emit(BroadcastInfo.RemoteAllMessages);
           console.log(this.connectionsIAmHolding);
           this.connectToTheRestInRoom(this.connToGetOldMessages);
         }
@@ -340,16 +347,8 @@ export class PeerService {
     );
   }*/
 
-  getRemoteInsertObservable(): Observable<CRDT[]> {
-    return this.remoteInsertSubject.asObservable();
-  }
-
-  getRemoteRemoveObservable(): Observable<CRDT[]> {
-    return this.remoteRemoveSubject.asObservable();
-  }
-
-  getAllMessagesObservable(): Observable<CRDT[]> {
-    return this.AllMessagesSubject.asObservable();
+  getReceivedRemoteCrdts(): CRDT[] {
+    return this.receivedRemotCrdts;
   }
 
   getPeerId(): string {
@@ -379,6 +378,7 @@ export class PeerService {
   }
 }
 
+
 export const enum PeerEvent {
   Open = 'open',
   Close = 'close',
@@ -398,4 +398,7 @@ export const enum ConnectionEvent {
 export const enum BroadcastInfo {
   UpdateAllMessages = 0,
   RoomName = 1,
+  RemoteInsert = 2,
+  RemoteRemove = 3,
+  RemoteAllMessages = 4
 }

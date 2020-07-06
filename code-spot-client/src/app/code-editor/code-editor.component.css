@@ -7,10 +7,6 @@
   background-color: #CB6318;
 }
 
-.test {
-    margin-top: 100px;
-}
-
 @media (max-width: 768px) {
     .dummy {
         justify-content: center;
