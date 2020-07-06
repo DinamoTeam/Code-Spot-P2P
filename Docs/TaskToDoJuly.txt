@@ -1,0 +1,14 @@
+1. Handle edge case of p2p (lost wifi, )
+2. Finish message-tracker (---> has to find a way to test this)
+3. other users' cursors have to be visible + Show name
+4. Group chat
+5. Video call
+6. Save future code
+7. Insert range with Monaco
+8. Write article
+9. Change language sync
+10. About page
+11. Contact page 
+12. Chat (username)
+13. Chat (allow picture + emojis)
+14. Refactor code
