@@ -7,10 +7,19 @@ import { CRDT } from '../shared/CRDT';
 export class MessageTrackerService {
   private latestInsertClockVal: Map<number, number>;
   private insertNotReceived: Map<number, Set<number>>; // Map<siteId, clockValues>
-  private toDeleteBuffer: Map<{ siteId: number; clockValue: number }, CRDT>; 
+  private toDeleteBuffer: Map<{ siteId: number; clockValue: number }, CRDT>;
   private readyToDelete: CRDT[];
 
-  constructor() {}
+  constructor() {
+    // Initialize
+    this.latestInsertClockVal = new Map<number, number>();
+    this.insertNotReceived = new Map<number, Set<number>>();
+    this.toDeleteBuffer = new Map<
+      { siteId: number; clockValue: number },
+      CRDT
+    >();
+    this.readyToDelete = [];
+  }
 
   // TODO: When new user join room --> add to the 3 above map
   trackNewPeer(siteId: number) {
@@ -31,18 +40,18 @@ export class MessageTrackerService {
           val++
         ) {
           this.insertNotReceived[siteId].add(val);
-          if (
-            this.toDeleteBuffer.has({
-              siteId: siteId,
-              clockValue: crdtClockVal,
-            })
-          ) {
-            this.readyToDelete.push(crdts[i]);
-            this.toDeleteBuffer.delete({
-              siteId: siteId,
-              clockValue: crdtClockVal,
-            });
-          }
+        }
+        if (
+          this.toDeleteBuffer.has({
+            siteId: siteId,
+            clockValue: crdtClockVal,
+          })
+        ) {
+          this.readyToDelete.push(crdts[i]);
+          this.toDeleteBuffer.delete({
+            siteId: siteId,
+            clockValue: crdtClockVal,
+          });
         }
 
         this.latestInsertClockVal[siteId] = crdtClockVal;
@@ -68,14 +77,14 @@ export class MessageTrackerService {
       const crdtClockVal = crdts[i].id.clockValue;
 
       if (crdtClockVal > this.latestInsertClockVal[siteId]) {
-        // delete sth that hasn't received insert
+        // delete sth that hasn't been inserted
         this.toDeleteBuffer.set(
           { siteId: siteId, clockValue: crdtClockVal },
           crdts[i]
         );
       } else {
         if (this.insertNotReceived[siteId].has(crdtClockVal)) {
-          // delete sth that hasn't received insert
+          // delete sth that hasn't been inserted
           this.toDeleteBuffer.set(
             { siteId: siteId, clockValue: crdtClockVal },
             crdts[i]
@@ -86,6 +95,8 @@ export class MessageTrackerService {
   }
 
   getReadyToDeleteCrdt(): CRDT[] {
-    return this.readyToDelete;
+    const returnArr = this.readyToDelete;
+    this.readyToDelete = [];
+    return returnArr;
   }
 }
