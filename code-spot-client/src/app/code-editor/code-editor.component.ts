@@ -114,7 +114,6 @@ export class CodeEditorComponent implements OnInit {
             this.location.replaceState("/editor/" + this.roomName);
             break;
           case BroadcastInfo.RemoteInsert:
-            console.log('Catch a remote insert event');
             this.editorService.handleRemoteRangeInsert(
               this.editorTextModel,
               this.auxEditorTextModel,
@@ -122,7 +121,6 @@ export class CodeEditorComponent implements OnInit {
             );
             break;
           case BroadcastInfo.RemoteRemove:
-            console.log('Catch a remote remote event');
             this.editorService.handleRemoteRangeRemove(
               this.editorTextModel,
               this.auxEditorTextModel,
@@ -130,7 +128,6 @@ export class CodeEditorComponent implements OnInit {
             );
             break;
           case BroadcastInfo.RemoteAllMessages:
-            console.log('Catch all messages event');
             this.editorService.handleAllMessages(
               this.editorTextModel,
               this.auxEditorTextModel,

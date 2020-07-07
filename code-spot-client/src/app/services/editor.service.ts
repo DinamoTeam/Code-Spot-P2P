@@ -88,8 +88,6 @@ export class EditorService {
     if (isAllMessages) {
       crdts.sort((crdt1, crdt2) => crdt1.compareTo(crdt2)); // Sort by ascending order
     }
-    console.log('Receive remote range insert');
-    console.log(crdts);
     const insertingIndices = new Array<number>(crdts.length);
 
     for (let i = 0; i < crdts.length; i++) {
@@ -121,7 +119,6 @@ export class EditorService {
           endIndexMonaco !== startIndexMonaco &&
           actuallyInsertingIndices[i] !== actuallyInsertingIndices[i - 1] + 1
         ) {
-          i++;
           break;
         }
         endIndexMonaco = actuallyInsertingIndices[i];
@@ -129,10 +126,10 @@ export class EditorService {
       }
       // Get text to be inserted
       const numElements = endIndexMonaco - startIndexMonaco + 1;
-      const endIndexArr = i - 1;
-      const startIndexArr = endIndexArr - numElements + 1;
+      const endIndexArrInclusive = i - 1;
+      const startIndexArr = endIndexArrInclusive - numElements + 1;
       const textToInsert = actuallyInsertingChars
-        .slice(startIndexArr, endIndexArr + 1)
+        .slice(startIndexArr, endIndexArrInclusive + 1)
         .join('');
 
       if (
@@ -247,13 +244,11 @@ export class EditorService {
       // Find continuous ranges of text
       startIndexMonaco = actuallyDeletingIndices[i];
       endIndexMonaco = startIndexMonaco;
-      console.log(actuallyDeletingIndices);
       while (i < actuallyDeletingIndices.length) {
         if (
           endIndexMonaco !== startIndexMonaco &&
           actuallyDeletingIndices[i] !== actuallyDeletingIndices[i - 1] + 1
         ) {
-          i++;
           break;
         }
         endIndexMonaco = actuallyDeletingIndices[i];
@@ -264,7 +259,6 @@ export class EditorService {
         editorTextModel.pushStackElement();
       }
 
-      console.log('Delete from ' + startIndexMonaco + ' to ' + endIndexMonaco);
       // Delete from the screen
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
       this.deleteTextInRangeIndex(

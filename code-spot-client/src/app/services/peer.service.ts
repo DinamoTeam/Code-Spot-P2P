@@ -8,7 +8,7 @@ import { Subject, Observable } from 'rxjs';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
 
 declare const Peer: any;
-const MAX_CRDT_PER_SEND = 1000;
+const MAX_CRDT_PER_SEND = 500;
 @Injectable({
   providedIn: 'root',
 })
@@ -24,7 +24,7 @@ export class PeerService {
   private hasReceivedAllMessages = false;
   connectionEstablished = new EventEmitter<Boolean>();
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
-  receivedRemotCrdts: CRDT[];
+  receivedRemoteCrdts: CRDT[];
 
   constructor(
     private roomService: RoomService,
@@ -126,20 +126,22 @@ export class PeerService {
           CRDT.plainObjectToRealCRDT(crdt)
         );
 
-        this.receivedRemotCrdts = crdts;
+        this.receivedRemoteCrdts = crdts;
 
         if (message.messageType === MessageType.RemoteInsert) {
+          console.log('Receive Remote Insert');
           // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.infoBroadcasted.emit(BroadcastInfo.RemoteInsert);
           // peerMessagesTracker.processDeleteBuffer();
         } else if (message.messageType === MessageType.RemoteRemove) {
+          console.log('Receive Remote Remove');
           // peerMessagesTracker.receiveRemoteRemoves(crdts);
           this.infoBroadcasted.emit(BroadcastInfo.RemoteRemove);
         } else {
+          console.log('Receive All Messages');
           // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.hasReceivedAllMessages = true;
           this.infoBroadcasted.emit(BroadcastInfo.RemoteAllMessages);
-          console.log(this.connectionsIAmHolding);
           this.connectToTheRestInRoom(this.connToGetOldMessages);
         }
         break;
@@ -308,11 +310,11 @@ export class PeerService {
           this.time++
         );
         conn.send(messageToSend);
-        this.messagesToBeAcknowledged.push(messageToSend);
-        const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
-        setTimeout(function () {
-          that.acknowledgeOrResend(messageToSend);
-        }, that.timeWaitForAck);
+        // this.messagesToBeAcknowledged.push(messageToSend);
+        // const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
+        // setTimeout(function () {
+        //   that.acknowledgeOrResend(messageToSend);
+        // }, that.timeWaitForAck);
       });
     }
   }
@@ -357,7 +359,7 @@ export class PeerService {
   }*/
 
   getReceivedRemoteCrdts(): CRDT[] {
-    return this.receivedRemotCrdts;
+    return this.receivedRemoteCrdts;
   }
 
   getPeerId(): string {
