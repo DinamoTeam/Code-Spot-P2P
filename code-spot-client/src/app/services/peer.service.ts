@@ -24,17 +24,10 @@ export class PeerService {
   private hasReceivedAllMessages = false;
   connectionEstablished = new EventEmitter<Boolean>();
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
-
   receivedRemotCrdts: CRDT[];
-
-
-  //private remoteInsertSubject = new Subject<CRDT[]>();
-  //private remoteRemoveSubject = new Subject<CRDT[]>();
-  //private AllMessagesSubject = new Subject<CRDT[]>();
 
   constructor(
     private roomService: RoomService,
-    private router: Router,
     private editorService: EditorService
   ) {
     // Create a new peer and connect to peerServer. We can get our id from this.peer.id
