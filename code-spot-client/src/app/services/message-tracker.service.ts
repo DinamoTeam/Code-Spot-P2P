@@ -2,52 +2,90 @@ import { Injectable } from '@angular/core';
 import { CRDT } from '../shared/CRDT';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MessageTrackerService {
-  private latestClockVal: Map<number, number>;
-  private hasNotReceived: Map<number, number[]>;
-  private deleteBuffer: Map<number, CRDT[]>;
+  private latestInsertClockVal: Map<number, number>;
+  private insertNotReceived: Map<number, Set<number>>; // Map<siteId, clockValues>
+  private toDeleteBuffer: Map<{ siteId: number; clockValue: number }, CRDT>; 
+  private readyToDelete: CRDT[];
 
-
-  constructor() { }
+  constructor() {}
 
   // TODO: When new user join room --> add to the 3 above map
+  trackNewPeer(siteId: number) {
+    this.latestInsertClockVal.set(siteId, 0);
+    this.insertNotReceived.set(siteId, new Set([]));
+  }
 
   receiveRemoteInserts(crdts: CRDT[]) {
-    this.updateHasNotReceived(crdts);
-
-
-    // TODO: see which CRDTs in deleteBuffer are ready to be deleted
-    // TODO: emit event to code - editor.component, code - editor.component calls
-    //editorService.handleRemoteInsert() 
-  }
-
-  receiveRemoteRemoves(crdts: CRDT[]) {
-    this.updateHasNotReceived(crdts);
-    // TODO: call editorService.handleRemoteRemove(CRDT[])
-  }
-
-  processDeleteBuffer() {
-    // Delete 'ready' characters
-  }
-
-  private updateHasNotReceived(crdts: CRDT[]) {
     for (let i = 0; i < crdts.length; i++) {
-      let siteId = 0
+      const crdtIdArr = crdts[i].id.arr;
+      const siteId = crdtIdArr[crdtIdArr.length - 1].siteId;
+      const crdtClockVal = crdts[i].id.clockValue;
 
-      let crdtClockVal = crdts[i].id.clockValue;
-
-      if (crdtClockVal > this.latestClockVal[siteId]) {
-        if (this.latestClockVal[siteId] - crdtClockVal === 1)
-          this.latestClockVal[siteId] = crdtClockVal;
-        else {
-          for (let val = this.latestClockVal[siteId] + 1; val < crdtClockVal; val++) {
-            this.hasNotReceived[siteId].push(val);
+      if (crdtClockVal > this.latestInsertClockVal[siteId]) {
+        for (
+          let val = this.latestInsertClockVal[siteId] + 1;
+          val < crdtClockVal;
+          val++
+        ) {
+          this.insertNotReceived[siteId].add(val);
+          if (
+            this.toDeleteBuffer.has({
+              siteId: siteId,
+              clockValue: crdtClockVal,
+            })
+          ) {
+            this.readyToDelete.push(crdts[i]);
+            this.toDeleteBuffer.delete({
+              siteId: siteId,
+              clockValue: crdtClockVal,
+            });
           }
+        }
+
+        this.latestInsertClockVal[siteId] = crdtClockVal;
+      } else {
+        this.insertNotReceived[siteId].delete(crdtClockVal);
+        if (
+          this.toDeleteBuffer.has({ siteId: siteId, clockValue: crdtClockVal })
+        ) {
+          this.readyToDelete.push(crdts[i]);
+          this.toDeleteBuffer.delete({
+            siteId: siteId,
+            clockValue: crdtClockVal,
+          });
         }
       }
     }
   }
-}
 
+  receiveRemoteRemoves(crdts: CRDT[]) {
+    for (let i = 0; i < crdts.length; i++) {
+      const crdtIdArr = crdts[i].id.arr;
+      const siteId = crdtIdArr[crdtIdArr.length - 1].siteId;
+      const crdtClockVal = crdts[i].id.clockValue;
+
+      if (crdtClockVal > this.latestInsertClockVal[siteId]) {
+        // delete sth that hasn't received insert
+        this.toDeleteBuffer.set(
+          { siteId: siteId, clockValue: crdtClockVal },
+          crdts[i]
+        );
+      } else {
+        if (this.insertNotReceived[siteId].has(crdtClockVal)) {
+          // delete sth that hasn't received insert
+          this.toDeleteBuffer.set(
+            { siteId: siteId, clockValue: crdtClockVal },
+            crdts[i]
+          );
+        }
+      }
+    }
+  }
+
+  getReadyToDeleteCrdt(): CRDT[] {
+    return this.readyToDelete;
+  }
+}
