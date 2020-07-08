@@ -7,6 +7,7 @@ import { BalancedBST } from '../shared/BalancedBST';
   providedIn: 'root',
 })
 export class EditorService {
+  static language: string = 'cpp';
   static siteId: number = -1;
   static remoteOpLeft: number = 0;
   curClock: number = 0;

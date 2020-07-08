@@ -22,7 +22,10 @@ export class CodeEditorComponent implements OnInit {
   allMessages: string[] = null;
   selectedLang: string;
   languageForm = new FormGroup({
-    language: new FormControl('cpp', Validators.compose([Validators.required])),
+    language: new FormControl(
+      EditorService.language,
+      Validators.compose([Validators.required])
+    ),
   });
 
   constructor(
@@ -37,19 +40,22 @@ export class CodeEditorComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.selectedLang = 'cpp';
+    this.selectedLang = EditorService.language;
     this.allMessages = null;
   }
 
   @Input() languages = Languages;
 
-  editorOptions = { theme: 'vs-dark', language: 'cpp' };
+  editorOptions = { theme: 'vs-dark', language: EditorService.language };
 
   onLanguageChange(res) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);
     this.editorOptions = Object.assign({}, this.editorOptions, {
       language: this.selectedLang,
     });
+
+    EditorService.language = this.selectedLang;
+    this.peerService.broadcastChangeLanguage();
   }
 
   onInitEditorHandler(event: any) {
@@ -111,7 +117,14 @@ export class CodeEditorComponent implements OnInit {
         switch (message) {
           case BroadcastInfo.RoomName:
             this.roomName = this.peerService.getRoomName();
-            this.location.replaceState("/editor/" + this.roomName);
+            this.location.replaceState('/editor/' + this.roomName);
+            break;
+          case BroadcastInfo.ChangeLanguage:
+            this.selectedLang = EditorService.language;
+            this.editorOptions = Object.assign({}, this.editorOptions, {
+              language: this.selectedLang,
+            });
+            this.languageForm.patchValue({ language: this.selectedLang });
             break;
           case BroadcastInfo.RemoteInsert:
             this.editorService.handleRemoteRangeInsert(
@@ -135,7 +148,7 @@ export class CodeEditorComponent implements OnInit {
             );
             break;
           default:
-            console.log("UNKNOWN event!!!");
+            console.log('UNKNOWN event!!!');
             console.log(message);
         }
       });
@@ -145,8 +158,8 @@ export class CodeEditorComponent implements OnInit {
   getRoomName(): void {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
       if (successful) {
-        this.roomName = this.actRoute.snapshot.params["roomName"];
-        if (this.roomName == "NONE") {
+        this.roomName = this.actRoute.snapshot.params['roomName'];
+        if (this.roomName == 'NONE') {
           this.peerService.createNewRoom();
         } else {
           this.peerService.joinExistingRoom(this.roomName);

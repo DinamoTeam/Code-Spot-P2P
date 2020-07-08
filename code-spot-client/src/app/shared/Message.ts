@@ -19,7 +19,7 @@ export class Message {
   }
 
   toString(): string {
-    return "Time: " + this.time;
+    return 'Time: ' + this.time;
   }
 }
 
@@ -28,5 +28,6 @@ export const enum MessageType {
   RemoteRemove = 1,
   OldCRDTs = 2,
   RequestOldCRDTs = 3,
-  Acknowledge = 4
+  Acknowledge = 4,
+  ChangeLanguage = 5,
 }

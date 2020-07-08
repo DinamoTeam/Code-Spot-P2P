@@ -1,7 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Message, MessageType } from '../shared/Message';
 import { RoomService } from './room.service';
-import { Router } from '@angular/router';
 import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
 import { Subject, Observable } from 'rxjs';
@@ -34,7 +33,7 @@ export class PeerService {
     this.peer = new Peer({
       host: 'codespotpeerserver.herokuapp.com/',
       port: '/..',
-      secure: true
+      secure: true,
     });
     /*this.peer = new Peer({
       host: 'localhost',
@@ -114,6 +113,10 @@ export class PeerService {
 
   private handleMessageFromPeer(message: Message, fromConn: any) {
     switch (message.messageType) {
+      case MessageType.ChangeLanguage:
+        EditorService.language = message.content;
+        this.infoBroadcasted.emit(BroadcastInfo.ChangeLanguage);
+        break;
       case MessageType.RemoteInsert:
       case MessageType.RemoteRemove:
       case MessageType.OldCRDTs:
@@ -145,7 +148,6 @@ export class PeerService {
           this.connectToTheRestInRoom(this.connToGetOldMessages);
         }
         break;
-
       case MessageType.RequestOldCRDTs:
         if (!this.hasReceivedAllMessages) {
           console.log(
@@ -155,7 +157,6 @@ export class PeerService {
           this.sendOldCRDTs(fromConn);
         }
         break;
-
       case MessageType.Acknowledge:
         const indexDelete = this.messagesToBeAcknowledged.findIndex(
           (mes) => mes.time === message.time
@@ -358,6 +359,19 @@ export class PeerService {
     );
   }*/
 
+  broadcastChangeLanguage() {
+    this.connectionsIAmHolding.forEach((conn) => {
+      const messageToSend = new Message(
+        EditorService.language,
+        MessageType.ChangeLanguage,
+        this.peer.id,
+        conn.peer,
+        -1 // for test purpose
+      );
+      conn.send(messageToSend);
+    });
+  }
+
   getReceivedRemoteCrdts(): CRDT[] {
     return this.receivedRemoteCrdts;
   }
@@ -381,14 +395,19 @@ export class PeerService {
   subscribeToEditorServiceEvents() {
     this.editorService.crdtEvent.subscribe((insert: boolean) => {
       if (insert) {
-        this.broadcastInsertOrRemove(this.editorService.getCrdtsToTransfer(), true);
+        this.broadcastInsertOrRemove(
+          this.editorService.getCrdtsToTransfer(),
+          true
+        );
       } else {
-        this.broadcastInsertOrRemove(this.editorService.getCrdtsToTransfer(), false);
+        this.broadcastInsertOrRemove(
+          this.editorService.getCrdtsToTransfer(),
+          false
+        );
       }
     });
   }
 }
-
 
 export const enum PeerEvent {
   Open = 'open',
@@ -411,5 +430,6 @@ export const enum BroadcastInfo {
   RoomName = 1,
   RemoteInsert = 2,
   RemoteRemove = 3,
-  RemoteAllMessages = 4
+  RemoteAllMessages = 4,
+  ChangeLanguage = 5,
 }
