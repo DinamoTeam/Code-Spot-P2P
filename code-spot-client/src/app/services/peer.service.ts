@@ -104,6 +104,7 @@ export class PeerService {
       if (this.peerIdsToSendOldMessages.findIndex(id => id === conn.peer) !== -1) {
         this.sendOldCRDTs(conn);
         this.peerIdsToSendOldMessages.filter(id => id !== conn.peer);
+        this.sendChangeLanguage(conn);
       }
       // If we chose this peer to give us all messages
       if (this.connToGetOldMessages === conn) {
@@ -168,6 +169,7 @@ export class PeerService {
             this.peerIdsToSendOldMessages.push(fromConn.peer); // Send when opened
           } else {
             this.sendOldCRDTs(fromConn); // send now
+            this.sendChangeLanguage(fromConn);
           }
         }
         break;
@@ -206,8 +208,8 @@ export class PeerService {
     } else {
       this.peerIdsInRoom = peerIds;
       const randIndex = Math.floor(Math.random() * peerIds.length);
-      // this.connectToPeer(peerIds[randIndex], true);  TODO: uncomment this
-      this.connectToPeer(peerIds[0], true); // For testing only
+      this.connectToPeer(peerIds[randIndex], true);
+      // this.connectToPeer(peerIds[0], true); // For testing only
       const that = this;
       setTimeout(function () {
         if (!that.hasReceivedAllMessages) {
@@ -217,7 +219,7 @@ export class PeerService {
           );
           window.location.reload(true);
         }
-      }, 40000);
+      }, 8000);
     }
   }
 
@@ -368,15 +370,19 @@ export class PeerService {
 
   broadcastChangeLanguage() {
     this.connectionsIAmHolding.forEach((conn) => {
-      const messageToSend = new Message(
-        EditorService.language,
-        MessageType.ChangeLanguage,
-        this.peer.id,
-        conn.peer,
-        -1 // for test purpose
-      );
-      conn.send(messageToSend);
+      this.sendChangeLanguage(conn);
     });
+  }
+
+  sendChangeLanguage(conn: any) {
+    const messageToSend = new Message(
+      EditorService.language,
+      MessageType.ChangeLanguage,
+      this.peer.id,
+      conn.peer,
+      -1 // for test purpose
+    );
+    conn.send(messageToSend);
   }
 
   getReceivedRemoteCrdts(): CRDT[] {
