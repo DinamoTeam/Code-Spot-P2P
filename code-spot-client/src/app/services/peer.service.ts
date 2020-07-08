@@ -145,7 +145,7 @@ export class PeerService {
           // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.hasReceivedAllMessages = true;
           this.infoBroadcasted.emit(BroadcastInfo.RemoteAllMessages);
-          this.connectToTheRestInRoom(this.connToGetOldMessages);
+          this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
         }
         break;
       case MessageType.RequestOldCRDTs:
