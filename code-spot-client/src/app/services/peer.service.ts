@@ -17,6 +17,7 @@ export class PeerService {
   private peer: any;
   private roomName: string;
   private connToGetOldMessages: any;
+  private peerIdsToSendOldMessages: string[] = [];
   private peerIdsInRoom: any[] = [];
   private connectionsIAmHolding: any[] = [];
   private messagesToBeAcknowledged: Message[] = [];
@@ -77,7 +78,6 @@ export class PeerService {
       reliable: true,
       serialization: 'json',
     });
-    this.addUniqueConnections([conn], this.connectionsIAmHolding);
 
     if (getOldMessages === true) {
       this.connToGetOldMessages = conn;
@@ -95,9 +95,16 @@ export class PeerService {
   }
 
   private setupListenerForConnection(conn: any) {
-    this.addUniqueConnections([conn], this.connectionsIAmHolding);
     // When the connection first establish
     conn.on(ConnectionEvent.Open, () => {
+      console.log('Conn open :)');
+      // Only add this conn to our list when the connection has opened!
+      this.addUniqueConnections([conn], this.connectionsIAmHolding);
+      // If we need to send this peer old messages
+      if (this.peerIdsToSendOldMessages.findIndex(id => id === conn.peer) !== -1) {
+        this.sendOldCRDTs(conn);
+        this.peerIdsToSendOldMessages.filter(id => id !== conn.peer);
+      }
       // If we chose this peer to give us all messages
       if (this.connToGetOldMessages === conn) {
         this.requestOldCRDTs(conn);
@@ -149,12 +156,19 @@ export class PeerService {
         }
         break;
       case MessageType.RequestOldCRDTs:
+        console.log('Hey sb ask me to send old messages :)');
         if (!this.hasReceivedAllMessages) {
           console.log(
             "I haven't received allMessages yet. Can't send to that peer"
           );
         } else {
-          this.sendOldCRDTs(fromConn);
+          console.log(this.connectionsIAmHolding);
+          // If connection hasn't opened
+          if (this.connectionsIAmHolding.findIndex(conn => conn.peer === fromConn.peer) === -1) {
+            this.peerIdsToSendOldMessages.push(fromConn.peer); // Send when opened
+          } else {
+            this.sendOldCRDTs(fromConn); // send now
+          }
         }
         break;
       case MessageType.Acknowledge:
@@ -192,7 +206,8 @@ export class PeerService {
     } else {
       this.peerIdsInRoom = peerIds;
       const randIndex = Math.floor(Math.random() * peerIds.length);
-      this.connectToPeer(peerIds[randIndex], true);
+      // this.connectToPeer(peerIds[randIndex], true);  TODO: uncomment this
+      this.connectToPeer(peerIds[0], true); // For testing only
       const that = this;
       setTimeout(function () {
         if (!that.hasReceivedAllMessages) {
@@ -202,7 +217,7 @@ export class PeerService {
           );
           window.location.reload(true);
         }
-      }, 4000);
+      }, 40000);
     }
   }
 
@@ -218,6 +233,7 @@ export class PeerService {
   }
 
   private sendOldCRDTs(conn: any) {
+    console.log('Sending old crdt to peer ' + conn.peer);
     const previousCRDTs: CRDT[] = this.editorService.getOldCRDTsAsSortedArray();
     const message = new Message(
       JSON.stringify(previousCRDTs),
@@ -227,11 +243,11 @@ export class PeerService {
       this.time++
     );
     conn.send(message);
-    this.messagesToBeAcknowledged.push(message);
-    const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
-    setTimeout(function () {
-      that.acknowledgeOrResend(message);
-    }, that.timeWaitForAck);
+    // this.messagesToBeAcknowledged.push(message);
+    // const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
+    // setTimeout(function () {
+    //   that.acknowledgeOrResend(message);
+    // }, that.timeWaitForAck);
   }
   //*************************************************************
 
@@ -349,15 +365,6 @@ export class PeerService {
       }
     }
   }
-
-  /*hasReceivedMessage(message: Message): boolean {
-    return (
-      this.previousCRDTs.find(
-        (mes) =>
-          mes.fromPeerId === message.fromPeerId && mes.time === message.time
-      ) != null
-    );
-  }*/
 
   broadcastChangeLanguage() {
     this.connectionsIAmHolding.forEach((conn) => {

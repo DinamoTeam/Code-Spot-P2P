@@ -66,16 +66,6 @@ export class CodeEditorComponent implements OnInit {
     this.editor.onDidChangeModelContent((e: any) =>
       this.onDidChangeModelContentHandler(e)
     );
-
-    // Moved to PeerService
-    /*if (this.allMessages != null) {
-      this.editorService.handleAllMessages(
-        this.editorTextModel,
-        this.auxEditorTextModel,
-        this.allMessages
-      );
-      this.allMessages = null;
-    }*/
   }
 
   onInitAuxEditorHandler(event: any) {
