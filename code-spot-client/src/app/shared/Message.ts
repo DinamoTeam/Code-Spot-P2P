@@ -27,7 +27,8 @@ export const enum MessageType {
   RemoteInsert = 0,
   RemoteRemove = 1,
   OldCRDTs = 2,
-  RequestOldCRDTs = 3,
-  Acknowledge = 4,
-  ChangeLanguage = 5,
+  OldCRDTsLastBatch = 3,
+  RequestOldCRDTs = 4,
+  Acknowledge = 5,
+  ChangeLanguage = 6,
 }

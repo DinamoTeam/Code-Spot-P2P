@@ -101,9 +101,11 @@ export class PeerService {
       // Only add this conn to our list when the connection has opened!
       this.addUniqueConnections([conn], this.connectionsIAmHolding);
       // If we need to send this peer old messages
-      if (this.peerIdsToSendOldMessages.findIndex(id => id === conn.peer) !== -1) {
+      if (
+        this.peerIdsToSendOldMessages.findIndex((id) => id === conn.peer) !== -1
+      ) {
         this.sendOldCRDTs(conn);
-        this.peerIdsToSendOldMessages.filter(id => id !== conn.peer);
+        this.peerIdsToSendOldMessages.filter((id) => id !== conn.peer);
         this.sendChangeLanguage(conn);
       }
       // If we chose this peer to give us all messages
@@ -128,10 +130,11 @@ export class PeerService {
       case MessageType.RemoteInsert:
       case MessageType.RemoteRemove:
       case MessageType.OldCRDTs:
+      case MessageType.OldCRDTsLastBatch:
         // Acknowledge
-        fromConn.send(
-          new Message(null, MessageType.Acknowledge, null, null, message.time)
-        );
+        // fromConn.send(
+        //   new Message(null, MessageType.Acknowledge, null, null, message.time)
+        // );
         const parsedCrdts: CRDT[] = JSON.parse(message.content); // plain Javascript object
         const crdts = parsedCrdts.map((crdt) =>
           CRDT.plainObjectToRealCRDT(crdt)
@@ -151,9 +154,11 @@ export class PeerService {
         } else {
           console.log('Receive All Messages');
           // peerMessagesTracker.receiveRemoteInserts(crdts);
-          this.hasReceivedAllMessages = true;
           this.infoBroadcasted.emit(BroadcastInfo.RemoteAllMessages);
-          this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
+          if (message.messageType === MessageType.OldCRDTsLastBatch) {
+            this.hasReceivedAllMessages = true;
+            this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
+          }
         }
         break;
       case MessageType.RequestOldCRDTs:
@@ -165,7 +170,11 @@ export class PeerService {
         } else {
           console.log(this.connectionsIAmHolding);
           // If connection hasn't opened
-          if (this.connectionsIAmHolding.findIndex(conn => conn.peer === fromConn.peer) === -1) {
+          if (
+            this.connectionsIAmHolding.findIndex(
+              (conn) => conn.peer === fromConn.peer
+            ) === -1
+          ) {
             this.peerIdsToSendOldMessages.push(fromConn.peer); // Send when opened
           } else {
             this.sendOldCRDTs(fromConn); // send now
@@ -237,14 +246,42 @@ export class PeerService {
   private sendOldCRDTs(conn: any) {
     console.log('Sending old crdt to peer ' + conn.peer);
     const previousCRDTs: CRDT[] = this.editorService.getOldCRDTsAsSortedArray();
-    const message = new Message(
-      JSON.stringify(previousCRDTs),
-      MessageType.OldCRDTs,
-      this.peer.id,
-      conn.peer,
-      this.time++
+
+    // Break huge crdts array into smaller arrays and send each one to avoid connection crash
+    const crdtBatches: CRDT[][] = [];
+    const numberOfTimesSend = Math.ceil(
+      previousCRDTs.length / MAX_CRDT_PER_SEND
     );
-    conn.send(message);
+    for (let i = 0; i < numberOfTimesSend; i++) {
+      const startInclusive = MAX_CRDT_PER_SEND * i;
+      // Taking care of the case: sending the last batch
+      const endExclusive = Math.min(
+        MAX_CRDT_PER_SEND * (i + 1),
+        previousCRDTs.length
+      );
+      crdtBatches.push(previousCRDTs.slice(startInclusive, endExclusive));
+    }
+
+    const crdtJSONs: string[] = [];
+    for (let i = 0; i < numberOfTimesSend; i++) {
+      crdtJSONs.push(JSON.stringify(crdtBatches[i]));
+    }
+
+    for (let i = 0; i < numberOfTimesSend; i++) {
+      const messageType =
+        i === numberOfTimesSend - 1
+          ? MessageType.OldCRDTsLastBatch
+          : MessageType.OldCRDTs;
+      const message = new Message(
+        crdtJSONs[i],
+        messageType,
+        this.peer.id,
+        conn.peer,
+        this.time++
+      );
+      conn.send(message);
+    }
+
     // this.messagesToBeAcknowledged.push(message);
     // const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
     // setTimeout(function () {
