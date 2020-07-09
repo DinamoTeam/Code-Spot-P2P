@@ -119,6 +119,8 @@ export class PeerService {
     );
     // either us or the other peer close the connection
     conn.on(ConnectionEvent.Close, () => this.handleConnectionClose(conn));
+
+    conn.on(ConnectionEvent.Error, (error) => console.error(error));
   }
 
   private handleMessageFromPeer(message: Message, fromConn: any) {
@@ -228,7 +230,7 @@ export class PeerService {
           );
           window.location.reload(true);
         }
-      }, 8000);
+      }, 40000);
     }
   }
 
