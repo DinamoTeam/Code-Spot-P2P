@@ -1,7 +1,7 @@
 <header>
   <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom mb-3">
     <div class="container">
-      <a class="navbar-brand" [routerLink]="['/']">CODE SPOT P2P</a>
+      <a class="navbar-brand clickable" (click)="goHome()">CODE SPOT P2P</a>
       <button class="navbar-toggler"
               type="button"
               data-toggle="collapse"
@@ -15,7 +15,7 @@
            [ngClass]="{ show: isExpanded }">
         <ul class="navbar-nav flex-grow">
           <li class="nav-item" [routerLinkActive]='["link-active"]' [routerLinkActiveOptions]='{ exact: true }'>
-            <a class="nav-link text-dark" role="button"  (click)="onBtnHomeClick()">HOME</a>
+            <a class="nav-link text-dark" role="button"  (click)="goHome()">HOME</a>
           </li>
           <li class="nav-item" [routerLinkActive]='["link-active"]' [routerLinkActiveOptions]='{ exact: true }'>
             <a class="nav-link text-dark" role="button"  (click)="onBtnAboutClick()">ABOUT</a>
