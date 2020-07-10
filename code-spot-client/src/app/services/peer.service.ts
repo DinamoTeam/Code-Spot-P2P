@@ -31,10 +31,15 @@ export class PeerService {
     private editorService: EditorService
   ) {
     // Create a new peer and connect to peerServer. We can get our id from this.peer.id
+    // this.peer = new Peer();
     this.peer = new Peer({
       host: 'codespotpeerserver.herokuapp.com/',
       port: '/..',
       secure: true,
+      config: {'iceServers': [
+        { url: 'stun:relay.backups.cz' },
+        { url: 'turn:relay.backups.cz', username: 'webrtc', credential: 'webrtc' }
+      ]}
     });
     /*this.peer = new Peer({
       host: 'localhost',
@@ -43,11 +48,12 @@ export class PeerService {
     });*/
     this.connectToPeerServer();
     this.registerConnectToMeEvent();
+    this.logErrors();
     this.reconnectToPeerServer();
     this.subscribeToEditorServiceEvents();
   }
 
-  //************* Connect + Reconnect to PeerServer *************
+  //************* Connect + Reconnect to PeerServer and log errors *************
   private connectToPeerServer() {
     this.peer.on(PeerEvent.Open, (myId: string) => {
       console.log('I have connected to peerServer. My id: ' + myId);
@@ -62,12 +68,18 @@ export class PeerService {
       // TODO: refresh browser or sth like that
     });
   }
+
+  private logErrors() {
+    this.peer.on(PeerEvent.Error, (error) => {
+      console.error(error);
+    });
+  }
   //*************************************************************
 
   private registerConnectToMeEvent() {
     this.peer.on(PeerEvent.Connection, (conn: any) => {
       console.log(
-        'A peer with connectionId: ' + conn.peer + ' have just connected to me'
+        'Peer ' + conn.peer + ' just sent a connect request to me'
       );
       this.setupListenerForConnection(conn);
     });
@@ -82,7 +94,7 @@ export class PeerService {
     if (getOldMessages === true) {
       this.connToGetOldMessages = conn;
     }
-    console.log('I just connected to peer with id: ' + otherPeerId);
+    console.log('I just send peer: ' + otherPeerId + ' a connection request');
     this.setupListenerForConnection(conn);
   }
 
@@ -97,7 +109,7 @@ export class PeerService {
   private setupListenerForConnection(conn: any) {
     // When the connection first establish
     conn.on(ConnectionEvent.Open, () => {
-      console.log('Conn open :)');
+      console.log('Connection to peer ' + conn.peer + ' opened :)');
       // Only add this conn to our list when the connection has opened!
       this.addUniqueConnections([conn], this.connectionsIAmHolding);
       // If we need to send this peer old messages
