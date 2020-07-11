@@ -1,3 +1,11 @@
+<!-- Aux Editor needs to initialize early-->
+<ngx-monaco-editor class="solution-code-editor"
+                    [options]="editorOptions"
+                    (onInit)="onInitAuxEditorHandler($event)"
+                    style="display:none">
+</ngx-monaco-editor>
+<!-- Aux Editor-->
+
 <div *ngIf="showSuccessAlert"
      class="alert alert-success"
      role="alert"
@@ -27,13 +35,6 @@
     <div>
       <ngx-monaco-editor class="solution-code-editor"
                          [options]="editorOptions"
-                         (onInit)="onInitAuxEditorHandler($event)"
-                         style="display:none">
-      </ngx-monaco-editor>
-    </div>
-    <div>
-      <ngx-monaco-editor class="solution-code-editor"
-                         [options]="editorOptions"
                          (onInit)="onInitEditorHandler($event)"></ngx-monaco-editor>
       <button class="btn btn-md btn-navy" (click)="copyLink()">
         Get shareable link!
@@ -46,9 +47,9 @@
 <div *ngIf="!ready" class="d-flex ml-3 mr-2 justify-content-center align-items-center loading">
   <div class="text-center">
     <div class="spinner-grow mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
-      <br />
-      <h2>Programmer</h2>
-      <p>A TOOL FOR CONVERTING CAFFEINE INTO CODE</p>
-      <sub>[#] PCbots Labs</sub>
+    <br />
+    <h2>Programmer</h2>
+    <p>A TOOL FOR CONVERTING CAFFEINE INTO CODE</p>
+    <sub>[#] PCbots Labs</sub>
   </div>
 </div>
