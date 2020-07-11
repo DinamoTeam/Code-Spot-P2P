@@ -64,6 +64,7 @@ export class PeerService {
   private reconnectToPeerServer() {
     this.peer.on(PeerEvent.Disconnected, () => {
       // Disconnect => destroy permanently this peer. Need to test this more!
+      console.log('Peer disconnect with server. Destroying peer ...');
       this.peer.destroy();
       // TODO: refresh browser or sth like that
     });
