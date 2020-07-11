@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, NgZone } from '@angular/core';
+import { Component, OnInit, Input, NgZone, EventEmitter } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
 import { ActivatedRoute } from '@angular/router';
@@ -14,11 +14,14 @@ declare const monaco: any;
   styleUrls: ['./code-editor.component.css'],
 })
 export class CodeEditorComponent implements OnInit {
-  ready: boolean = false;
+  ready = false;
   roomName: string;
   editor: any;
   auxEditor: any;
   editorTextModel: any;
+  mainEditorReady = false;
+  auxEditorReady = false;
+  peerServiceHasConnectedToPeerServer = false;
   auxEditorTextModel: any;
   allMessages: string[] = null;
   selectedLang: string;
@@ -67,12 +70,24 @@ export class CodeEditorComponent implements OnInit {
     this.editor.onDidChangeModelContent((e: any) =>
       this.onDidChangeModelContentHandler(e)
     );
+
+    this.mainEditorReady = true;
+    if (this.auxEditorReady && !this.peerServiceHasConnectedToPeerServer) {
+      this.peerService.connectToPeerServerAndInit();
+      this.peerServiceHasConnectedToPeerServer = true;
+    }
   }
 
   onInitAuxEditorHandler(event: any) {
     this.auxEditor = event;
     this.auxEditorTextModel = this.auxEditor.getModel();
     this.auxEditorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
+
+    this.auxEditorReady = true;
+    if (this.auxEditorReady && !this.peerServiceHasConnectedToPeerServer) {
+      this.peerService.connectToPeerServerAndInit();
+      this.peerServiceHasConnectedToPeerServer = true;
+    }
   }
 
   onDidChangeModelContentHandler(event: any): void {
@@ -109,7 +124,6 @@ export class CodeEditorComponent implements OnInit {
           case BroadcastInfo.RoomName:
             this.roomName = this.peerService.getRoomName();
             this.location.replaceState('/editor/' + this.roomName);
-            this.ready = true;
             break;
           case BroadcastInfo.ChangeLanguage:
             this.selectedLang = EditorService.language;
@@ -138,6 +152,8 @@ export class CodeEditorComponent implements OnInit {
               this.auxEditorTextModel,
               this.peerService.getReceivedRemoteCrdts()
             );
+            break;
+          case BroadcastInfo.ReadyToDisplayMonaco:
             this.ready = true;
             break;
           default:

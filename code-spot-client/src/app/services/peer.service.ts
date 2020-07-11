@@ -22,16 +22,16 @@ export class PeerService {
   private connectionsIAmHolding: any[] = [];
   private messagesToBeAcknowledged: Message[] = [];
   private hasReceivedAllMessages = false;
-  connectionEstablished = new EventEmitter<Boolean>();
+  connectionEstablished = new EventEmitter<boolean>();
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
   receivedRemoteCrdts: CRDT[];
 
   constructor(
     private roomService: RoomService,
     private editorService: EditorService
-  ) {
-    // Create a new peer and connect to peerServer. We can get our id from this.peer.id
-    // this.peer = new Peer();
+  ) { }
+
+  connectToPeerServerAndInit() {
     this.peer = new Peer({
       host: 'codespotpeerserver.herokuapp.com/',
       port: '/..',
@@ -72,6 +72,7 @@ export class PeerService {
 
   private logErrors() {
     this.peer.on(PeerEvent.Error, (error) => {
+      console.error('PeerServer error: ');
       console.error(error);
     });
   }
@@ -133,7 +134,10 @@ export class PeerService {
     // either us or the other peer close the connection
     conn.on(ConnectionEvent.Close, () => this.handleConnectionClose(conn));
 
-    conn.on(ConnectionEvent.Error, (error) => console.error(error));
+    conn.on(ConnectionEvent.Error, (error) => {
+      console.error('Connection error: ');
+      console.error(error);
+    })
   }
 
   private handleMessageFromPeer(message: Message, fromConn: any) {
@@ -172,12 +176,12 @@ export class PeerService {
           this.infoBroadcasted.emit(BroadcastInfo.RemoteAllMessages);
           if (message.messageType === MessageType.OldCRDTsLastBatch) {
             this.hasReceivedAllMessages = true;
+            this.infoBroadcasted.emit(BroadcastInfo.ReadyToDisplayMonaco);
             this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
           }
         }
         break;
       case MessageType.RequestOldCRDTs:
-        console.log('Hey sb ask me to send old messages :)');
         if (!this.hasReceivedAllMessages) {
           console.log(
             "I haven't received allMessages yet. Can't send to that peer"
@@ -259,7 +263,6 @@ export class PeerService {
   }
 
   private sendOldCRDTs(conn: any) {
-    console.log('Sending old crdt to peer ' + conn.peer);
     const previousCRDTs: CRDT[] = this.editorService.getOldCRDTsAsSortedArray();
 
     // Break huge crdts array into smaller arrays and send each one to avoid connection crash
@@ -325,11 +328,11 @@ export class PeerService {
       .joinNewRoom(this.peer.id)
       .subscribe((data: EnterRoomInfo) => {
         this.roomName = data.roomName;
-        console.log('roomName: ' + this.roomName);
         EditorService.setSiteId(data.siteId);
         // No peerId
         this.handleFirstJoinRoom([]);
         this.infoBroadcasted.emit(BroadcastInfo.RoomName);
+        this.infoBroadcasted.emit(BroadcastInfo.ReadyToDisplayMonaco);
       });
   }
 
@@ -337,7 +340,6 @@ export class PeerService {
     this.roomName = roomName;
     this.roomService.joinExistingRoom(this.peer.id, this.roomName).subscribe(
       (data: EnterRoomInfo) => {
-        console.log(data);
         if (data.siteId === -1) {
           // Either room not exists or has been deleted
           window.location.replace('/');
@@ -497,4 +499,5 @@ export const enum BroadcastInfo {
   RemoteRemove = 3,
   RemoteAllMessages = 4,
   ChangeLanguage = 5,
+  ReadyToDisplayMonaco = 6
 }
