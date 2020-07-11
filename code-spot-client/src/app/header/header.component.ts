@@ -23,9 +23,9 @@ export class HeaderComponent implements OnInit {
     this.isExpanded = !this.isExpanded;
   }
 
-  onBtnHomeClick() {
+  goHome() {
     this.isExpanded = false;
-    this.router.navigate(['/']);
+    window.location.replace("/");
   }
 
   onBtnAboutClick() {
