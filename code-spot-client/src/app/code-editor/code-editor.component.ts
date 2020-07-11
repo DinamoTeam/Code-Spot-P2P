@@ -14,6 +14,7 @@ declare const monaco: any;
   styleUrls: ['./code-editor.component.css'],
 })
 export class CodeEditorComponent implements OnInit {
+  ready: boolean = false;
   roomName: string;
   editor: any;
   auxEditor: any;
@@ -103,11 +104,12 @@ export class CodeEditorComponent implements OnInit {
 
   subscribeToPeerServiceEvents(): void {
     this.peerService.infoBroadcasted.subscribe((message: any) => {
-      this.ngZone.run(() => {
+      this.ngZone.run(async () => {
         switch (message) {
           case BroadcastInfo.RoomName:
             this.roomName = this.peerService.getRoomName();
             this.location.replaceState('/editor/' + this.roomName);
+            this.ready = true;
             break;
           case BroadcastInfo.ChangeLanguage:
             this.selectedLang = EditorService.language;
@@ -131,11 +133,12 @@ export class CodeEditorComponent implements OnInit {
             );
             break;
           case BroadcastInfo.RemoteAllMessages:
-            this.editorService.handleAllMessages(
+            await this.editorService.handleAllMessages(
               this.editorTextModel,
               this.auxEditorTextModel,
               this.peerService.getReceivedRemoteCrdts()
             );
+            this.ready = true;
             break;
           default:
             console.log('UNKNOWN event!!!');

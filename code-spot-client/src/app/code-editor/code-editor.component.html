@@ -8,7 +8,7 @@
   </button>
 </div>
 
-<div class="d-flex ml-3 mr-2 flex-md-row flex-column">
+<div *ngIf="ready" class="d-flex ml-3 mr-2 flex-md-row flex-column">
   <form class="form-horizontal col-md-9 col-xs-12" [formGroup]="languageForm">
     <!--Select Language-->
     <div class="form-group">
@@ -43,3 +43,12 @@
   <app-chatbox class="mt-5"></app-chatbox>
 </div>
 
+<div *ngIf="!ready" class="d-flex ml-3 mr-2 justify-content-center align-items-center loading">
+  <div class="text-center">
+    <div class="spinner-grow mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+      <br />
+      <h2>Programmer</h2>
+      <p>A TOOL FOR CONVERTING CAFFEINE INTO CODE</p>
+      <sub>[#] PCbots Labs</sub>
+  </div>
+</div>
