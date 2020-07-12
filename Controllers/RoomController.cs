@@ -41,10 +41,11 @@ namespace CodeSpotP2P.Controllers
 		{
             string roomName = GenerateRoomName();
             _database.rooms.Add(new Room(roomName));
-            _database.peers.Add(new Peer(peerId, roomName));
+            _database.peers.Add(new Peer(peerId, roomName, true));
             await _database.SaveChangesAsync();
             
-            var info = new EnterRoomInfo(RoomController.siteId++, roomName, new List<string>());
+            var info = new EnterRoomInfo(RoomController.siteId++, roomName, new List<string>(),
+                new List<bool>());
             return Ok(info);
 		}
 
@@ -57,12 +58,18 @@ namespace CodeSpotP2P.Controllers
                 var peerIds = await _database.peers.Where(p => p.RoomName == roomName)
                                          .Select(p => p.PeerId)
                                          .ToListAsync();
-                _database.peers.Add(new Peer(peerId, roomName));
+
+                var hasReceivedAllMessagesList = await _database.peers
+                                         .Where(p => p.RoomName == roomName)
+                                         .Select(p => p.HasReceivedAllMessages)
+                                         .ToListAsync();
+
+                _database.peers.Add(new Peer(peerId, roomName, false));
                 await _database.SaveChangesAsync();
-                var info = new EnterRoomInfo(RoomController.siteId++, roomName, peerIds);
+                var info = new EnterRoomInfo(RoomController.siteId++, roomName, peerIds, hasReceivedAllMessagesList);
                 return Ok(info);
             }
-            return Ok(new EnterRoomInfo(-1, null, null));
+            return Ok(new EnterRoomInfo(-1, null, null, null));
         }
 
         private async Task<bool> RoomExist(string roomName)

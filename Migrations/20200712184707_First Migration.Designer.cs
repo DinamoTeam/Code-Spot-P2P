@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeSpot.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200704230552_First Migration")]
+    [Migration("20200712184707_First Migration")]
     partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,6 +21,8 @@ namespace CodeSpot.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("HasReceivedAllMessages");
 
                     b.Property<string>("PeerId");
 

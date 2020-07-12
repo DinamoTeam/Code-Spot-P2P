@@ -20,6 +20,8 @@ namespace CodeSpot.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("HasReceivedAllMessages");
+
                     b.Property<string>("PeerId");
 
                     b.Property<string>("RoomName");
