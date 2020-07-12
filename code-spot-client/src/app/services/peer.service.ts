@@ -46,7 +46,7 @@ export class PeerService {
           },
         ],
       },
-      pingInterval: 20000, // Check with server if the connection is still opened after every 'pingInterval' milliseconds
+      pingInterval: 3000, 
       debug: 3, // Print all logs
     });
     /*this.peer = new Peer({
