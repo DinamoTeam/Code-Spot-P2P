@@ -192,6 +192,8 @@ export class PeerService {
             this.hasReceivedAllMessages = true;
             this.infoBroadcasted.emit(BroadcastInfo.ReadyToDisplayMonaco);
             this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
+            // Tell C# Server I have received AllMessages
+            this.roomService.markPeerReceivedAllMessages(this.peer.id);
           }
         }
         break;
@@ -252,21 +254,40 @@ export class PeerService {
   }
 
   //***************** Handle when join room *******************
-  private handleFirstJoinRoom(peerIds: any[]) {
+  private handleFirstJoinRoom(peerIds: any[], receivedAllMessages: boolean[]) {
     if (peerIds.length === 0) {
       // DO NOTHING
       console.log('I am the first one in this room');
       this.hasReceivedAllMessages = true;
     } else {
       this.peerIdsInRoom = peerIds;
-      const randIndex = Math.floor(Math.random() * peerIds.length);
-      this.connectToPeer(peerIds[randIndex], true);
-      // this.connectToPeer(peerIds[0], true); // For testing only
-      this.waitTillGotAllMessagesOrRefreshIfPeerLeft(peerIds[randIndex]);
+      const peerIdPicked = this.pickReadyPeerToGetAllMessages(peerIds, receivedAllMessages);
+      if (peerIdPicked === null) {
+        // Error. No peer is ready. Go back home
+        window.location.replace('/');
+      } else {
+        this.connectToPeer(peerIdPicked, true);
+        this.waitTillGotAllMessagesOrRefreshIfThatPeerLeft(peerIdPicked);
+      }
     }
   }
 
-  private waitTillGotAllMessagesOrRefreshIfPeerLeft(peerIdToGetAllMessages: string) {
+  private pickReadyPeerToGetAllMessages(peerIds: string[], receivedAllMessages: boolean[]): string {
+    const candidatePeerIds = [];
+    for (let i = 0; i < receivedAllMessages.length; i++) {
+      if (receivedAllMessages[i]) {
+        candidatePeerIds.push(peerIds[i]);
+      }
+    }
+    if (candidatePeerIds.length === 0) {
+      return null;
+    } else {
+      const randIndex = Math.floor(Math.random() * candidatePeerIds.length);
+      return candidatePeerIds[randIndex];
+    }
+  }
+
+  private waitTillGotAllMessagesOrRefreshIfThatPeerLeft(peerIdToGetAllMessages: string) {
     if (!this.hasReceivedAllMessages) {
       console.log('Have not received all messages. Let us check our peerToGetAllMessages');
       this.roomService.getPeerIdsInRoom(this.roomName)
@@ -280,7 +301,7 @@ export class PeerService {
           console.log('Peer to get all messages still in room. Wait 3 more sec');
           const that = this;
           setTimeout(function () {
-            that.waitTillGotAllMessagesOrRefreshIfPeerLeft(peerIdToGetAllMessages);
+            that.waitTillGotAllMessagesOrRefreshIfThatPeerLeft(peerIdToGetAllMessages);
           }, 3000);
         }
       });
@@ -366,7 +387,7 @@ export class PeerService {
         this.roomName = data.roomName;
         EditorService.setSiteId(data.siteId);
         // No peerId
-        this.handleFirstJoinRoom([]);
+        this.handleFirstJoinRoom([], []);
         this.infoBroadcasted.emit(BroadcastInfo.RoomName);
         this.infoBroadcasted.emit(BroadcastInfo.ReadyToDisplayMonaco);
       });
@@ -382,7 +403,7 @@ export class PeerService {
           alert('Room not exists, navigating back to home');
         }
         EditorService.setSiteId(data.siteId);
-        this.handleFirstJoinRoom(data.peerIds);
+        this.handleFirstJoinRoom(data.peerIds, data.hasReceivedAllMessages);
       },
       (error) => {
         console.error(error);

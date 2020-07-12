@@ -39,12 +39,15 @@ export class RoomService {
   // HttpClient API get() -> get PeerIds In Room
   getPeerIdsInRoom(roomName: string): Observable<string[]> {
     return this.http
-      .get<string[]>(
-        this.apiURL +
-          'GetPeerIdsInRoom?roomName=' +
-          roomName
-      )
+      .get<string[]>(this.apiURL + 'GetPeerIdsInRoom?roomName=' + roomName)
       .pipe(retry(1), catchError(this.handleError));
+  }
+
+  markPeerReceivedAllMessages(peerId: string): void {
+    this.http
+      .get(this.apiURL + 'MarkPeerReceivedAllMessages?peerId=' + peerId)
+      .pipe(retry(1), catchError(this.handleError))
+      .subscribe(() => {});
   }
 
   // Error handling
@@ -55,8 +58,7 @@ export class RoomService {
     } else {
       errorMessage = 'Error from serve!';
     }
-    console.log(error);
     window.alert(errorMessage);
-    return throwError(errorMessage);
+    return throwError(error);
   }
 }

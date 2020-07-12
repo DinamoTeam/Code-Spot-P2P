@@ -72,6 +72,18 @@ namespace CodeSpotP2P.Controllers
             return Ok(new EnterRoomInfo(-1, null, null, null));
         }
 
+        // Get: api/Room/MarkPeerReceivedAllMessages?peerId=abc
+        [HttpGet]
+        public async Task<IActionResult> MarkPeerReceivedAllMessages(string peerId) {
+            var peer = await _database.peers.FirstOrDefaultAsync(p => p.PeerId == peerId);
+            if (peer != null)
+            {
+                peer.HasReceivedAllMessages = true;
+                await _database.SaveChangesAsync();
+            }
+            return Ok(200);
+        } 
+
         private async Task<bool> RoomExist(string roomName)
         {
             if (await  _database.rooms.AnyAsync(r => r.RoomName == roomName))
