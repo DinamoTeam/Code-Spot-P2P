@@ -22,6 +22,7 @@ export class PeerService {
   private messagesToBeAcknowledged: Message[] = [];
   private hasReceivedAllMessages = false;
   private connsToBroadcast: any[] = [];
+  private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
   connectionEstablished = new EventEmitter<boolean>();
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
   receivedRemoteCrdts: CRDT[];
@@ -47,7 +48,7 @@ export class PeerService {
         ],
       },
       pingInterval: 3000,
-      debug: 3 // Print all logs
+      debug: 3, // Print all logs
     });
     /*this.peer = new Peer({
       host: 'localhost',
@@ -92,7 +93,7 @@ export class PeerService {
 
   private listenToBrowserOffline() {
     // Need a better way to check internet connection! This method is error prone
-    window.addEventListener('offline', e => {
+    window.addEventListener('offline', (e) => {
       alert('Please check your Internet connection. Navigating back home...');
       window.location.replace('/');
     });
@@ -178,11 +179,13 @@ export class PeerService {
         // fromConn.send(
         //   new Message(null, MessageType.Acknowledge, null, null, message.time)
         // );
+
+        // const crdts = this.stringToCRDTArr(message.content, this.CRDTDelimiter);
+
         const parsedCrdts: CRDT[] = JSON.parse(message.content); // plain Javascript object
         const crdts = parsedCrdts.map((crdt) =>
           CRDT.plainObjectToRealCRDT(crdt)
         );
-
         this.receivedRemoteCrdts = crdts;
 
         if (message.messageType === MessageType.RemoteInsert) {
@@ -234,7 +237,9 @@ export class PeerService {
         }
         break;
       case MessageType.CannotSendOldCRDTs:
-        alert('The peer we picked to send us old messages cannot send. Reloading...');
+        alert(
+          'The peer we picked to send us old messages cannot send. Reloading...'
+        );
         window.location.reload(true);
         break;
       case MessageType.Acknowledge:
@@ -278,7 +283,7 @@ export class PeerService {
       );
       if (peerIdPicked === null) {
         // Error. No peer is ready. Go back home
-        alert('All Peer in rooms have left. Going back to home...')
+        alert('All Peer in rooms have left. Going back to home...');
         window.location.replace('/');
       } else {
         this.connectToPeer(peerIdPicked, true);
@@ -357,6 +362,11 @@ export class PeerService {
       );
       crdtBatches.push(previousCRDTs.slice(startInclusive, endExclusive));
     }
+
+    // const crdtStrings: string[] = [];
+    // for (let i = 0; i < numberOfTimesSend; i++) {
+    //   crdtStrings.push(this.crdtArrToString(crdtBatches[i], this.CRDTDelimiter));
+    // }
 
     const crdtJSONs: string[] = [];
     for (let i = 0; i < numberOfTimesSend; i++) {
@@ -449,6 +459,10 @@ export class PeerService {
       crdtBatches.push(crdts.slice(startInclusive, endExclusive));
     }
 
+    // const crdtStrings: string[] = [];
+    // for (let i = 0; i < numberOfTimesSend; i++) {
+    //   crdtStrings.push(this.crdtArrToString(crdtBatches[i], this.CRDTDelimiter));
+    // }
     const crdtJSONs: string[] = [];
     for (let i = 0; i < numberOfTimesSend; i++) {
       crdtJSONs.push(JSON.stringify(crdtBatches[i]));
@@ -537,6 +551,29 @@ export class PeerService {
       -1 // for test purpose
     );
     conn.send(messageToSend);
+  }
+
+  private crdtArrToString(crdts: CRDT[], seperator: string): string {
+    const crdtStrings = crdts.map((crdt) => crdt.toString());
+    // console.log('crdtArr: ');
+    // console.log(crdts);
+    // console.log('crdtStrings: ');
+    // console.log(crdtStrings);
+    // console.log('Join: ');
+    // console.log(crdtStrings.join(seperator));
+    return crdtStrings.join(seperator);
+  }
+
+  private stringToCRDTArr(str: string, delimiter: string): CRDT[] {
+    const crdtStrings = str.split(delimiter);
+    const crdts = crdtStrings.map((crdtStr) => CRDT.parse(crdtStr));
+    // console.log('crdtStrings: ');
+    // console.log(str);
+    // console.log('crdtString splitted: ');
+    // console.log(crdtStrings);
+    // console.log('crdt parsed: ');
+    // console.log(crdts);
+    return crdts;
   }
 
   getReceivedRemoteCrdts(): CRDT[] {
