@@ -17,6 +17,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { PeerService } from './services/peer.service';
 import { EditorService } from './services/editor.service';
 import { RoomService } from './services/room.service';
+import { ContactComponent } from './contact/contact.component';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   defaultOptions: {
@@ -41,6 +42,7 @@ export function onMonacoLoad() {
     AboutComponent,
     CodeEditorComponent,
     ChatboxComponent,
+    ContactComponent,
   ],
   imports: [
     HttpClientModule,

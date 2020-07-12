@@ -1,0 +1,38 @@
+.img-circle {
+    width: 15rem;
+    margin: 0 auto;
+    margin-top: 2rem;
+    border-radius: 50%;
+}
+
+.icon {
+    color: #777777;
+}
+
+.card-deck {
+    flex: initial;
+}
+
+.card {
+    margin: 30px 30px;
+    width: 22rem;
+    flex: initial;
+    border-radius: 20px;
+}
+
+.socials {
+    margin-top: auto;
+}
+
+@media only screen and (max-width: 600px) {
+    .card-deck {
+        flex-direction: column;
+        align-items: center;
+    }
+
+  .card {
+    margin: 30px auto;
+    width: 20rem;
+  }
+}
+
