@@ -2,7 +2,7 @@
 
 namespace CodeSpot.Migrations
 {
-    public partial class FirstMigration : Migration
+    public partial class Firstmigrations : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -23,9 +23,9 @@ namespace CodeSpot.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    PeerId = table.Column<string>(nullable: false),
-                    RoomName = table.Column<string>(nullable: false),
-                    HasReceivedAllMessages = table.Column<bool>(nullable: false)
+                    PeerId = table.Column<string>(nullable: true),
+                    RoomName = table.Column<string>(nullable: true),
+                    HasReceivedAllMessages = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -35,7 +35,7 @@ namespace CodeSpot.Migrations
                         column: x => x.RoomName,
                         principalTable: "rooms",
                         principalColumn: "RoomName",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(

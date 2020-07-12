@@ -20,7 +20,7 @@ namespace CodeSpot.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("HasReceivedAllMessages");
+                    b.Property<int>("HasReceivedAllMessages");
 
                     b.Property<string>("PeerId");
 

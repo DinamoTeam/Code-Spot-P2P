@@ -41,11 +41,11 @@ namespace CodeSpotP2P.Controllers
 		{
             string roomName = GenerateRoomName();
             _database.rooms.Add(new Room(roomName));
-            _database.peers.Add(new Peer(peerId, roomName, true));
+            _database.peers.Add(new Peer(peerId, roomName, 1));
             await _database.SaveChangesAsync();
             
             var info = new EnterRoomInfo(RoomController.siteId++, roomName, new List<string>(),
-                new List<bool>());
+                new List<int>());
             return Ok(info);
 		}
 
@@ -64,7 +64,7 @@ namespace CodeSpotP2P.Controllers
                                          .Select(p => p.HasReceivedAllMessages)
                                          .ToListAsync();
 
-                _database.peers.Add(new Peer(peerId, roomName, false));
+                _database.peers.Add(new Peer(peerId, roomName, 0));
                 await _database.SaveChangesAsync();
                 var info = new EnterRoomInfo(RoomController.siteId++, roomName, peerIds, hasReceivedAllMessagesList);
                 return Ok(info);
@@ -78,7 +78,7 @@ namespace CodeSpotP2P.Controllers
             var peer = await _database.peers.FirstOrDefaultAsync(p => p.PeerId == peerId);
             if (peer != null)
             {
-                peer.HasReceivedAllMessages = true;
+                peer.HasReceivedAllMessages = 1;
                 await _database.SaveChangesAsync();
             }
             return Ok(200);
