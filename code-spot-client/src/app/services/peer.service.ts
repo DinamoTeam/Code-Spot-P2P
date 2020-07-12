@@ -79,7 +79,8 @@ export class PeerService {
         'Peer disconnect with server. Destroying peer ... (Although we should try to reconnect here)'
       );
       this.peer.destroy();
-      // TODO: refresh browser or sth like that
+      alert('Wifi connection error! Going back home...');
+      window.location.replace('/');
     });
   }
 
@@ -227,7 +228,7 @@ export class PeerService {
         }
         break;
       case MessageType.CannotSendOldCRDTs:
-        alert('The peer cannot send OldCRDTs. Reloading...');
+        alert('The peer we picked to send us old messages cannot send. Reloading...');
         window.location.reload(true);
         break;
       case MessageType.Acknowledge:
@@ -245,16 +246,12 @@ export class PeerService {
   }
 
   private handleConnectionClose(conn: any) {
-    // console.log(
-    //   'Connection to ' +
-    //     conn.peer +
-    //     ' is closed. It will be deleted in the connectionsIAmHolding list!'
-    // );
     console.log(
       'Connection to ' +
         conn.peer +
-        ' is closed but is not be deleted! We want to see if we can still send messages or not. One question: Who close this connection?! Is it because wifi disconnects?'
+        ' is closed. It will be deleted in the connectionsIAmHolding list!'
     );
+
     const index = this.connectionsIAmHolding.findIndex(
       (connection) => connection === conn
     );
@@ -275,6 +272,7 @@ export class PeerService {
       );
       if (peerIdPicked === null) {
         // Error. No peer is ready. Go back home
+        alert('All Peer in rooms have left. Going back to home...')
         window.location.replace('/');
       } else {
         this.connectToPeer(peerIdPicked, true);
@@ -422,8 +420,8 @@ export class PeerService {
       (data: EnterRoomInfo) => {
         if (data.siteId === -1) {
           // Either room not exists or has been deleted
-          window.location.replace('/');
           alert('Room not exists, navigating back to home');
+          window.location.replace('/');
         }
         EditorService.setSiteId(data.siteId);
         const boolArrHasReceivedAllMessages = data.hasReceivedAllMessages.map(
