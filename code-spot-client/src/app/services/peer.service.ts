@@ -62,6 +62,7 @@ export class PeerService {
     this.logErrors();
     this.reconnectToPeerServer();
     this.subscribeToEditorServiceEvents();
+    this.listenToBrowserOffline();
   }
 
   //************* Connect + Reconnect to PeerServer and log errors *************
@@ -91,6 +92,14 @@ export class PeerService {
     });
   }
   //*************************************************************
+
+  private listenToBrowserOffline() {
+    // Need a better way to check internet connection! This method is error prone
+    window.addEventListener('offline', e => {
+      alert('Please check your Internet connection. Navigating back home...');
+      window.location.replace('/');
+    });
+  }
 
   private registerConnectToMeEvent() {
     this.peer.on(PeerEvent.Connection, (conn: any) => {
