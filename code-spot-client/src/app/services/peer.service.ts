@@ -29,17 +29,25 @@ export class PeerService {
   constructor(
     private roomService: RoomService,
     private editorService: EditorService
-  ) { }
+  ) {}
 
   connectToPeerServerAndInit() {
     this.peer = new Peer({
       host: 'codespotpeerserver.herokuapp.com/',
       port: '/..',
       secure: true,
-      config: {'iceServers': [
-        { url: 'stun:relay.backups.cz' },
-        { url: 'turn:relay.backups.cz', username: 'webrtc', credential: 'webrtc' }
-      ]}
+      config: {
+        iceServers: [
+          { url: 'stun:relay.backups.cz' },
+          {
+            url: 'turn:relay.backups.cz',
+            username: 'webrtc',
+            credential: 'webrtc',
+          },
+        ],
+      },
+      pingInterval: 20000, // Server will check if connection is still open after every 'pingInterval' milliseconds
+      debug: 3, // Print all logs
     });
     /*this.peer = new Peer({
       host: 'localhost',
@@ -64,7 +72,9 @@ export class PeerService {
   private reconnectToPeerServer() {
     this.peer.on(PeerEvent.Disconnected, () => {
       // Disconnect => destroy permanently this peer. Need to test this more!
-      console.log('Peer disconnect with server. Destroying peer ...');
+      console.log(
+        'Peer disconnect with server. Destroying peer ... (Although we should try to reconnect here)'
+      );
       this.peer.destroy();
       // TODO: refresh browser or sth like that
     });
@@ -80,9 +90,7 @@ export class PeerService {
 
   private registerConnectToMeEvent() {
     this.peer.on(PeerEvent.Connection, (conn: any) => {
-      console.log(
-        'Peer ' + conn.peer + ' just sent a connect request to me'
-      );
+      console.log('Peer ' + conn.peer + ' just sent a connect request to me');
       this.setupListenerForConnection(conn);
     });
   }
@@ -137,7 +145,7 @@ export class PeerService {
     conn.on(ConnectionEvent.Error, (error) => {
       console.error('Connection error: ');
       console.error(error);
-    })
+    });
   }
 
   private handleMessageFromPeer(message: Message, fromConn: any) {
@@ -216,10 +224,15 @@ export class PeerService {
   }
 
   private handleConnectionClose(conn: any) {
+    // console.log(
+    //   'Connection to ' +
+    //     conn.peer +
+    //     ' is closed. It will be deleted in the connectionsIAmHolding list!'
+    // );
     console.log(
       'Connection to ' +
         conn.peer +
-        ' is closed. It will be deleted in the connectionsIAmHolding list!'
+        ' is closed but is not be deleted! We want to see if we can still send messages or not. One question: Who close this connection?! Is it because wifi disconnects?'
     );
     const index = this.connectionsIAmHolding.findIndex(
       (connection) => connection === conn
@@ -499,5 +512,5 @@ export const enum BroadcastInfo {
   RemoteRemove = 3,
   RemoteAllMessages = 4,
   ChangeLanguage = 5,
-  ReadyToDisplayMonaco = 6
+  ReadyToDisplayMonaco = 6,
 }
