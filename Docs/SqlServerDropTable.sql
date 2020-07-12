@@ -1,0 +1,2 @@
+DROP TABLE Peers;
+DROP TABLE Rooms;
