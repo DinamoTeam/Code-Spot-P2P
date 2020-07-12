@@ -22,24 +22,32 @@ export class PeerService {
   private connectionsIAmHolding: any[] = [];
   private messagesToBeAcknowledged: Message[] = [];
   private hasReceivedAllMessages = false;
-  connectionEstablished = new EventEmitter<Boolean>();
+  connectionEstablished = new EventEmitter<boolean>();
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
   receivedRemoteCrdts: CRDT[];
 
   constructor(
     private roomService: RoomService,
     private editorService: EditorService
-  ) {
-    // Create a new peer and connect to peerServer. We can get our id from this.peer.id
-    // this.peer = new Peer();
+  ) {}
+
+  connectToPeerServerAndInit() {
     this.peer = new Peer({
       host: 'codespotpeerserver.herokuapp.com/',
       port: '/..',
       secure: true,
-      config: {'iceServers': [
-        { url: 'stun:relay.backups.cz' },
-        { url: 'turn:relay.backups.cz', username: 'webrtc', credential: 'webrtc' }
-      ]}
+      config: {
+        iceServers: [
+          { url: 'stun:relay.backups.cz' },
+          {
+            url: 'turn:relay.backups.cz',
+            username: 'webrtc',
+            credential: 'webrtc',
+          },
+        ],
+      },
+      pingInterval: 20000, // Check with server if the connection is still opened after every 'pingInterval' milliseconds
+      debug: 3, // Print all logs
     });
     /*this.peer = new Peer({
       host: 'localhost',
@@ -64,6 +72,9 @@ export class PeerService {
   private reconnectToPeerServer() {
     this.peer.on(PeerEvent.Disconnected, () => {
       // Disconnect => destroy permanently this peer. Need to test this more!
+      console.log(
+        'Peer disconnect with server. Destroying peer ... (Although we should try to reconnect here)'
+      );
       this.peer.destroy();
       // TODO: refresh browser or sth like that
     });
@@ -71,6 +82,7 @@ export class PeerService {
 
   private logErrors() {
     this.peer.on(PeerEvent.Error, (error) => {
+      console.error('PeerServer error: ');
       console.error(error);
     });
   }
@@ -78,9 +90,7 @@ export class PeerService {
 
   private registerConnectToMeEvent() {
     this.peer.on(PeerEvent.Connection, (conn: any) => {
-      console.log(
-        'Peer ' + conn.peer + ' just sent a connect request to me'
-      );
+      console.log('Peer ' + conn.peer + ' just sent a connect request to me');
       this.setupListenerForConnection(conn);
     });
   }
@@ -132,7 +142,10 @@ export class PeerService {
     // either us or the other peer close the connection
     conn.on(ConnectionEvent.Close, () => this.handleConnectionClose(conn));
 
-    conn.on(ConnectionEvent.Error, (error) => console.error(error));
+    conn.on(ConnectionEvent.Error, (error) => {
+      console.error('Connection error: ');
+      console.error(error);
+    });
   }
 
   private handleMessageFromPeer(message: Message, fromConn: any) {
@@ -171,12 +184,12 @@ export class PeerService {
           this.infoBroadcasted.emit(BroadcastInfo.RemoteAllMessages);
           if (message.messageType === MessageType.OldCRDTsLastBatch) {
             this.hasReceivedAllMessages = true;
+            this.infoBroadcasted.emit(BroadcastInfo.ReadyToDisplayMonaco);
             this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
           }
         }
         break;
       case MessageType.RequestOldCRDTs:
-        console.log('Hey sb ask me to send old messages :)');
         if (!this.hasReceivedAllMessages) {
           console.log(
             "I haven't received allMessages yet. Can't send to that peer"
@@ -211,10 +224,15 @@ export class PeerService {
   }
 
   private handleConnectionClose(conn: any) {
+    // console.log(
+    //   'Connection to ' +
+    //     conn.peer +
+    //     ' is closed. It will be deleted in the connectionsIAmHolding list!'
+    // );
     console.log(
       'Connection to ' +
         conn.peer +
-        ' is closed. It will be deleted in the connectionsIAmHolding list!'
+        ' is closed but is not be deleted! We want to see if we can still send messages or not. One question: Who close this connection?! Is it because wifi disconnects?'
     );
     const index = this.connectionsIAmHolding.findIndex(
       (connection) => connection === conn
@@ -258,7 +276,6 @@ export class PeerService {
   }
 
   private sendOldCRDTs(conn: any) {
-    console.log('Sending old crdt to peer ' + conn.peer);
     const previousCRDTs: CRDT[] = this.editorService.getOldCRDTsAsSortedArray();
 
     // Break huge crdts array into smaller arrays and send each one to avoid connection crash
@@ -324,11 +341,11 @@ export class PeerService {
       .joinNewRoom(this.peer.id)
       .subscribe((data: EnterRoomInfo) => {
         this.roomName = data.roomName;
-        console.log('roomName: ' + this.roomName);
         EditorService.setSiteId(data.siteId);
         // No peerId
         this.handleFirstJoinRoom([]);
         this.infoBroadcasted.emit(BroadcastInfo.RoomName);
+        this.infoBroadcasted.emit(BroadcastInfo.ReadyToDisplayMonaco);
       });
   }
 
@@ -336,7 +353,6 @@ export class PeerService {
     this.roomName = roomName;
     this.roomService.joinExistingRoom(this.peer.id, this.roomName).subscribe(
       (data: EnterRoomInfo) => {
-        console.log(data);
         if (data.siteId === -1) {
           // Either room not exists or has been deleted
           window.location.replace('/');
@@ -496,4 +512,5 @@ export const enum BroadcastInfo {
   RemoteRemove = 3,
   RemoteAllMessages = 4,
   ChangeLanguage = 5,
+  ReadyToDisplayMonaco = 6,
 }

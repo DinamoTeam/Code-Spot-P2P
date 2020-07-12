@@ -1,10 +1,12 @@
-<!-- Aux Editor needs to initialize early-->
-<ngx-monaco-editor class="solution-code-editor"
-                    [options]="editorOptions"
-                    (onInit)="onInitAuxEditorHandler($event)"
-                    style="display:none">
-</ngx-monaco-editor>
-<!-- Aux Editor-->
+<div *ngIf="!ready" class="d-flex ml-3 mr-2 justify-content-center align-items-center loading">
+  <div class="text-center">
+    <div class="spinner-grow mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+    <br />
+    <h2>Programmer</h2>
+    <p>A TOOL FOR CONVERTING CAFFEINE INTO CODE</p>
+    <sub>[#] PCbots Labs</sub>
+  </div>
+</div>
 
 <div *ngIf="showSuccessAlert"
      class="alert alert-success"
@@ -16,10 +18,10 @@
   </button>
 </div>
 
-<div *ngIf="ready" class="d-flex ml-3 mr-2 flex-md-row flex-column">
+<div class="d-flex ml-3 mr-2 flex-md-row flex-column">
   <form class="form-horizontal col-md-9 col-xs-12" [formGroup]="languageForm">
     <!--Select Language-->
-    <div class="form-group">
+    <div *ngIf="ready" class="form-group">
       <div class="col-sm-4">
         <select class="form-control"
                 formControlName="language"
@@ -31,6 +33,13 @@
         </select>
       </div>
     </div>
+    <!-- Aux Editor needs to initialize early-->
+    <ngx-monaco-editor class="solution-code-editor"
+                       [options]="editorOptions"
+                       (onInit)="onInitAuxEditorHandler($event)"
+                       style="display:none">
+    </ngx-monaco-editor>
+    <!-- Aux Editor-->
     <!--Editor-->
     <div>
       <ngx-monaco-editor class="solution-code-editor"
@@ -41,16 +50,6 @@
       </button>
     </div>
   </form>
-  <!--Chat Box (Coming Feature)-->
-  <!--<app-chatbox class="mt-5"></app-chatbox>-->
-</div>
-
-<div *ngIf="!ready" class="d-flex ml-3 mr-2 justify-content-center align-items-center loading">
-  <div class="text-center">
-    <div class="spinner-grow mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
-    <br />
-    <h2>Programmer</h2>
-    <p>A TOOL FOR CONVERTING CAFFEINE INTO CODE</p>
-    <sub>[#] PCbots Labs</sub>
-  </div>
+<!--Chat Box (Coming Feature)-->
+<!--<app-chatbox class="mt-5"></app-chatbox>-->
 </div>
