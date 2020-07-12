@@ -129,7 +129,10 @@ export class PeerService {
       if (
         this.peerIdsToSendOldMessages.findIndex((id) => id === conn.peer) !== -1
       ) {
-        this.broadcastNewMessagesToConnUntil(conn, BROADCAST_TILL_MILLI_SECONDS_LATER);
+        this.broadcastNewMessagesToConnUntil(
+          conn,
+          BROADCAST_TILL_MILLI_SECONDS_LATER
+        );
         this.sendOldCRDTs(conn);
         this.peerIdsToSendOldMessages.filter((id) => id !== conn.peer);
         this.sendChangeLanguage(conn);
@@ -202,7 +205,9 @@ export class PeerService {
           console.log(
             "I haven't received allMessages yet. Can't send to that peer"
           );
-          fromConn.send(new Message(null, MessageType.CannotSendOldCRDTs, null, null, -1));
+          fromConn.send(
+            new Message(null, MessageType.CannotSendOldCRDTs, null, null, -1)
+          );
         } else {
           // If connection hasn't opened
           if (
@@ -212,7 +217,10 @@ export class PeerService {
           ) {
             this.peerIdsToSendOldMessages.push(fromConn.peer); // Send when opened
           } else {
-            this.broadcastNewMessagesToConnUntil(fromConn, BROADCAST_TILL_MILLI_SECONDS_LATER);
+            this.broadcastNewMessagesToConnUntil(
+              fromConn,
+              BROADCAST_TILL_MILLI_SECONDS_LATER
+            );
             this.sendOldCRDTs(fromConn); // send now
             this.sendChangeLanguage(fromConn);
           }
@@ -261,7 +269,10 @@ export class PeerService {
       this.hasReceivedAllMessages = true;
     } else {
       this.peerIdsInRoom = peerIds;
-      const peerIdPicked = this.pickReadyPeerToGetAllMessages(peerIds, receivedAllMessages);
+      const peerIdPicked = this.pickReadyPeerToGetAllMessages(
+        peerIds,
+        receivedAllMessages
+      );
       if (peerIdPicked === null) {
         // Error. No peer is ready. Go back home
         window.location.replace('/');
@@ -272,7 +283,10 @@ export class PeerService {
     }
   }
 
-  private pickReadyPeerToGetAllMessages(peerIds: string[], receivedAllMessages: boolean[]): string {
+  private pickReadyPeerToGetAllMessages(
+    peerIds: string[],
+    receivedAllMessages: boolean[]
+  ): string {
     const candidatePeerIds = [];
     for (let i = 0; i < receivedAllMessages.length; i++) {
       if (receivedAllMessages[i]) {
@@ -287,21 +301,30 @@ export class PeerService {
     }
   }
 
-  private waitTillGotAllMessagesOrRefreshIfThatPeerLeft(peerIdToGetAllMessages: string) {
+  private waitTillGotAllMessagesOrRefreshIfThatPeerLeft(
+    peerIdToGetAllMessages: string
+  ) {
     if (!this.hasReceivedAllMessages) {
-      console.log('Have not received all messages. Let us check our peerToGetAllMessages');
-      this.roomService.getPeerIdsInRoom(this.roomName)
-      .subscribe(peerIds => {
+      console.log(
+        'Have not received all messages. Let us check our peerToGetAllMessages'
+      );
+      this.roomService.getPeerIdsInRoom(this.roomName).subscribe((peerIds) => {
         console.log(peerIds);
         console.log(peerIdToGetAllMessages);
-        if (peerIds.findIndex(id => id === peerIdToGetAllMessages) === -1) {
-          console.log('The peer we intended to get old messages from just left the room. Refreshing...');
+        if (peerIds.findIndex((id) => id === peerIdToGetAllMessages) === -1) {
+          console.log(
+            'The peer we intended to get old messages from just left the room. Refreshing...'
+          );
           window.location.reload(true);
         } else {
-          console.log('Peer to get all messages still in room. Wait 3 more sec');
+          console.log(
+            'Peer to get all messages still in room. Wait 3 more sec'
+          );
           const that = this;
           setTimeout(function () {
-            that.waitTillGotAllMessagesOrRefreshIfThatPeerLeft(peerIdToGetAllMessages);
+            that.waitTillGotAllMessagesOrRefreshIfThatPeerLeft(
+              peerIdToGetAllMessages
+            );
           }, 3000);
         }
       });
@@ -403,7 +426,10 @@ export class PeerService {
           alert('Room not exists, navigating back to home');
         }
         EditorService.setSiteId(data.siteId);
-        this.handleFirstJoinRoom(data.peerIds, data.hasReceivedAllMessages);
+        const boolArrHasReceivedAllMessages = data.hasReceivedAllMessages.map(
+          (num) => (num === 0 ? false : true)
+        );
+        this.handleFirstJoinRoom(data.peerIds, boolArrHasReceivedAllMessages);
       },
       (error) => {
         console.error(error);
@@ -449,16 +475,21 @@ export class PeerService {
     }
   }
 
-  private broadcastNewMessagesToConnUntil(conn: any, milliSecondsLater: number) {
+  private broadcastNewMessagesToConnUntil(
+    conn: any,
+    milliSecondsLater: number
+  ) {
     this.connsToBroadcast.push(conn);
     const that = this;
     setTimeout(function () {
-      that.connsToBroadcast = that.connsToBroadcast.filter(connection => connection.peer !== conn.peer);
+      that.connsToBroadcast = that.connsToBroadcast.filter(
+        (connection) => connection.peer !== conn.peer
+      );
     }, milliSecondsLater);
   }
 
   private broadcastMessageToPeers(message: Message, conns: any[]) {
-    conns.forEach(connection => {
+    conns.forEach((connection) => {
       connection.send(message);
     });
   }
@@ -570,5 +601,5 @@ export const enum BroadcastInfo {
   RemoteRemove = 3,
   RemoteAllMessages = 4,
   ChangeLanguage = 5,
-  ReadyToDisplayMonaco = 6
+  ReadyToDisplayMonaco = 6,
 }
