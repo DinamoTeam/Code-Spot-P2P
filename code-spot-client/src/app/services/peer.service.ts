@@ -5,9 +5,11 @@ import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
 import { Subject, Observable } from 'rxjs';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 declare const Peer: any;
 const MAX_CRDT_PER_SEND = 500;
+const BROADCAST_TILL_MILLI_SECONDS_LATER = 15000;
 @Injectable({
   providedIn: 'root',
 })
@@ -22,6 +24,7 @@ export class PeerService {
   private connectionsIAmHolding: any[] = [];
   private messagesToBeAcknowledged: Message[] = [];
   private hasReceivedAllMessages = false;
+  private connsToBroadcast: any[] = [];
   connectionEstablished = new EventEmitter<boolean>();
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
   receivedRemoteCrdts: CRDT[];
@@ -46,7 +49,7 @@ export class PeerService {
           },
         ],
       },
-      pingInterval: 3000, 
+      pingInterval: 3000,
       debug: 3, // Print all logs
     });
     /*this.peer = new Peer({
@@ -126,6 +129,7 @@ export class PeerService {
       if (
         this.peerIdsToSendOldMessages.findIndex((id) => id === conn.peer) !== -1
       ) {
+        this.broadcastNewMessagesToConnUntil(conn, BROADCAST_TILL_MILLI_SECONDS_LATER);
         this.sendOldCRDTs(conn);
         this.peerIdsToSendOldMessages.filter((id) => id !== conn.peer);
         this.sendChangeLanguage(conn);
@@ -151,11 +155,13 @@ export class PeerService {
   private handleMessageFromPeer(message: Message, fromConn: any) {
     switch (message.messageType) {
       case MessageType.ChangeLanguage:
+        this.broadcastMessageToPeers(message, this.connsToBroadcast);
         EditorService.language = message.content;
         this.infoBroadcasted.emit(BroadcastInfo.ChangeLanguage);
         break;
       case MessageType.RemoteInsert:
       case MessageType.RemoteRemove:
+        this.broadcastMessageToPeers(message, this.connsToBroadcast);
       case MessageType.OldCRDTs:
       case MessageType.OldCRDTsLastBatch:
         // Acknowledge
@@ -179,7 +185,7 @@ export class PeerService {
           // peerMessagesTracker.receiveRemoteRemoves(crdts);
           this.infoBroadcasted.emit(BroadcastInfo.RemoteRemove);
         } else {
-          console.log('Receive All Messages');
+          console.log('Receive OldCRDTs');
           // peerMessagesTracker.receiveRemoteInserts(crdts);
           this.infoBroadcasted.emit(BroadcastInfo.RemoteAllMessages);
           if (message.messageType === MessageType.OldCRDTsLastBatch) {
@@ -194,8 +200,8 @@ export class PeerService {
           console.log(
             "I haven't received allMessages yet. Can't send to that peer"
           );
+          fromConn.send(new Message(null, MessageType.CannotSendOldCRDTs, null, null, -1));
         } else {
-          console.log(this.connectionsIAmHolding);
           // If connection hasn't opened
           if (
             this.connectionsIAmHolding.findIndex(
@@ -204,10 +210,15 @@ export class PeerService {
           ) {
             this.peerIdsToSendOldMessages.push(fromConn.peer); // Send when opened
           } else {
+            this.broadcastNewMessagesToConnUntil(fromConn, BROADCAST_TILL_MILLI_SECONDS_LATER);
             this.sendOldCRDTs(fromConn); // send now
             this.sendChangeLanguage(fromConn);
           }
         }
+        break;
+      case MessageType.CannotSendOldCRDTs:
+        alert('The peer cannot send OldCRDTs. Reloading...');
+        window.location.reload(true);
         break;
       case MessageType.Acknowledge:
         const indexDelete = this.messagesToBeAcknowledged.findIndex(
@@ -251,16 +262,28 @@ export class PeerService {
       const randIndex = Math.floor(Math.random() * peerIds.length);
       this.connectToPeer(peerIds[randIndex], true);
       // this.connectToPeer(peerIds[0], true); // For testing only
-      const that = this;
-      setTimeout(function () {
-        if (!that.hasReceivedAllMessages) {
-          // The peer we intended to get old messages from just left the room or is taking to long to answer
-          console.log(
-            'The peer we intended to get old messages from just left the room or is taking to long to answer. Reloading'
-          );
+      this.waitTillGotAllMessagesOrRefreshIfPeerLeft(peerIds[randIndex]);
+    }
+  }
+
+  private waitTillGotAllMessagesOrRefreshIfPeerLeft(peerIdToGetAllMessages: string) {
+    if (!this.hasReceivedAllMessages) {
+      console.log('Have not received all messages. Let us check our peerToGetAllMessages');
+      this.roomService.getPeerIdsInRoom(this.roomName)
+      .subscribe(peerIds => {
+        console.log(peerIds);
+        console.log(peerIdToGetAllMessages);
+        if (peerIds.findIndex(id => id === peerIdToGetAllMessages) === -1) {
+          console.log('The peer we intended to get old messages from just left the room. Refreshing...');
           window.location.reload(true);
+        } else {
+          console.log('Peer to get all messages still in room. Wait 3 more sec');
+          const that = this;
+          setTimeout(function () {
+            that.waitTillGotAllMessagesOrRefreshIfPeerLeft(peerIdToGetAllMessages);
+          }, 3000);
         }
-      }, 40000);
+      });
     }
   }
 
@@ -405,35 +428,49 @@ export class PeerService {
     }
   }
 
-  acknowledgeOrResend(mess: Message, hasSent = 0) {
-    // If message hasn't been received
-    if (
-      this.messagesToBeAcknowledged.find(
-        (message) => message.time === mess.time
-      )
-    ) {
-      const conn = this.connectionsIAmHolding.find(
-        (connection) => connection.peer === mess.toPeerId
-      );
-      // Has sent for more than 5 times
-      if (hasSent > 5) {
-        this.connectionsIAmHolding = this.connectionsIAmHolding.filter(
-          (connection) => connection.peer !== conn.peer
-        );
-        return;
-      }
-
-      // If that peer hasn't disconnect
-      if (conn) {
-        conn.send(mess);
-        console.log('Waiting too long for ack. Resent messages');
-        const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
-        setTimeout(function () {
-          that.acknowledgeOrResend(mess, hasSent + 1);
-        }, that.timeWaitForAck);
-      }
-    }
+  private broadcastNewMessagesToConnUntil(conn: any, milliSecondsLater: number) {
+    this.connsToBroadcast.push(conn);
+    const that = this;
+    setTimeout(function () {
+      that.connsToBroadcast = that.connsToBroadcast.filter(connection => connection.peer !== conn.peer);
+    }, milliSecondsLater);
   }
+
+  private broadcastMessageToPeers(message: Message, conns: any[]) {
+    conns.forEach(connection => {
+      connection.send(message);
+    });
+  }
+
+  // acknowledgeOrResend(mess: Message, hasSent = 0) {
+  //   // If message hasn't been received
+  //   if (
+  //     this.messagesToBeAcknowledged.find(
+  //       (message) => message.time === mess.time
+  //     )
+  //   ) {
+  //     const conn = this.connectionsIAmHolding.find(
+  //       (connection) => connection.peer === mess.toPeerId
+  //     );
+  //     // Has sent for more than 5 times
+  //     if (hasSent > 5) {
+  //       this.connectionsIAmHolding = this.connectionsIAmHolding.filter(
+  //         (connection) => connection.peer !== conn.peer
+  //       );
+  //       return;
+  //     }
+
+  //     // If that peer hasn't disconnect
+  //     if (conn) {
+  //       conn.send(mess);
+  //       console.log('Waiting too long for ack. Resent messages');
+  //       const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
+  //       setTimeout(function () {
+  //         that.acknowledgeOrResend(mess, hasSent + 1);
+  //       }, that.timeWaitForAck);
+  //     }
+  //   }
+  // }
 
   broadcastChangeLanguage() {
     this.connectionsIAmHolding.forEach((conn) => {
@@ -512,5 +549,5 @@ export const enum BroadcastInfo {
   RemoteRemove = 3,
   RemoteAllMessages = 4,
   ChangeLanguage = 5,
-  ReadyToDisplayMonaco = 6,
+  ReadyToDisplayMonaco = 6
 }

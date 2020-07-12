@@ -36,6 +36,17 @@ export class RoomService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
+  // HttpClient API get() -> get PeerIds In Room
+  getPeerIdsInRoom(roomName: string): Observable<string[]> {
+    return this.http
+      .get<string[]>(
+        this.apiURL +
+          'GetPeerIdsInRoom?roomName=' +
+          roomName
+      )
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
   // Error handling
   handleError(error) {
     let errorMessage = '';

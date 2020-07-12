@@ -22,6 +22,19 @@ namespace CodeSpotP2P.Controllers
             _database = database;
         }
 
+        // GET: api/Room/GetPeerIdsInRoom?roomName=abc
+        [HttpGet]
+        public async Task<IActionResult> GetPeerIdsInRoom(string roomName)
+        {
+            if (await RoomExist(roomName))
+            {
+                var peerIds = await _database.peers.Where(p => p.RoomName == roomName)
+                                         .Select(p => p.PeerId)
+                                         .ToListAsync();
+                return Ok(peerIds);
+            }
+            return Ok(null);
+        }
         // GET: api/Room/JoinNewRoom?peerId=abc
         [HttpGet]
         public async Task<IActionResult> JoinNewRoom(string peerId)
@@ -84,14 +97,14 @@ namespace CodeSpotP2P.Controllers
             {
                 _database.peers.Remove(peer);
                 await _database.SaveChangesAsync();
-            }
 
-            // Delete room if nobody's in it
-            if (!_database.peers.Any(p => p.RoomName == peer.RoomName))
-            {
-                Room room = _database.rooms.FirstOrDefault(r => r.RoomName == peer.RoomName);
-                _database.rooms.Remove(room);
-                await _database.SaveChangesAsync();
+                // Delete room if nobody's in it
+                if (!_database.peers.Any(p => p.RoomName == peer.RoomName))
+                {
+                    Room room = _database.rooms.FirstOrDefault(r => r.RoomName == peer.RoomName);
+                    _database.rooms.Remove(room);
+                    await _database.SaveChangesAsync();
+                }
             }
 
             return Ok(200);
