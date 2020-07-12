@@ -3,9 +3,7 @@ import { Message, MessageType } from '../shared/Message';
 import { RoomService } from './room.service';
 import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
-import { Subject, Observable } from 'rxjs';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 declare const Peer: any;
 const MAX_CRDT_PER_SEND = 500;
@@ -14,7 +12,6 @@ const BROADCAST_TILL_MILLI_SECONDS_LATER = 15000;
   providedIn: 'root',
 })
 export class PeerService {
-  private timeWaitForAck = 1000; // Millisecond
   private time = 0;
   private peer: any;
   private roomName: string;
@@ -50,7 +47,7 @@ export class PeerService {
         ],
       },
       pingInterval: 3000,
-      debug: 3, // Print all logs
+      debug: 3 // Print all logs
     });
     /*this.peer = new Peer({
       host: 'localhost',
@@ -312,9 +309,6 @@ export class PeerService {
     peerIdToGetAllMessages: string
   ) {
     if (!this.hasReceivedAllMessages) {
-      console.log(
-        'Have not received all messages. Let us check our peerToGetAllMessages'
-      );
       this.roomService.getPeerIdsInRoom(this.roomName).subscribe((peerIds) => {
         console.log(peerIds);
         console.log(peerIdToGetAllMessages);
@@ -324,9 +318,6 @@ export class PeerService {
           );
           window.location.reload(true);
         } else {
-          console.log(
-            'Peer to get all messages still in room. Wait 3 more sec'
-          );
           const that = this;
           setTimeout(function () {
             that.waitTillGotAllMessagesOrRefreshIfThatPeerLeft(
