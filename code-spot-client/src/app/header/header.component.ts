@@ -30,11 +30,11 @@ export class HeaderComponent implements OnInit {
 
   onBtnAboutClick() {
     this.isExpanded = false;
-    this.router.navigate(['About']);
+    window.location.replace("/About");
   }
 
   onBtnContactClick() {
     this.isExpanded = false;
-    this.router.navigate(['Contact']);
+    window.location.replace("/Contact");
   }
 }

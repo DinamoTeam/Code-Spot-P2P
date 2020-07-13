@@ -48,7 +48,7 @@
     </ngx-monaco-editor>
     <!-- Aux Editor-->
     <!--Editor-->
-    <div [style.display]="ready ? 'block' : 'none'">
+    <div [style.visibility]="ready ? 'visible' : 'hidden'">
       <ngx-monaco-editor
         class="solution-code-editor"
         [options]="editorOptions"
