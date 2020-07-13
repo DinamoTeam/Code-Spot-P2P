@@ -1,16 +1,16 @@
 .btn-navy {
   color: white;
-  background-color: #CB6318;
+  background-color: #cb6318;
 }
 
 .cover {
   padding: 0 1.5rem;
   display: flex;
-  height: 95vh;
+  height: 80vh;
   align-items: center;
 }
 
-  .cover .btn-lg {
-    padding: .75rem 1.25rem;
-    font-weight: 700;
-  }
+.cover .btn-lg {
+  padding: 0.75rem 1.25rem;
+  font-weight: 700;
+}

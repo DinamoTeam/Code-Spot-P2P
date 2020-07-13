@@ -1,6 +1,13 @@
-<div *ngIf="!ready" class="d-flex ml-3 mr-2 justify-content-center align-items-center loading">
+<div
+  *ngIf="!ready"
+  class="d-flex ml-3 mr-2 justify-content-center align-items-center loading"
+>
   <div class="text-center">
-    <div class="spinner-grow mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+    <div
+      class="spinner-grow mb-3"
+      style="width: 3rem; height: 3rem;"
+      role="status"
+    ></div>
     <br />
     <h2>Programmer</h2>
     <p>A TOOL FOR CONVERTING CAFFEINE INTO CODE</p>
@@ -8,10 +15,7 @@
   </div>
 </div>
 
-<div *ngIf="showSuccessAlert"
-     class="alert alert-success"
-     role="alert"
-     style="position: absolute;">
+<div *ngIf="showSuccessAlert" class="alert alert-success" role="alert">
   Link copied to clipboard!
   <button type="button" class="close" (click)="closeAlert()">
     <span aria-hidden="true">&times;</span>
@@ -23,33 +27,38 @@
     <!--Select Language-->
     <div *ngIf="ready" class="form-group">
       <div class="col-sm-4">
-        <select class="form-control"
-                formControlName="language"
-                (change)="onLanguageChange($event.target.value)">
-          <option *ngFor="let language of languages"
-                  [ngValue]="language.value">
+        <select
+          class="form-control"
+          formControlName="language"
+          (change)="onLanguageChange($event.target.value)"
+        >
+          <option *ngFor="let language of languages" [ngValue]="language.value">
             {{ language.name }}
           </option>
         </select>
       </div>
     </div>
     <!-- Aux Editor needs to initialize early-->
-    <ngx-monaco-editor class="solution-code-editor"
-                       [options]="editorOptions"
-                       (onInit)="onInitAuxEditorHandler($event)"
-                       style="display:none">
+    <ngx-monaco-editor
+      class="solution-code-editor"
+      [options]="editorOptions"
+      (onInit)="onInitAuxEditorHandler($event)"
+      style="display: none;"
+    >
     </ngx-monaco-editor>
     <!-- Aux Editor-->
     <!--Editor-->
-    <div>
-      <ngx-monaco-editor class="solution-code-editor"
-                         [options]="editorOptions"
-                         (onInit)="onInitEditorHandler($event)"></ngx-monaco-editor>
+    <div [style.display]="ready ? 'block' : 'none'">
+      <ngx-monaco-editor
+        class="solution-code-editor"
+        [options]="editorOptions"
+        (onInit)="onInitEditorHandler($event)"
+      ></ngx-monaco-editor>
       <button class="btn btn-md btn-navy" (click)="copyLink()">
         Get shareable link!
       </button>
     </div>
   </form>
-<!--Chat Box (Coming Feature)-->
-<!--<app-chatbox class="mt-5"></app-chatbox>-->
+  <!--Chat Box (Coming Feature)-->
+  <!--<app-chatbox class="mt-5"></app-chatbox>-->
 </div>

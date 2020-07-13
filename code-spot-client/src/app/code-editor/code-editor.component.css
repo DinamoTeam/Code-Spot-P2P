@@ -4,20 +4,15 @@
 
 .btn-navy {
   color: white;
-  background-color: #CB6318;
-}
-
-@media (max-width: 768px) {
-    .dummy {
-        justify-content: center;
-    }
-}
-
-.dummy {
-    display: flex;
-    flex-direction: column;
+  background-color: #cb6318;
 }
 
 .loading {
-    height: 80vh;
+  height: 80vh;
+}
+
+.alert {
+  position: fixed;
+  bottom: 0;
+  left: 0;
 }
