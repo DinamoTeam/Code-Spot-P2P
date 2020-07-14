@@ -156,6 +156,8 @@ export class CodeEditorComponent implements OnInit {
           case BroadcastInfo.ReadyToDisplayMonaco:
             this.ready = true;
             break;
+          case BroadcastInfo.UpdateAllMessages:
+            break;
           default:
             console.log('UNKNOWN event!!!');
             console.log(message);

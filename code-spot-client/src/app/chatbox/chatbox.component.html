@@ -1,5 +1,31 @@
-<div>
-  <p>First Person</p>
-  <p>Second Person</p>
-  <p>Third Person</p>
+<div class="chatBox">
+  <div class="mt-2">
+    <div *ngFor="let mess of messages">
+      <app-message-bubble [senderName]="mess.fromPeerId" [content]="mess.content">
+      </app-message-bubble>
+    </div>
+  </div>
+
+  <div>&nbsp;</div>
+  <div>&nbsp;</div>
+  <div>&nbsp;</div>
+
+  <form class="ml-3 mr-2"
+        [formGroup]="messageForm"
+        (ngSubmit)="sendMessage(messageForm.value)">
+    <div class="form-group d-flex">
+      <input type="text"
+              formControlName="messageToSend"
+              class="form-control"
+              placeholder="Aa"
+              autofocus />
+      <button *ngIf="messageToSend.value != ''"
+              class="invisibleBtn"
+              type="submit">
+        <img class="ml-1" src="../../assets/send-mail.svg" />
+      </button>
+    </div>
+  </form>
 </div>
+
+

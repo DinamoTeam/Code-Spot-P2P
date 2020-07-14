@@ -4,6 +4,7 @@ import { RoomService } from './room.service';
 import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
+import { PeerEvent } from '../shared/PeerEvent';
 
 declare const Peer: any;
 const MAX_CRDT_PER_SEND = 500;
@@ -26,6 +27,7 @@ export class PeerService {
   connectionEstablished = new EventEmitter<boolean>();
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
   receivedRemoteCrdts: CRDT[];
+  private previousChatMessages: Message[] = [];
 
   constructor(
     private roomService: RoomService,
@@ -129,7 +131,7 @@ export class PeerService {
 
   private setupListenerForConnection(conn: any) {
     // When the connection first establish
-    conn.on(ConnectionEvent.Open, () => {
+    conn.on(PeerEvent.Open, () => {
       console.log('Connection to peer ' + conn.peer + ' opened :)');
       // Only add this conn to our list when the connection has opened!
       this.addUniqueConnections([conn], this.connectionsIAmHolding);
@@ -151,13 +153,13 @@ export class PeerService {
       }
     });
     // the other peer send us some data
-    conn.on(ConnectionEvent.Data, (message) =>
+    conn.on(PeerEvent.Data, (message) =>
       this.handleMessageFromPeer(message, conn)
     );
     // either us or the other peer close the connection
-    conn.on(ConnectionEvent.Close, () => this.handleConnectionClose(conn));
+    conn.on(PeerEvent.Close, () => this.handleConnectionClose(conn));
 
-    conn.on(ConnectionEvent.Error, (error) => {
+    conn.on(PeerEvent.Error, (error) => {
       console.error('Connection error: ');
       console.error(error);
     });
@@ -250,8 +252,12 @@ export class PeerService {
           this.messagesToBeAcknowledged.splice(indexDelete, 1);
         }
         break;
-
+      case MessageType.ChatMessage:
+        this.addUniqueMessages([message], this.previousChatMessages);
+        this.infoBroadcasted.emit(BroadcastInfo.UpdateAllMessages);
+        break;
       default:
+        console.log(message);
         throw new Error('Unhandled messageType');
     }
   }
@@ -576,6 +582,51 @@ export class PeerService {
     return crdts;
   }
 
+  private addUniqueMessages(list: Message[], listToBeAddedTo: Message[]) {
+    list.forEach((message) => {
+      let weHadThatMessage = false;
+      for (let i = 0; i < listToBeAddedTo.length; i++) {
+        if (
+          listToBeAddedTo[i].fromPeerId === message.fromPeerId &&
+          listToBeAddedTo[i].time === message.time
+        ) {
+          weHadThatMessage = true;
+          break;
+        }
+      }
+      if (!weHadThatMessage) {
+        listToBeAddedTo.push(message);
+      }
+    });
+  }
+
+  sendMessage(content: string) {
+    if (content.length === 0) {
+      return;
+    }
+
+    this.previousChatMessages.push(
+      new Message(content, MessageType.ChatMessage, this.peer.id, null, this.time)
+    );
+
+    this.connectionsIAmHolding.forEach((conn) => {
+      const messageToSend = new Message(
+        content,
+        MessageType.ChatMessage,
+        this.peer.id,
+        conn.peer,
+        this.time
+      );
+
+      conn.send(messageToSend);
+    });
+    this.time++;
+  }
+
+  getAllMessages(): any[] {
+    return this.previousChatMessages;
+  }
+
   getReceivedRemoteCrdts(): CRDT[] {
     return this.receivedRemoteCrdts;
   }
@@ -611,22 +662,6 @@ export class PeerService {
       }
     });
   }
-}
-
-export const enum PeerEvent {
-  Open = 'open',
-  Close = 'close',
-  Connection = 'connection',
-  Data = 'data',
-  Disconnected = 'disconnected',
-  Error = 'error',
-}
-
-export const enum ConnectionEvent {
-  Open = 'open',
-  Close = 'close',
-  Data = 'data',
-  Error = 'error',
 }
 
 export const enum BroadcastInfo {
