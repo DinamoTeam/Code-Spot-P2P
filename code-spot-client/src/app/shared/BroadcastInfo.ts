@@ -1,5 +1,5 @@
 export const enum BroadcastInfo {
-  UpdateAllMessages = 0,
+  UpdateChatMessages = 0,
   RoomName = 1,
   RemoteInsert = 2,
   RemoteRemove = 3,

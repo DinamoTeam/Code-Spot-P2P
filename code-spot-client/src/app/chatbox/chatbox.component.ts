@@ -1,6 +1,7 @@
 import { Component, OnInit, NgZone } from '@angular/core';
-import { PeerService, BroadcastInfo } from '../services/peer.service';
+import { PeerService } from '../services/peer.service';
 import { FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
+import { BroadcastInfo } from '../shared/BroadcastInfo';
 
 @Component({
   selector: 'app-chatbox',
@@ -36,7 +37,7 @@ export class ChatboxComponent implements OnInit {
     this.peerService.infoBroadcasted.subscribe((message: any) => {
       this.ngZone.run(() => {
         switch (message) {
-          case BroadcastInfo.UpdateAllMessages:
+          case BroadcastInfo.UpdateChatMessages:
             this.messages = this.peerService.getAllMessages();
             setTimeout(() => window.scrollTo(0, 1000000), 10); // Wait 10 milli sec for message to be updated
             break;

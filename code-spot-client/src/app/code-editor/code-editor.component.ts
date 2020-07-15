@@ -3,8 +3,9 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { PeerService, BroadcastInfo } from '../services/peer.service';
+import { PeerService } from '../services/peer.service';
 import { Languages } from './languages';
+import { BroadcastInfo } from '../shared/BroadcastInfo';
 
 declare const monaco: any;
 
@@ -156,7 +157,7 @@ export class CodeEditorComponent implements OnInit {
           case BroadcastInfo.ReadyToDisplayMonaco:
             this.ready = true;
             break;
-          case BroadcastInfo.UpdateAllMessages:
+          case BroadcastInfo.UpdateChatMessages:
             break;
           default:
             console.log('UNKNOWN event!!!');

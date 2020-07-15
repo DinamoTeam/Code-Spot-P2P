@@ -33,5 +33,7 @@ export const enum MessageType {
   ChangeLanguage = 6,
   CannotSendOldCRDTs = 7,
   ChatMessage = 8,
-  AllChatMessages = 9,
+  OldChatMessages = 9,
+  RequestOldChatMessages = 10,
+  CannotSendOldChatMessages = 11
 }
