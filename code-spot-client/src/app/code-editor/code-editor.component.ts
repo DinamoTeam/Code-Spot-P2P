@@ -1,4 +1,11 @@
-import { Component, OnInit, Input, NgZone, EventEmitter, Inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  NgZone,
+  EventEmitter,
+  Inject,
+} from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
 import { ActivatedRoute } from '@angular/router';
@@ -6,7 +13,6 @@ import { PeerService } from '../services/peer.service';
 import { Location, DOCUMENT } from '@angular/common';
 import { Languages } from './languages';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
-
 
 declare const monaco: any;
 
@@ -33,7 +39,6 @@ export class CodeEditorComponent implements OnInit {
       Validators.compose([Validators.required])
     ),
   });
-  monacoDOM: any;
 
   constructor(
     private peerService: PeerService,
@@ -82,8 +87,6 @@ export class CodeEditorComponent implements OnInit {
       this.peerService.connectToPeerServerAndInit();
       this.peerServiceHasConnectedToPeerServer = true;
     }
-
-    this.monacoDOM = document.getElementById('main-editor');
   }
 
   onInitAuxEditorHandler(event: any) {
@@ -209,15 +212,31 @@ export class CodeEditorComponent implements OnInit {
   }
 
   drawCursor(row: number, col: number) {
-    
+    const decoration = this.editor.deltaDecorations(
+      [],
+      [
+        {
+          range: new monaco.Range(row, col, row, col + 1),
+          options: { className: 'monaco-cursor' },
+        },
+      ]
+    );
   }
 
-  drawSelect(/*startRow: number, startCol: number, endRow: number, endColumn: number*/) {
-    console.log(this.monacoDOM);
-    const decoration = this.editor.deltaDecorations([], [
-      { range: new monaco.Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},
-	    { range: new monaco.Range(7,1,7,24), options: { inlineClassName: 'myInlineDecoration' }},
-    ]);
-    console.log(decoration);
+  drawSelect(
+    startRow: number,
+    startCol: number,
+    endRow: number,
+    endCol: number
+  ) {
+    const decoration = this.editor.deltaDecorations(
+      [],
+      [
+        {
+          range: new monaco.Range(startRow, startCol, endRow, endCol),
+          options: { className: 'monaco-select' },
+        },
+      ]
+    );
   }
 }
