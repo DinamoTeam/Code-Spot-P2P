@@ -1,11 +1,12 @@
-import { Component, OnInit, Input, NgZone, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, NgZone, EventEmitter, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
 import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
 import { PeerService } from '../services/peer.service';
+import { Location, DOCUMENT } from '@angular/common';
 import { Languages } from './languages';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
+
 
 declare const monaco: any;
 
@@ -32,13 +33,15 @@ export class CodeEditorComponent implements OnInit {
       Validators.compose([Validators.required])
     ),
   });
+  monacoDOM: any;
 
   constructor(
     private peerService: PeerService,
     public editorService: EditorService,
     private ngZone: NgZone,
     private actRoute: ActivatedRoute,
-    private location: Location
+    private location: Location,
+    @Inject(DOCUMENT) document
   ) {
     this.subscribeToPeerServiceEvents();
     this.getRoomName();
@@ -64,6 +67,8 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onInitEditorHandler(event: any) {
+    console.log(event);
+    console.log('yehh');
     this.editor = event;
     this.editorTextModel = this.editor.getModel();
     this.editorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
@@ -77,6 +82,8 @@ export class CodeEditorComponent implements OnInit {
       this.peerService.connectToPeerServerAndInit();
       this.peerServiceHasConnectedToPeerServer = true;
     }
+
+    this.monacoDOM = document.getElementById('main-editor');
   }
 
   onInitAuxEditorHandler(event: any) {
@@ -199,5 +206,18 @@ export class CodeEditorComponent implements OnInit {
 
   closeAlert() {
     this.showSuccessAlert = false;
+  }
+
+  drawCursor(row: number, col: number) {
+    
+  }
+
+  drawSelect(/*startRow: number, startCol: number, endRow: number, endColumn: number*/) {
+    console.log(this.monacoDOM);
+    const decoration = this.editor.deltaDecorations([], [
+      { range: new monaco.Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},
+	    { range: new monaco.Range(7,1,7,24), options: { inlineClassName: 'myInlineDecoration' }},
+    ]);
+    console.log(decoration);
   }
 }

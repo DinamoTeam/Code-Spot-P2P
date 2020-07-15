@@ -1,5 +1,8 @@
-<div *ngIf="!ready"
-     class="d-flex ml-3 mr-2 justify-content-center align-items-center loading">
+<button (click)="drawSelect();">Draw Select</button>
+<div
+  *ngIf="!ready"
+  class="d-flex ml-3 mr-2 justify-content-center align-items-center loading"
+>
   <div class="text-center">
     <div class="spinner-grow mb-3"
          style="width: 3rem; height: 3rem;"
