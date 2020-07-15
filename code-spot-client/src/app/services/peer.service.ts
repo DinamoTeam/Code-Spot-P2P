@@ -5,7 +5,7 @@ import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
 import { PeerEvent } from '../shared/PeerEvent';
-import { Utils } from '../shared/Utils';
+import { Utils, PeerUtils } from '../shared/Utils';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorChangeInfo } from '../shared/CursorChangeInfo';
 import { SelectionChangeInfo } from '../shared/SelectionChangeInfo';
@@ -30,7 +30,6 @@ export class PeerService {
   private connsToBroadcast: any[] = [];
   private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
   connectionEstablished = new EventEmitter<boolean>();
-  infoBroadcasted = new EventEmitter<BroadcastInfo>();
   private receivedRemoteCrdts: CRDT[];
   private cursorChangeInfo: CursorChangeInfo;
   private selectionChangeInfo: SelectionChangeInfo;
@@ -122,18 +121,15 @@ export class PeerService {
       serialization: 'json',
     });
 
-    if (getOldMessages === true) {
-      this.connToGetOldMessages = conn;
-    }
+    if (getOldMessages === true) this.connToGetOldMessages = conn;
+
     console.log('I just send peer: ' + otherPeerId + ' a connection request');
     this.setupListenerForConnection(conn);
   }
 
   private connectToTheRestInRoom(exceptPeerId: any) {
     this.peerIdsInRoom.forEach((peerId) => {
-      if (peerId !== exceptPeerId) {
-        this.connectToPeer(peerId, false);
-      }
+      if (peerId !== exceptPeerId) this.connectToPeer(peerId, false);
     });
   }
 
@@ -163,15 +159,19 @@ export class PeerService {
       }
     });
 
-    // the other peer send us some data
-    conn.on(PeerEvent.Data, (message) =>
+    /**
+     * Subscribe to receive messages from other peers
+     */
+    conn.on(PeerEvent.Data, (message: Message) =>
       this.handleMessageFromPeer(message, conn)
     );
 
-    // either us or the other peer close the connection
+    /**
+     * Event is raised when either us or other peers close the connection
+     */
     conn.on(PeerEvent.Close, () => this.handleConnectionClose(conn));
 
-    conn.on(PeerEvent.Error, (error) => {
+    conn.on(PeerEvent.Error, (error: any) => {
       console.error('Connection error: ');
       console.error(error);
     });
@@ -182,7 +182,7 @@ export class PeerService {
       case MessageType.ChangeLanguage:
         this.broadcastMessageToPeers(message, this.connsToBroadcast);
         EditorService.language = message.content;
-        this.infoBroadcasted.emit(BroadcastInfo.ChangeLanguage);
+        PeerUtils.broadcastInfo(BroadcastInfo.ChangeLanguage);
         break;
       case MessageType.RemoteInsert:
       case MessageType.RemoteRemove:
@@ -205,19 +205,19 @@ export class PeerService {
         if (message.messageType === MessageType.RemoteInsert) {
           console.log('Receive Remote Insert');
           // peerMessagesTracker.receiveRemoteInserts(crdts);
-          this.infoBroadcasted.emit(BroadcastInfo.RemoteInsert);
+          PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
           // peerMessagesTracker.processDeleteBuffer();
         } else if (message.messageType === MessageType.RemoteRemove) {
           console.log('Receive Remote Remove');
           // peerMessagesTracker.receiveRemoteRemoves(crdts);
-          this.infoBroadcasted.emit(BroadcastInfo.RemoteRemove);
+          PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
         } else {
           console.log('Receive OldCRDTs');
           // peerMessagesTracker.receiveRemoteInserts(crdts);
-          this.infoBroadcasted.emit(BroadcastInfo.RemoteAllMessages);
+          PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
           if (message.messageType === MessageType.OldCRDTsLastBatch) {
             this.hasReceivedAllMessages = true;
-            this.infoBroadcasted.emit(BroadcastInfo.ReadyToDisplayMonaco);
+            PeerUtils.broadcastInfo(BroadcastInfo.ReadyToDisplayMonaco);
             this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
             // Tell C# Server I have received AllMessages
             this.roomService.markPeerReceivedAllMessages(this.peer.id);
@@ -233,11 +233,8 @@ export class PeerService {
             new Message(null, MessageType.CannotSendOldCRDTs, null, null, -1)
           );
         } else {
-          // If connection hasn't opened
           if (
-            this.connectionsIAmHolding.findIndex(
-              (conn) => conn.peer === fromConn.peer
-            ) === -1
+            !PeerUtils.connectionHasOpened(fromConn, this.connectionsIAmHolding)
           ) {
             this.peerIdsToSendOldCrdts.push(fromConn.peer); // Send when opened
           } else {
@@ -266,13 +263,13 @@ export class PeerService {
         break;
       case MessageType.ChatMessage:
         Utils.addUniqueMessages([message], this.previousChatMessages);
-        this.infoBroadcasted.emit(BroadcastInfo.UpdateChatMessages);
+        PeerUtils.broadcastInfo(BroadcastInfo.UpdateChatMessages);
         break;
       case MessageType.OldChatMessages:
         this.hasReceivedAllChatMessages = true;
         const messages: Message[] = JSON.parse(message.content);
         Utils.addUniqueMessages(messages, this.previousChatMessages);
-        this.infoBroadcasted.emit(BroadcastInfo.UpdateChatMessages);
+        PeerUtils.broadcastInfo(BroadcastInfo.UpdateChatMessages);
         break;
       case MessageType.RequestOldChatMessages:
         if (!this.hasReceivedAllChatMessages) {
@@ -289,11 +286,8 @@ export class PeerService {
             )
           );
         } else {
-          // If connection hasn't opened
           if (
-            this.connectionsIAmHolding.findIndex(
-              (conn) => conn.peer === fromConn.peer
-            ) === -1
+            !PeerUtils.connectionHasOpened(fromConn, this.connectionsIAmHolding)
           ) {
             this.peerIdsToSendOldChatMessages.push(fromConn.peer); // Send when opened
           } else {
@@ -313,11 +307,11 @@ export class PeerService {
           cursorEvent.position.column,
           fromConn.peer
         );
-        this.infoBroadcasted.emit(BroadcastInfo.CursorChange);
+        PeerUtils.broadcastInfo(BroadcastInfo.CursorChange);
         break;
       case MessageType.ChangeSelect:
         this.selectionChangeInfo = JSON.parse(message.content);
-        this.infoBroadcasted.emit(BroadcastInfo.SelectionChange);
+        PeerUtils.broadcastInfo(BroadcastInfo.SelectionChange);
         break;
       default:
         console.log(message);
@@ -480,8 +474,8 @@ export class PeerService {
         EditorService.setSiteId(data.siteId);
         // No peerId
         this.handleFirstJoinRoom([], []);
-        this.infoBroadcasted.emit(BroadcastInfo.RoomName);
-        this.infoBroadcasted.emit(BroadcastInfo.ReadyToDisplayMonaco);
+        PeerUtils.broadcastInfo(BroadcastInfo.RoomName);
+        PeerUtils.broadcastInfo(BroadcastInfo.ReadyToDisplayMonaco);
       });
   }
 
