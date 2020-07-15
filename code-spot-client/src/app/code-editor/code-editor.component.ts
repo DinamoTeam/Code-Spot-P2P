@@ -14,6 +14,7 @@ import { Location, DOCUMENT } from '@angular/common';
 import { Languages } from './languages';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorService } from '../services/cursor.service';
+import { PeerUtils } from '../shared/Utils';
 
 declare const monaco: any;
 
@@ -162,7 +163,7 @@ export class CodeEditorComponent implements OnInit {
   }
 
   subscribeToPeerServiceEvents(): void {
-    this.peerService.infoBroadcasted.subscribe((message: any) => {
+    PeerUtils.broadcast.subscribe((message: any) => {
       this.ngZone.run(async () => {
         switch (message) {
           case BroadcastInfo.RoomName:
