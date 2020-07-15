@@ -87,6 +87,14 @@ export class CodeEditorComponent implements OnInit {
       this.onDidChangeModelContentHandler(e)
     );
 
+    this.editor.onDidChangeCursorPosition((e: any) =>
+      this.onDidChangeCursorPositionHandler(e)
+    );
+
+    this.editor.onDidChangeCursorSelection((e: any) =>
+      this.onDidChangeCursorSelectionHandler(e)
+    );
+
     this.mainEditorReady = true;
     if (this.auxEditorReady && !this.peerServiceHasConnectedToPeerServer) {
       this.peerService.connectToPeerServerAndInit();
@@ -132,6 +140,19 @@ export class CodeEditorComponent implements OnInit {
       );
     }
   }
+
+  onDidChangeCursorPositionHandler(event: any): void {
+    console.log(event);
+    // 3: Explicit - There was an explicit user gesture.
+    if (event.reason === 3) {
+      this.peerService.broadcastChangeCursorPos(event);
+    }
+  }
+
+  onDidChangeCursorSelectionHandler(event: any): void {
+    console.log(event);
+  }
+
 
   subscribeToPeerServiceEvents(): void {
     this.peerService.infoBroadcasted.subscribe((message: any) => {
