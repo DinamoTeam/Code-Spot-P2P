@@ -1,5 +1,7 @@
 import { CRDT } from './CRDT';
 import { Message } from './Message';
+import { EventEmitter } from '@angular/core';
+import { BroadcastInfo } from './BroadcastInfo';
 
 export class Utils {
   // Prototype: linear search. Future: binary search
@@ -88,5 +90,17 @@ export class Utils {
 
   static refreshAndGoBackHomePage() {
     window.location.replace('/');
+  }
+}
+
+export class PeerUtils {
+  static broadcast = new EventEmitter<BroadcastInfo>();
+
+  static connectionHasOpened(con: any, connections: any[]): boolean {
+    return connections.findIndex(x => x.peer === con.peer) !== -1;
+  }
+
+  static broadcastInfo(infoType: BroadcastInfo): void {
+    PeerUtils.broadcast.emit(infoType);
   }
 }
