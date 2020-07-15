@@ -1,0 +1,25 @@
+img {
+  height: 25px;
+  width: 25px;
+  margin-top: 4px;
+  color: #ff0000;
+}
+
+.invisibleBtn {
+  border: initial;
+  background-color: initial;
+  outline: none;
+}
+
+.chatBox {
+  width: 90vw;
+}
+
+@media (min-width: 768px) {
+  .chatBox {
+    width: 23vw;
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+}
+

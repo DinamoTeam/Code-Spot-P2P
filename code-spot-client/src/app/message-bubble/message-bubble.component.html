@@ -1,0 +1,16 @@
+<div [ngClass]="{ 'justify-content-end': senderName == myPeerId }"
+     class="d-flex">
+  <div [ngClass]="{ 'align-items-end': senderName == myPeerId }"
+       class="d-flex flex-column">
+    <p class="name">{{ displayName }}</p>
+    <div [ngClass]="{
+        otherPplMessage: senderName != myPeerId,
+        myMessage: senderName == myPeerId
+      }"
+         class="card mb-1">
+      <div class="card-body">
+        <p class="card-text">{{ content }}</p>
+      </div>
+    </div>
+  </div>
+</div>

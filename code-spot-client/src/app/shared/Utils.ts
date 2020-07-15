@@ -1,4 +1,5 @@
 import { CRDT } from './CRDT';
+import { Message } from './Message';
 
 export class Utils {
   // Prototype: linear search. Future: binary search
@@ -27,5 +28,61 @@ export class Utils {
     throw new Error(
       'Fail to delete crdt object! The object does not exist inside the array'
     );
+  }
+
+  static crdtArrToString(crdts: CRDT[], seperator: string): string {
+    const crdtStrings = crdts.map((crdt) => crdt.toString());
+    // console.log('crdtArr: ');
+    // console.log(crdts);
+    // console.log('crdtStrings: ');
+    // console.log(crdtStrings);
+    // console.log('Join: ');
+    // console.log(crdtStrings.join(seperator));
+    return crdtStrings.join(seperator);
+  }
+
+  static stringToCRDTArr(str: string, delimiter: string): CRDT[] {
+    const crdtStrings = str.split(delimiter);
+    const crdts = crdtStrings.map((crdtStr) => CRDT.parse(crdtStr));
+    // console.log('crdtStrings: ');
+    // console.log(str);
+    // console.log('crdtString splitted: ');
+    // console.log(crdtStrings);
+    // console.log('crdt parsed: ');
+    // console.log(crdts);
+    return crdts;
+  }
+
+  static addUniqueConnections(list: any[], listToBeAddedTo: any[]) {
+    list.forEach((obj) => {
+      let hasExist = false;
+      for (let i = 0; i < listToBeAddedTo.length; i++) {
+        if (obj.peer === listToBeAddedTo[i].peer) {
+          hasExist = true;
+          break;
+        }
+      }
+      if (!hasExist) {
+        listToBeAddedTo.push(obj);
+      }
+    });
+  }
+
+  static addUniqueMessages(list: Message[], listToBeAddedTo: Message[]) {
+    list.forEach((message) => {
+      let weHadThatMessage = false;
+      for (let i = 0; i < listToBeAddedTo.length; i++) {
+        if (
+          listToBeAddedTo[i].fromPeerId === message.fromPeerId &&
+          listToBeAddedTo[i].time === message.time
+        ) {
+          weHadThatMessage = true;
+          break;
+        }
+      }
+      if (!weHadThatMessage) {
+        listToBeAddedTo.push(message);
+      }
+    });
   }
 }
