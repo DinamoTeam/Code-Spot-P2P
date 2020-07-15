@@ -35,5 +35,7 @@ export const enum MessageType {
   ChatMessage = 8,
   OldChatMessages = 9,
   RequestOldChatMessages = 10,
-  CannotSendOldChatMessages = 11
+  CannotSendOldChatMessages = 11,
+  ChangeCursor = 12,
+  ChangeSelect = 13
 }

@@ -31,7 +31,7 @@ export class PeerService {
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
   receivedRemoteCrdts: CRDT[];
   private previousChatMessages: Message[] = [];
-  private hasReceivedAllChatMessages: boolean = false; 
+  private hasReceivedAllChatMessages: boolean = false;
 
   constructor(
     private roomService: RoomService,
@@ -276,7 +276,13 @@ export class PeerService {
             "I haven't received all chat messages yet. Can't send to that peer"
           );
           fromConn.send(
-            new Message(null, MessageType.CannotSendOldChatMessages, null, null, -1)
+            new Message(
+              null,
+              MessageType.CannotSendOldChatMessages,
+              null,
+              null,
+              -1
+            )
           );
         } else {
           // If connection hasn't opened
@@ -294,6 +300,9 @@ export class PeerService {
             this.sendOldMessages(fromConn); // send now
           }
         }
+        break;
+      case MessageType.ChangeCursor:
+        console.log(JSON.parse(message.content));
         break;
       default:
         console.log(message);
@@ -381,13 +390,7 @@ export class PeerService {
   }
 
   private requestOldMessages(conn: any, messageType: MessageType) {
-    const message = new Message(
-      null,
-      messageType,
-      null,
-      null,
-      this.time++
-    );
+    const message = new Message(null, messageType, null, null, this.time++);
     conn.send(message);
   }
 
@@ -602,7 +605,13 @@ export class PeerService {
     }
 
     this.previousChatMessages.push(
-      new Message(content, MessageType.ChatMessage, this.peer.id, null, this.time)
+      new Message(
+        content,
+        MessageType.ChatMessage,
+        this.peer.id,
+        null,
+        this.time
+      )
     );
 
     this.connectionsIAmHolding.forEach((conn) => {
@@ -617,6 +626,23 @@ export class PeerService {
       conn.send(messageToSend);
     });
     this.time++;
+  }
+
+  /* Cursor Change + Selection Change*/
+  broadcastChangeCursorPos(event: any) {
+    this.connectionsIAmHolding.forEach((conn) => {
+      this.sendChangeCursorPos(conn, event);
+    });
+  }
+  sendChangeCursorPos(conn: any, event: any) {
+    const message = new Message(
+      JSON.stringify(event),
+      MessageType.ChangeCursor,
+      this.peer.id,
+      conn.peer,
+      -1
+    );
+    conn.send(message);
   }
 
   getAllMessages(): any[] {
@@ -659,4 +685,3 @@ export class PeerService {
     });
   }
 }
-
