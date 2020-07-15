@@ -64,7 +64,7 @@ export class CodeEditorComponent implements OnInit {
 
   @Input() languages = Languages;
 
-  editorOptions = { theme: 'vs-dark', language: EditorService.language };
+  editorOptions = { theme: 'vs-dark', language: EditorService.language, stickiness: 1};
 
   onLanguageChange(res) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);
@@ -222,7 +222,7 @@ export class CodeEditorComponent implements OnInit {
       [
         {
           range: new monaco.Range(row, col, row, col + 1),
-          options: { className: 'monaco-cursor' },
+          options: { className: 'monaco-cursor', stickiness: 1},
         },
       ]
     );
@@ -235,6 +235,7 @@ export class CodeEditorComponent implements OnInit {
     endRow: number,
     endCol: number
   ) {
+    console.log(this.editor);
     // stickiness: 1 - NeverGrowsWhenTypingAtEdges
     const decoration = this.editor.deltaDecorations(
       [],
