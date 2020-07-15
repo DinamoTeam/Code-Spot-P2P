@@ -156,6 +156,9 @@ export class CodeEditorComponent implements OnInit {
 
   onDidChangeCursorSelectionHandler(event: any): void {
     console.log(event);
+    if (event.reason === 3) {
+      this.peerService.broadcastChangeSelectionPos(event);
+    }
   }
 
   subscribeToPeerServiceEvents(): void {
@@ -206,6 +209,17 @@ export class CodeEditorComponent implements OnInit {
               cursorChange.line,
               cursorChange.col,
               cursorChange.peerId
+            );
+            break;
+          case BroadcastInfo.SelectionChange:
+            const selectionChange = this.peerService.getSelectionChangeInfo();
+            this.cursorService.drawSelection(
+              this.editor,
+              selectionChange.startLine,
+              selectionChange.startColumn,
+              selectionChange.endLine,
+              selectionChange.endColumn,
+              selectionChange.peerId
             );
             break;
           default:

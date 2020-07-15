@@ -8,6 +8,7 @@ import { PeerEvent } from '../shared/PeerEvent';
 import { Utils } from '../shared/Utils';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorChangeInfo } from '../shared/CursorChangeInfo';
+import { SelectionChangeInfo } from '../shared/SelectionChangeInfo';
 
 declare const Peer: any;
 const MAX_CRDT_PER_SEND = 500;
@@ -32,6 +33,7 @@ export class PeerService {
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
   private receivedRemoteCrdts: CRDT[];
   private cursorChangeInfo: CursorChangeInfo;
+  private selectionChangeInfo: SelectionChangeInfo;
   private previousChatMessages: Message[] = [];
   private hasReceivedAllChatMessages: boolean = false;
 
@@ -312,6 +314,10 @@ export class PeerService {
           fromConn.peer
         );
         this.infoBroadcasted.emit(BroadcastInfo.CursorChange);
+        break;
+      case MessageType.ChangeSelect:
+        this.selectionChangeInfo = JSON.parse(message.content);
+        this.infoBroadcasted.emit(BroadcastInfo.SelectionChange);
         break;
       default:
         console.log(message);
@@ -638,11 +644,38 @@ export class PeerService {
   }
 
   /* Cursor Change + Selection Change*/
+  broadcastChangeSelectionPos(event: any) {
+    const selection = event.selection;
+    const selectionChangeInfo = new SelectionChangeInfo(
+      selection.startLineNumber,
+      selection.startColumn,
+      selection.endLineNumber,
+      selection.endColumn,
+      this.peer.id
+    );
+    this.connectionsIAmHolding.forEach((conn) => {
+      this.sendChangeSelectionPos(conn, selectionChangeInfo);
+    });
+  }
+
+  sendChangeSelectionPos(conn: any, selectionChangeInfo: SelectionChangeInfo) {
+    const message = new Message(
+      JSON.stringify(selectionChangeInfo),
+      MessageType.ChangeSelect,
+      this.peer.id,
+      conn.peer,
+      -1
+    );
+    conn.send(message);
+  }
+
   broadcastChangeCursorPos(event: any) {
+    console.log(event);
     this.connectionsIAmHolding.forEach((conn) => {
       this.sendChangeCursorPos(conn, event);
     });
   }
+
   sendChangeCursorPos(conn: any, event: any) {
     const message = new Message(
       JSON.stringify(event),
@@ -656,6 +689,10 @@ export class PeerService {
 
   getAllMessages(): any[] {
     return this.previousChatMessages;
+  }
+
+  getSelectionChangeInfo(): SelectionChangeInfo {
+    return this.selectionChangeInfo;
   }
 
   getCursorChangeInfo(): CursorChangeInfo {
