@@ -5,6 +5,11 @@
 	background: grey !important;
 }
 
+.monaco-select:after {
+	padding-right: 100px !important;
+	background-color: white !important;
+}
+
 .monaco-cursor {
 	background: rgb(255, 255, 255);
 	width: 2px !important;

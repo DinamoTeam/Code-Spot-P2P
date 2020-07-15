@@ -235,12 +235,13 @@ export class CodeEditorComponent implements OnInit {
     endRow: number,
     endCol: number
   ) {
+    // stickiness: 1 - NeverGrowsWhenTypingAtEdges
     const decoration = this.editor.deltaDecorations(
       [],
       [
         {
           range: new monaco.Range(startRow, startCol, endRow, endCol),
-          options: { className: 'monaco-select' },
+          options: { className: 'monaco-select', stickiness: 1},
         },
       ]
     );
