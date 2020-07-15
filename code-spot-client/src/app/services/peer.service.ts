@@ -5,6 +5,8 @@ import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
 import { PeerEvent } from '../shared/PeerEvent';
+import { Utils } from '../shared/Utils';
+import { BroadcastInfo } from '../shared/BroadcastInfo';
 
 declare const Peer: any;
 const MAX_CRDT_PER_SEND = 500;
@@ -134,7 +136,7 @@ export class PeerService {
     conn.on(PeerEvent.Open, () => {
       console.log('Connection to peer ' + conn.peer + ' opened :)');
       // Only add this conn to our list when the connection has opened!
-      this.addUniqueConnections([conn], this.connectionsIAmHolding);
+      Utils.addUniqueConnections([conn], this.connectionsIAmHolding);
       // If we need to send this peer old messages
       if (
         this.peerIdsToSendOldMessages.findIndex((id) => id === conn.peer) !== -1
@@ -253,7 +255,13 @@ export class PeerService {
         }
         break;
       case MessageType.ChatMessage:
-        this.addUniqueMessages([message], this.previousChatMessages);
+        Utils.addUniqueMessages([message], this.previousChatMessages);
+        this.infoBroadcasted.emit(BroadcastInfo.UpdateAllMessages);
+        break;
+      case MessageType.AllChatMessages:
+        this.hasReceivedAllMessages = true;
+        const messages: Message[] = JSON.parse(message.content);
+        Utils.addUniqueMessages(messages, this.previousChatMessages);
         this.infoBroadcasted.emit(BroadcastInfo.UpdateAllMessages);
         break;
       default:
@@ -402,21 +410,6 @@ export class PeerService {
   }
   //*************************************************************
 
-  private addUniqueConnections(list: any[], listToBeAddedTo: any[]) {
-    list.forEach((obj) => {
-      let hasExist = false;
-      for (let i = 0; i < listToBeAddedTo.length; i++) {
-        if (obj.peer === listToBeAddedTo[i].peer) {
-          hasExist = true;
-          break;
-        }
-      }
-      if (!hasExist) {
-        listToBeAddedTo.push(obj);
-      }
-    });
-  }
-
   createNewRoom() {
     this.roomService
       .joinNewRoom(this.peer.id)
@@ -559,47 +552,6 @@ export class PeerService {
     conn.send(messageToSend);
   }
 
-  private crdtArrToString(crdts: CRDT[], seperator: string): string {
-    const crdtStrings = crdts.map((crdt) => crdt.toString());
-    // console.log('crdtArr: ');
-    // console.log(crdts);
-    // console.log('crdtStrings: ');
-    // console.log(crdtStrings);
-    // console.log('Join: ');
-    // console.log(crdtStrings.join(seperator));
-    return crdtStrings.join(seperator);
-  }
-
-  private stringToCRDTArr(str: string, delimiter: string): CRDT[] {
-    const crdtStrings = str.split(delimiter);
-    const crdts = crdtStrings.map((crdtStr) => CRDT.parse(crdtStr));
-    // console.log('crdtStrings: ');
-    // console.log(str);
-    // console.log('crdtString splitted: ');
-    // console.log(crdtStrings);
-    // console.log('crdt parsed: ');
-    // console.log(crdts);
-    return crdts;
-  }
-
-  private addUniqueMessages(list: Message[], listToBeAddedTo: Message[]) {
-    list.forEach((message) => {
-      let weHadThatMessage = false;
-      for (let i = 0; i < listToBeAddedTo.length; i++) {
-        if (
-          listToBeAddedTo[i].fromPeerId === message.fromPeerId &&
-          listToBeAddedTo[i].time === message.time
-        ) {
-          weHadThatMessage = true;
-          break;
-        }
-      }
-      if (!weHadThatMessage) {
-        listToBeAddedTo.push(message);
-      }
-    });
-  }
-
   sendMessage(content: string) {
     if (content.length === 0) {
       return;
@@ -664,12 +616,3 @@ export class PeerService {
   }
 }
 
-export const enum BroadcastInfo {
-  UpdateAllMessages = 0,
-  RoomName = 1,
-  RemoteInsert = 2,
-  RemoteRemove = 3,
-  RemoteAllMessages = 4,
-  ChangeLanguage = 5,
-  ReadyToDisplayMonaco = 6,
-}
