@@ -1,3 +1,4 @@
+<button (click)="drawSelect();">Draw Select</button>
 <div
   *ngIf="!ready"
   class="d-flex ml-3 mr-2 justify-content-center align-items-center loading"
@@ -38,7 +39,7 @@
         </select>
       </div>
     </div>
-    <!-- Aux Editor needs to initialize early-->
+    <!-- Aux Editor-->
     <ngx-monaco-editor
       class="solution-code-editor"
       [options]="editorOptions"
@@ -46,10 +47,10 @@
       style="display: none;"
     >
     </ngx-monaco-editor>
-    <!-- Aux Editor-->
     <!--Editor-->
     <div [style.visibility]="ready ? 'visible' : 'hidden'">
       <ngx-monaco-editor
+        id="main-editor"
         class="solution-code-editor"
         [options]="editorOptions"
         (onInit)="onInitEditorHandler($event)"
