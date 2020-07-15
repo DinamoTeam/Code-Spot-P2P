@@ -13,6 +13,7 @@ import { PeerService } from '../services/peer.service';
 import { Location, DOCUMENT } from '@angular/common';
 import { Languages } from './languages';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { CursorService } from '../services/cursor.service';
 
 declare const monaco: any;
 
@@ -25,7 +26,6 @@ export class CodeEditorComponent implements OnInit {
   // Monaco cursor select
   selectDecorations = [];
   cursorDecorations = [];
-
 
   ready = false;
   roomName: string;
@@ -47,6 +47,7 @@ export class CodeEditorComponent implements OnInit {
 
   constructor(
     private peerService: PeerService,
+    private cursorService: CursorService,
     public editorService: EditorService,
     private ngZone: NgZone,
     private actRoute: ActivatedRoute,
@@ -64,7 +65,11 @@ export class CodeEditorComponent implements OnInit {
 
   @Input() languages = Languages;
 
-  editorOptions = { theme: 'vs-dark', language: EditorService.language, stickiness: 1};
+  editorOptions = {
+    theme: 'vs-dark',
+    language: EditorService.language,
+    stickiness: 1,
+  };
 
   onLanguageChange(res) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);
@@ -153,7 +158,6 @@ export class CodeEditorComponent implements OnInit {
     console.log(event);
   }
 
-
   subscribeToPeerServiceEvents(): void {
     this.peerService.infoBroadcasted.subscribe((message: any) => {
       this.ngZone.run(async () => {
@@ -194,6 +198,15 @@ export class CodeEditorComponent implements OnInit {
             this.ready = true;
             break;
           case BroadcastInfo.UpdateChatMessages:
+            break;
+          case BroadcastInfo.CursorChange:
+            const cursorChange = this.peerService.getCursorChangeInfo();
+            this.cursorService.drawCursor(
+              this.editor,
+              cursorChange.line,
+              cursorChange.col,
+              cursorChange.peerId
+            );
             break;
           default:
             console.log('UNKNOWN event!!!');
@@ -243,7 +256,7 @@ export class CodeEditorComponent implements OnInit {
       [
         {
           range: new monaco.Range(row, col, row, col + 1),
-          options: { className: 'monaco-cursor', stickiness: 1},
+          options: { className: 'monaco-cursor', stickiness: 1 },
         },
       ]
     );
@@ -263,7 +276,7 @@ export class CodeEditorComponent implements OnInit {
       [
         {
           range: new monaco.Range(startRow, startCol, endRow, endCol),
-          options: { className: 'monaco-select', stickiness: 1},
+          options: { className: 'monaco-select', stickiness: 1 },
         },
       ]
     );

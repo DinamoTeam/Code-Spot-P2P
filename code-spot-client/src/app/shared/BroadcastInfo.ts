@@ -6,4 +6,6 @@ export const enum BroadcastInfo {
   RemoteAllMessages = 4,
   ChangeLanguage = 5,
   ReadyToDisplayMonaco = 6,
+  CursorChange = 7,
+  SelectionChange = 8
 }

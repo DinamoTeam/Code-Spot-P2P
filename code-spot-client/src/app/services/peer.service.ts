@@ -7,6 +7,7 @@ import { EnterRoomInfo } from '../shared/EnterRoomInfo';
 import { PeerEvent } from '../shared/PeerEvent';
 import { Utils } from '../shared/Utils';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { CursorChangeInfo } from '../shared/CursorChangeInfo';
 
 declare const Peer: any;
 const MAX_CRDT_PER_SEND = 500;
@@ -29,7 +30,8 @@ export class PeerService {
   private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
   connectionEstablished = new EventEmitter<boolean>();
   infoBroadcasted = new EventEmitter<BroadcastInfo>();
-  receivedRemoteCrdts: CRDT[];
+  private receivedRemoteCrdts: CRDT[];
+  private cursorChangeInfo: CursorChangeInfo;
   private previousChatMessages: Message[] = [];
   private hasReceivedAllChatMessages: boolean = false;
 
@@ -302,7 +304,14 @@ export class PeerService {
         }
         break;
       case MessageType.ChangeCursor:
-        console.log(JSON.parse(message.content));
+        const cursorEvent = JSON.parse(message.content);
+        console.log(cursorEvent);
+        this.cursorChangeInfo = new CursorChangeInfo(
+          cursorEvent.position.lineNumber,
+          cursorEvent.position.column,
+          fromConn.peer
+        );
+        this.infoBroadcasted.emit(BroadcastInfo.CursorChange);
         break;
       default:
         console.log(message);
@@ -647,6 +656,10 @@ export class PeerService {
 
   getAllMessages(): any[] {
     return this.previousChatMessages;
+  }
+
+  getCursorChangeInfo(): CursorChangeInfo {
+    return this.cursorChangeInfo;
   }
 
   getReceivedRemoteCrdts(): CRDT[] {
