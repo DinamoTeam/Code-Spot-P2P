@@ -2,6 +2,7 @@ import { Component, OnInit, NgZone } from '@angular/core';
 import { PeerService } from '../services/peer.service';
 import { FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { PeerUtils } from '../shared/Utils';
 
 @Component({
   selector: 'app-chatbox',
@@ -34,7 +35,7 @@ export class ChatboxComponent implements OnInit {
   }
 
   subscribeToPeerServerEvents() {
-    this.peerService.infoBroadcasted.subscribe((message: any) => {
+    PeerUtils.broadcast.subscribe((message: any) => {
       this.ngZone.run(() => {
         switch (message) {
           case BroadcastInfo.UpdateChatMessages:
