@@ -22,6 +22,11 @@ declare const monaco: any;
   styleUrls: ['./code-editor.component.css'],
 })
 export class CodeEditorComponent implements OnInit {
+  // Monaco cursor select
+  selectDecorations = [];
+  cursorDecorations = [];
+
+
   ready = false;
   roomName: string;
   editor: any;
@@ -221,6 +226,7 @@ export class CodeEditorComponent implements OnInit {
         },
       ]
     );
+    this.cursorDecorations.push(decoration);
   }
 
   drawSelect(
@@ -238,5 +244,14 @@ export class CodeEditorComponent implements OnInit {
         },
       ]
     );
+    this.selectDecorations.push(decoration);
+  }
+
+  deleteAllCursor() {
+    this.editor.deltaDecorations(this.cursorDecorations, []);
+  }
+
+  deleteAllSelect() {
+    this.editor.deltaDecorations(this.selectDecorations, []);
   }
 }
