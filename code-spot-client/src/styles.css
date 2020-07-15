@@ -7,6 +7,14 @@
 }
 
 .monaco-cursor {
-	background: rgb(1, 255, 1) !important;
+	background-color: rgb(1, 255, 1) !important;
 	width: 2px !important;
+	animation: blinking 0.5s infinite alternate;
+	animation-timing-function: cubic-bezier(1, 0, 0, 1);
+}
+
+@keyframes blinking {
+	to {
+		opacity: 0%;
+	}
 }
