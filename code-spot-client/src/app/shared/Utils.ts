@@ -85,4 +85,8 @@ export class Utils {
       }
     });
   }
+
+  static refreshAndGoBackHomePage() {
+    window.location.replace('/');
+  }
 }
