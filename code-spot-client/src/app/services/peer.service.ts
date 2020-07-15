@@ -85,7 +85,7 @@ export class PeerService {
       );
       this.peer.destroy();
       alert('Wifi connection error! Going back home...');
-      window.location.replace('/');
+      Utils.refreshAndGoBackHomePage();
     });
   }
 
@@ -101,7 +101,7 @@ export class PeerService {
     // Need a better way to check internet connection! This method is error prone
     window.addEventListener('offline', (e) => {
       alert('Please check your Internet connection. Navigating back home...');
-      window.location.replace('/');
+      Utils.refreshAndGoBackHomePage();
     });
   }
 
@@ -330,7 +330,7 @@ export class PeerService {
       if (peerIdPicked === null) {
         // Error. No peer is ready. Go back home
         alert('All Peer in rooms have left. Going back to home...');
-        window.location.replace('/');
+        Utils.refreshAndGoBackHomePage();
       } else {
         this.connectToPeer(peerIdPicked, true);
         this.waitTillGotAllMessagesOrRefreshIfThatPeerLeft(peerIdPicked);
@@ -474,7 +474,7 @@ export class PeerService {
         if (data.siteId === -1) {
           // Either room not exists or has been deleted
           alert('Room not exists, navigating back to home');
-          window.location.replace('/');
+          Utils.refreshAndGoBackHomePage();
         }
         EditorService.setSiteId(data.siteId);
         const boolArrHasReceivedAllMessages = data.hasReceivedAllMessages.map(
