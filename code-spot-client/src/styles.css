@@ -2,10 +2,11 @@
 
 /* Monaco cursor and select */
 .monaco-select {
-	background: grey !important;
+	background: rgb(1, 255, 1) !important;
+	opacity: 70%;
 }
 
 .monaco-cursor {
-	background: rgb(255, 255, 255);
+	background: rgb(1, 255, 1) !important;
 	width: 2px !important;
 }
