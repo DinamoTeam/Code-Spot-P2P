@@ -1,7 +1,7 @@
-<button (click)="drawSelect(2, 1, 2, 8);">Draw Select</button>
+<!--<button (click)="drawSelect(2, 1, 2, 8);">Draw Select</button>
 <button (click)="drawCursor(1, 2);">Draw Cursor</button>
 <button (click)="deleteAllCursor();">Delete All Cursor</button>
-<button (click)="deleteAllSelect();">Delete All Select</button>
+<button (click)="deleteAllSelect();">Delete All Select</button>-->
 
 <div
   *ngIf="!ready"
@@ -29,7 +29,7 @@
   <form class="form-horizontal col-md-9 col-xs-12" [formGroup]="languageForm">
     <!--Select Language-->
     <div *ngIf="ready" class="form-group">
-      <div class="col-sm-4">
+      <div class="col-sm-2">
         <select class="form-control"
                 formControlName="language"
                 (change)="onLanguageChange($event.target.value)">

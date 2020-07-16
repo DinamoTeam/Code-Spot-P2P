@@ -258,7 +258,10 @@ export class CodeEditorComponent implements OnInit {
     document.execCommand('copy');
     document.body.removeChild(selBox);
 
-    this.showSuccessAlert = true;
+    alert("Link copied to clipboard!");
+
+    // TODO: Fix the box!!!
+    //this.showSuccessAlert = true;
   }
 
   closeAlert() {
