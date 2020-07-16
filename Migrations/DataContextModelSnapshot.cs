@@ -20,6 +20,8 @@ namespace CodeSpot.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int>("CursorColor");
+
                     b.Property<int>("HasReceivedAllMessages");
 
                     b.Property<string>("PeerId");

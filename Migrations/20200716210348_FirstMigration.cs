@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CodeSpot.Migrations
 {
-    public partial class Firstmigrations : Migration
+    public partial class FirstMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -23,12 +22,11 @@ namespace CodeSpot.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true)
-                        .Annotation("SqlServer:ValueGenerationStrategy", 
-                        SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     PeerId = table.Column<string>(nullable: true),
                     RoomName = table.Column<string>(nullable: true),
-                    HasReceivedAllMessages = table.Column<int>(nullable: false)
+                    HasReceivedAllMessages = table.Column<int>(nullable: false),
+                    CursorColor = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {

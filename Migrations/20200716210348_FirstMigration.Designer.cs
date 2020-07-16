@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeSpot.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200712194309_First migrations")]
-    partial class Firstmigrations
+    [Migration("20200716210348_FirstMigration")]
+    partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,6 +21,8 @@ namespace CodeSpot.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CursorColor");
 
                     b.Property<int>("HasReceivedAllMessages");
 

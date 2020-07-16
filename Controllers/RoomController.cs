@@ -39,13 +39,15 @@ namespace CodeSpotP2P.Controllers
         [HttpGet]
         public async Task<IActionResult> JoinNewRoom(string peerId)
 		{
+            var rand = new Random();
             string roomName = GenerateRoomName();
+            int cursorColor = (rand.Next() % 100) + 1; // 1 to 100
             _database.rooms.Add(new Room(roomName));
-            _database.peers.Add(new Peer(peerId, roomName, 1));
+            _database.peers.Add(new Peer(peerId, roomName, 1, cursorColor));
             await _database.SaveChangesAsync();
             
-            var info = new EnterRoomInfo(RoomController.siteId++, roomName, new List<string>(),
-                new List<int>());
+            var info = new EnterRoomInfo(RoomController.siteId++, roomName, cursorColor,
+                new List<string>(), new List<int>(), new List<int>());
             return Ok(info);
 		}
 
@@ -64,12 +66,19 @@ namespace CodeSpotP2P.Controllers
                                          .Select(p => p.HasReceivedAllMessages)
                                          .ToListAsync();
 
-                _database.peers.Add(new Peer(peerId, roomName, 0));
+                var cursorColorList = await _database.peers
+                                    .Where(p => p.RoomName == roomName)
+                                    .Select(p => p.CursorColor)
+                                    .ToListAsync();
+
+                int randomColor = getAvailableCursorColor(roomName);
+                _database.peers.Add(new Peer(peerId, roomName, 0, randomColor));
                 await _database.SaveChangesAsync();
-                var info = new EnterRoomInfo(RoomController.siteId++, roomName, peerIds, hasReceivedAllMessagesList);
+                var info = new EnterRoomInfo(RoomController.siteId++, roomName, randomColor,
+                        peerIds, hasReceivedAllMessagesList, cursorColorList);
                 return Ok(info);
             }
-            return Ok(new EnterRoomInfo(-1, null, null, null));
+            return Ok(new EnterRoomInfo(-1, null, -1, null, null, null));
         }
 
         // Get: api/Room/MarkPeerReceivedAllMessages?peerId=abc
@@ -104,6 +113,20 @@ namespace CodeSpotP2P.Controllers
                     return randomName;
                 }
             }
+        }
+
+        private int getAvailableCursorColor(string roomName) 
+        {
+            var cursorColorList = _database.peers
+                                    .Where(p => p.RoomName == roomName)
+                                    .Select(p => p.CursorColor)
+                                    .ToList();
+            var rand = new Random();
+            int randomColor = (rand.Next() % 100) + 1;
+            while (cursorColorList.Contains(randomColor)) {
+                randomColor = (rand.Next() % 100) + 1;
+            }
+            return randomColor;
         }
 
         // Get: api/Room/DeletePeer?peerId=abc

@@ -1,0 +1,23 @@
+public class Main
+{
+	public static void main(String[] args) {
+		for (int i = 1; i <= 100; i++) {
+		    int r = (int)(Math.random() * 255);
+		    int g = (int)(Math.random() * 255);
+		    int b = (int)(Math.random() * 255);
+		    System.out.println(".monaco-select-" + i + " {");
+		    System.out.println("\t background: rgb(" + r + ", " + g + ", " + b + ") !important;");
+		    System.out.println("\t opacity: 70%;");
+		    System.out.println("}");
+		    
+		    System.out.println(".monaco-cursor-" + i + " {");
+		    System.out.println("\t background: rgb(" + r + ", " + g + ", " + b + ") !important;");
+		    System.out.println("\t width: 2px !important;");
+		    System.out.println("\t width: 2px !important;");
+		    System.out.println("\t animation: blinking 0.5s infinite alternate;");
+		    System.out.println("\t animation-timing-function: cubic-bezier(1, 0, 0, 1);");
+		    System.out.println("}");
+            System.out.println();
+		}
+	}
+}
