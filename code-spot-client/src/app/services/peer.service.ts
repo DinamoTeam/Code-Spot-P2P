@@ -305,6 +305,7 @@ export class PeerService {
         break;
       case MessageType.ChangeCursor:
         const cursorEvent = JSON.parse(message.content);
+        console.log('Cursor');
         console.log(cursorEvent);
         this.cursorChangeInfo = new CursorChangeInfo(
           cursorEvent.position.lineNumber,
@@ -314,7 +315,15 @@ export class PeerService {
         PeerUtils.broadcastInfo(BroadcastInfo.CursorChange);
         break;
       case MessageType.ChangeSelect:
-        this.selectionChangeInfo = JSON.parse(message.content);
+        const selectEvent = JSON.parse(message.content);
+        console.log(selectEvent);
+        this.selectionChangeInfo = new SelectionChangeInfo(
+          selectEvent.selection.startLineNumber,
+          selectEvent.selection.startColumn,
+          selectEvent.selection.endLineNumber,
+          selectEvent.selection.endColumn,
+          fromConn.peer
+        );
         PeerUtils.broadcastInfo(BroadcastInfo.SelectionChange);
         break;
       case MessageType.CursorColor:
@@ -669,22 +678,14 @@ export class PeerService {
 
   /* Cursor Change + Selection Change*/
   broadcastChangeSelectionPos(event: any) {
-    const selection = event.selection;
-    const selectionChangeInfo = new SelectionChangeInfo(
-      selection.startLineNumber,
-      selection.startColumn,
-      selection.endLineNumber,
-      selection.endColumn,
-      this.peer.id
-    );
     this.connectionsIAmHolding.forEach((conn) => {
-      this.sendChangeSelectionPos(conn, selectionChangeInfo);
+      this.sendChangeSelectionPos(conn, event);
     });
   }
 
-  sendChangeSelectionPos(conn: any, selectionChangeInfo: SelectionChangeInfo) {
+  sendChangeSelectionPos(conn: any, event: any) {
     const message = new Message(
-      JSON.stringify(selectionChangeInfo),
+      JSON.stringify(event),
       MessageType.ChangeSelect,
       this.peer.id,
       conn.peer,
