@@ -1,4 +1,4 @@
-<div class="chatBox card shadow-sm p-3 mb-5 bg-white rounded">
+<div #messagebox class="chatBox card shadow-sm p-3 mb-5 bg-white rounded">
   <div class="mt-2">
     <div *ngFor="let mess of messages">
       <app-message-bubble [senderName]="mess.fromPeerId" [content]="mess.content">
@@ -14,7 +14,7 @@
         [formGroup]="messageForm"
         (ngSubmit)="sendMessage(messageForm.value)">
     <div class="form-group d-flex">
-      <input type="text"
+        <input type="text"
               formControlName="messageToSend"
               class="form-control"
               placeholder="Aa"
