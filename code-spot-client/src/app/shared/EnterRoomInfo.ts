@@ -3,4 +3,6 @@ export class EnterRoomInfo {
   roomName: string;
   peerIds: string[];
   hasReceivedAllMessages: number[];
+  cursorColors: number[];
+  cursorColor: number;
 }

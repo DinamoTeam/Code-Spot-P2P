@@ -1,23 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-
-/* Monaco cursor and select */
-.monaco-select {
-	background: rgb(1, 255, 1) !important;
-	opacity: 70%;
-}
-
-.monaco-cursor {
-	background-color: rgb(1, 255, 1) !important;
-	width: 2px !important;
-	animation: blinking 0.5s infinite alternate;
-	animation-timing-function: cubic-bezier(1, 0, 0, 1);
-}
-
-@keyframes blinking {
-	to {
-		opacity: 0%;
-	}
-}
+@import "./monacoCursor.css";
 
 /* width */
 ::-webkit-scrollbar {

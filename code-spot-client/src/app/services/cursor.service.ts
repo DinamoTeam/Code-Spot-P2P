@@ -6,8 +6,12 @@ import { Injectable } from '@angular/core';
 export class CursorService {
   private cursorDecorations: Decoration[] = [];
   private selectionDecorations: Decoration[] = [];
+  // Color: 1 to 100
+  private peerColors: Map<string, number> = new Map<string, number>();
+  private myColor: number;
 
   drawCursor(editor: any, line: number, col: number, ofPeerId: string) {
+    const color = this.peerColors.get(ofPeerId);
     const deco = this.cursorDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
     const decoration = editor.deltaDecorations(
@@ -15,7 +19,7 @@ export class CursorService {
       [
         {
           range: new monaco.Range(line, col, line, col + 1),
-          options: { className: 'monaco-cursor', stickiness: 1 },
+          options: { className: 'monaco-cursor-' + color, stickiness: 1 },
         },
       ]
     );
@@ -33,12 +37,13 @@ export class CursorService {
     endCol: number,
     ofPeerId: string
   ) {
+    const color = this.peerColors.get(ofPeerId);
     const deco = this.selectionDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
     const decoration = editor.deltaDecorations(oldDecoration, [
       {
         range: new monaco.Range(startLine, startCol, endLine, endCol),
-        options: { className: 'monaco-select', stickiness: 1 },
+        options: { className: 'monaco-select-' + color, stickiness: 1 },
       },
     ]);
     this.selectionDecorations = this.selectionDecorations.filter(
@@ -46,7 +51,28 @@ export class CursorService {
     );
     this.cursorDecorations.push(new Decoration(decoration, ofPeerId));
   }
+
+  addPeerColor(peerId: string, color: number): void {
+    this.peerColors.set(peerId, color);
+  }
+
+  removePeerColor(peerId: string): void {
+    this.peerColors.delete(peerId);
+  }
+
+  getPeerColors(): Map<string, number> {
+    return this.peerColors;
+  }
+
+  getMyCursorColor(): number {
+    return this.myColor;
+  }
+
+  setMyCursorColor(color: number): void {
+    this.myColor = color;
+  }
 }
+
 
 class Decoration {
   decoration: any;

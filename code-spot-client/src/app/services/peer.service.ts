@@ -9,6 +9,7 @@ import { Utils, PeerUtils } from '../shared/Utils';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorChangeInfo } from '../shared/CursorChangeInfo';
 import { SelectionChangeInfo } from '../shared/SelectionChangeInfo';
+import { CursorService } from './cursor.service';
 
 declare const Peer: any;
 const MAX_CRDT_PER_SEND = 500;
@@ -38,6 +39,7 @@ export class PeerService {
 
   constructor(
     private roomService: RoomService,
+    private cursorService: CursorService,
     private editorService: EditorService
   ) {}
 
@@ -136,6 +138,8 @@ export class PeerService {
   private setupListenerForConnection(conn: any) {
     // When the connection first establish
     conn.on(PeerEvent.Open, () => {
+      // Send our cursor's color
+      this.sendMyCursorColor(conn, this.cursorService.getMyCursorColor());
       console.log('Connection to peer ' + conn.peer + ' opened :)');
       // Only add this conn to our list when the connection has opened!
       Utils.addUniqueConnections([conn], this.connectionsIAmHolding);
@@ -313,6 +317,10 @@ export class PeerService {
         this.selectionChangeInfo = JSON.parse(message.content);
         PeerUtils.broadcastInfo(BroadcastInfo.SelectionChange);
         break;
+      case MessageType.CursorColor:
+        const color = Number.parseInt(message.content, 10);
+        this.cursorService.addPeerColor(fromConn.peer, color);
+        break;
       default:
         console.log(message);
         throw new Error('Unhandled messageType');
@@ -333,7 +341,18 @@ export class PeerService {
   }
 
   //***************** Handle when join room *******************
-  private handleFirstJoinRoom(peerIds: any[], receivedAllMessages: boolean[]) {
+  private handleFirstJoinRoom(
+    peerIds: any[],
+    receivedAllMessages: boolean[],
+    cursorColors: number[],
+    cursorColor: number
+  ) {
+    // Set cursor colors
+    for (let i = 0; i < peerIds.length; i++) {
+      this.cursorService.addPeerColor(peerIds[i], cursorColors[i]);
+    }
+    this.cursorService.setMyCursorColor(cursorColor);
+
     if (peerIds.length === 0) {
       // DO NOTHING
       console.log('I am the first one in this room');
@@ -464,6 +483,12 @@ export class PeerService {
     conn.send(message);
   }
 
+  private sendMyCursorColor(conn: any, myColor: number) {
+    conn.send(
+      new Message(myColor + '', MessageType.CursorColor, this.peer.id, conn.peer, -1)
+    );
+  }
+
   //*************************************************************
 
   createNewRoom() {
@@ -473,7 +498,7 @@ export class PeerService {
         this.roomName = data.roomName;
         EditorService.setSiteId(data.siteId);
         // No peerId
-        this.handleFirstJoinRoom([], []);
+        this.handleFirstJoinRoom([], [], [], data.cursorColor);
         PeerUtils.broadcastInfo(BroadcastInfo.RoomName);
         PeerUtils.broadcastInfo(BroadcastInfo.ReadyToDisplayMonaco);
       });
@@ -492,7 +517,12 @@ export class PeerService {
         const boolArrHasReceivedAllMessages = data.hasReceivedAllMessages.map(
           (num) => (num === 0 ? false : true)
         );
-        this.handleFirstJoinRoom(data.peerIds, boolArrHasReceivedAllMessages);
+        this.handleFirstJoinRoom(
+          data.peerIds,
+          boolArrHasReceivedAllMessages,
+          data.cursorColors,
+          data.cursorColor
+        );
       },
       (error) => {
         console.error(error);
