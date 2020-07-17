@@ -5,14 +5,13 @@ import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
 import { PeerEvent } from '../shared/PeerEvent';
-import { Utils, PeerUtils } from '../shared/Utils';
+import { CrdtUtils, PeerUtils, Utils } from '../shared/Utils';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorChangeInfo } from '../shared/CursorChangeInfo';
 import { SelectionChangeInfo } from '../shared/SelectionChangeInfo';
 import { CursorService } from './cursor.service';
 
 declare const Peer: any;
-const MAX_CRDT_PER_SEND = 500;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 15000;
 @Injectable({
   providedIn: 'root',
@@ -253,13 +252,13 @@ export class PeerService {
         window.location.reload(true);
         break;
       case MessageType.ChatMessage:
-        Utils.addUniqueMessages([message], this.previousChatMessages);
+        PeerUtils.addUniqueMessages([message], this.previousChatMessages);
         PeerUtils.broadcastInfo(BroadcastInfo.UpdateChatMessages);
         break;
       case MessageType.OldChatMessages:
         this.hasReceivedAllChatMessages = true;
         const messages: Message[] = JSON.parse(message.content);
-        Utils.addUniqueMessages(messages, this.previousChatMessages);
+        PeerUtils.addUniqueMessages(messages, this.previousChatMessages);
         PeerUtils.broadcastInfo(BroadcastInfo.UpdateChatMessages);
         break;
       case MessageType.RequestOldChatMessages:
@@ -421,16 +420,20 @@ export class PeerService {
   private sendOldCRDTs(conn: any) {
     const previousCRDTs: CRDT[] = this.editorService.getOldCRDTsAsSortedArray();
 
-    // Break huge crdts array into smaller arrays and send each one to avoid connection crash
-    const crdtBatches: CRDT[][] = [];
     const numberOfTimesSend = Math.ceil(
-      previousCRDTs.length / MAX_CRDT_PER_SEND
+      previousCRDTs.length / CrdtUtils.MAX_CRDT_PER_SEND
     );
+
+    const crdtBatches = CrdtUtils.breakCrdtsIntoBatches(
+      previousCRDTs,
+      numberOfTimesSend
+    );
+
     for (let i = 0; i < numberOfTimesSend; i++) {
-      const startInclusive = MAX_CRDT_PER_SEND * i;
+      const startInclusive = CrdtUtils.MAX_CRDT_PER_SEND * i;
       // Taking care of the case: sending the last batch
       const endExclusive = Math.min(
-        MAX_CRDT_PER_SEND * (i + 1),
+        CrdtUtils.MAX_CRDT_PER_SEND * (i + 1),
         previousCRDTs.length
       );
       crdtBatches.push(previousCRDTs.slice(startInclusive, endExclusive));
@@ -533,14 +536,14 @@ export class PeerService {
       ? MessageType.RemoteInsert
       : MessageType.RemoteRemove;
 
-    // Break huge crdts array into smaller arrays and send each one to avoid connection crash
-    const crdtBatches: CRDT[][] = [];
-    const numberOfTimesSend = Math.ceil(crdts.length / MAX_CRDT_PER_SEND);
-    for (let i = 0; i < numberOfTimesSend; i++) {
-      const startInclusive = MAX_CRDT_PER_SEND * i;
-      const endExclusive = Math.min(MAX_CRDT_PER_SEND * (i + 1), crdts.length); // In case sending the last batch
-      crdtBatches.push(crdts.slice(startInclusive, endExclusive));
-    }
+    const numberOfTimesSend = Math.ceil(
+      crdts.length / CrdtUtils.MAX_CRDT_PER_SEND
+    );
+
+    const crdtBatches = CrdtUtils.breakCrdtsIntoBatches(
+      crdts,
+      numberOfTimesSend
+    );
 
     // const crdtStrings: string[] = [];
     // for (let i = 0; i < numberOfTimesSend; i++) {

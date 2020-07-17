@@ -3,7 +3,7 @@ import { Message } from './Message';
 import { EventEmitter } from '@angular/core';
 import { BroadcastInfo } from './BroadcastInfo';
 
-export class Utils {
+export class CrdtUtils {
   // Prototype: linear search. Future: binary search
   static insertCrdtToSortedCrdtArr(crdt: CRDT, crdtArr: CRDT[]): number {
     for (let i = 1; i < crdtArr.length; i++) {
@@ -55,19 +55,33 @@ export class Utils {
     return crdts;
   }
 
-  static addUniqueConnections(list: any[], listToBeAddedTo: any[]) {
-    list.forEach((obj) => {
-      let hasExist = false;
-      for (let i = 0; i < listToBeAddedTo.length; i++) {
-        if (obj.peer === listToBeAddedTo[i].peer) {
-          hasExist = true;
-          break;
-        }
-      }
-      if (!hasExist) {
-        listToBeAddedTo.push(obj);
-      }
-    });
+  // Break huge crdts array into smaller arrays and send each one to avoid connection crash
+  static MAX_CRDT_PER_SEND = 500;
+  static breakCrdtsIntoBatches(crdts: CRDT[], batchCnt: number): CRDT[][] {
+    let crdtBatches: CRDT[][] = [];
+    for (let i = 0; i < batchCnt; i++) {
+      const startInclusive = CrdtUtils.MAX_CRDT_PER_SEND * i;
+      // Taking care of the case: sending the last batch
+      const endExclusive = Math.min(
+        CrdtUtils.MAX_CRDT_PER_SEND * (i + 1),
+        crdts.length
+      );
+      crdtBatches.push(crdts.slice(startInclusive, endExclusive));
+    }
+
+    return crdtBatches;
+  }
+}
+
+export class PeerUtils {
+  static broadcast = new EventEmitter<BroadcastInfo>();
+
+  static connectionHasOpened(con: any, connections: any[]): boolean {
+    return connections.findIndex((x) => x.peer === con.peer) !== -1;
+  }
+
+  static broadcastInfo(infoType: BroadcastInfo): void {
+    PeerUtils.broadcast.emit(infoType);
   }
 
   static addUniqueMessages(list: Message[], listToBeAddedTo: Message[]) {
@@ -87,20 +101,25 @@ export class Utils {
       }
     });
   }
+}
+
+export class Utils {
+  static addUniqueConnections(list: any[], listToBeAddedTo: any[]) {
+    list.forEach((obj) => {
+      let hasExist = false;
+      for (let i = 0; i < listToBeAddedTo.length; i++) {
+        if (obj.peer === listToBeAddedTo[i].peer) {
+          hasExist = true;
+          break;
+        }
+      }
+      if (!hasExist) {
+        listToBeAddedTo.push(obj);
+      }
+    });
+  }
 
   static refreshAndGoBackHomePage() {
     window.location.replace('/');
-  }
-}
-
-export class PeerUtils {
-  static broadcast = new EventEmitter<BroadcastInfo>();
-
-  static connectionHasOpened(con: any, connections: any[]): boolean {
-    return connections.findIndex(x => x.peer === con.peer) !== -1;
-  }
-
-  static broadcastInfo(infoType: BroadcastInfo): void {
-    PeerUtils.broadcast.emit(infoType);
   }
 }
