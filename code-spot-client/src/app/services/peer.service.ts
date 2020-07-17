@@ -226,6 +226,7 @@ export class PeerService {
             // Tell C# Server I have received AllMessages
             this.roomService.markPeerReceivedAllMessages(this.peer.id);
             console.log('I have received LAST BATCH Old CRDTs');
+            this.cursorService.setMyLastSelectEvent(null);
             this.sendCursorInfo(fromConn);
           }
         }
