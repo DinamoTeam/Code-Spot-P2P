@@ -140,7 +140,7 @@ export class EditorService {
       ) {
         editorTextModel.pushStackElement();
       }
-      // Write to screen
+
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
       this.writeRangeOfTextToScreenAtIndex(
         editorTextModel,
@@ -211,8 +211,6 @@ export class EditorService {
       this.bst.remove(crdtToBeRemoved);
     }
 
-    // this.messageService.broadcastRangeRemove(removedCRDTStrings, roomName); // OLD MODEL - SIGNAL R
-
     this.crdtsToTransfer = removedCRDTs;
     this.crdtEvent.emit(false);
   }
@@ -256,9 +254,8 @@ export class EditorService {
         i++;
       }
 
-      if (actuallyDeletingIndices.length > 10) {
+      if (actuallyDeletingIndices.length > 10)
         editorTextModel.pushStackElement();
-      }
 
       // Delete from the screen
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
@@ -304,7 +301,6 @@ export class EditorService {
     auxEditorTextModel: any,
     crdts: CRDT[]
   ): void {
-    // if isAllMessages=true => need to sort arr in handleRemoteRangeInsert. ACTUALLY, WE DON'T NEED TO SORT :)
     this.handleRemoteRangeInsert(
       editorTextModel,
       auxEditorTextModel,
@@ -317,7 +313,11 @@ export class EditorService {
     return this.bst.toSortedArray();
   }
 
-  writeRangeOfTextToScreenAtIndex(
+  getCrdtsToTransfer() {
+    return this.crdtsToTransfer;
+  }
+
+  private writeRangeOfTextToScreenAtIndex(
     editorTextModel: any,
     text: string,
     index: number
@@ -331,7 +331,7 @@ export class EditorService {
     );
   }
 
-  deleteTextInRangeIndex(
+  private deleteTextInRangeIndex(
     editorTextModel: any,
     startIndex: number,
     endIndex: number
@@ -347,7 +347,7 @@ export class EditorService {
     );
   }
 
-  deleteTextInRangePos(
+  private deleteTextInRangePos(
     editorTextModel: any,
     startLineNumber: number,
     startColumn: number,
@@ -371,7 +371,7 @@ export class EditorService {
     );
   }
 
-  writeRangeOfTextToScreenAtPos(
+  private writeRangeOfTextToScreenAtPos(
     editorTextModel: any,
     text: string,
     startLineNumber: number,
@@ -407,9 +407,5 @@ export class EditorService {
 
   private indexToPos(editorTextModel: any, index: number): any {
     return editorTextModel.getPositionAt(index);
-  }
-
-  getCrdtsToTransfer() {
-    return this.crdtsToTransfer;
   }
 }
