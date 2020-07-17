@@ -112,6 +112,7 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeModelContentHandler(event: any): void {
+    console.log(event);
     if (EditorService.remoteOpLeft > 0) {
       EditorService.remoteOpLeft--;
       return;
@@ -139,8 +140,6 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeCursorPositionHandler(event: any): void {
-    console.log('Cursor Change:');
-    console.log(event);
     this.cursorService.setMyLastCursorEvent(event);
 
     if (
@@ -154,8 +153,6 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeCursorSelectionHandler(event: any): void {
-    console.log('Select Change:');
-    console.log(event);
     this.cursorService.setMyLastSelectEvent(event);
     if (
       event.reason === CursorChangeReason.Explicit ||

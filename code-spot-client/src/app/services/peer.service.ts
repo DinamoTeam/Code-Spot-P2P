@@ -649,7 +649,6 @@ export class PeerService {
   }
 
   broadcastChangeCursorPos(event: any): void {
-    console.log(event);
     this.connectionsIAmHolding.forEach((conn) => {
       this.sendChangeCursorPos(conn, event);
     });
@@ -667,10 +666,6 @@ export class PeerService {
   }
 
   sendCursorInfo(conn: any): void {
-    console.log('Sending cursor info: ');
-    console.log(this.cursorService.getMyLastCursorEvent());
-    console.log(this.cursorService.getMyLastSelectEvent());
-
     this.sendMyCursorColor(conn, this.cursorService.getMyCursorColor());
     if (this.cursorService.getMyLastCursorEvent() !== null) {
       this.sendChangeCursorPos(conn, this.cursorService.getMyLastCursorEvent());
