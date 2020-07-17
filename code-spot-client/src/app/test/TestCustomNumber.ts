@@ -1,4 +1,4 @@
-import { CustomNumber } from './CustomNumber';
+import { CustomNumber } from '../shared/CustomNumber';
 
 const MAX_NUMBER_BASE_10 = 100000; // For base 10 testing only
 

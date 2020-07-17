@@ -1,6 +1,6 @@
-import { BalancedBST, IsObject } from './BalancedBST';
-import { CRDT, CRDTId, Identifier } from './CRDT';
-import { CustomNumber } from './CustomNumber';
+import { BalancedBST, IsObject } from '../shared/BalancedBST';
+import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
+import { CustomNumber } from '../shared/CustomNumber';
 
 class Integer implements IsObject {
   num: number;

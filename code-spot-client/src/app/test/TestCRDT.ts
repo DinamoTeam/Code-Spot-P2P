@@ -1,5 +1,5 @@
-import { CRDTId, Identifier, CRDT } from './CRDT';
-import { CustomNumber } from './CustomNumber';
+import { CRDTId, Identifier } from '../shared/CRDT';
+import { CustomNumber } from '../shared/CustomNumber';
 
 // Idea: insert randomly 'numberOfElements' element to an array,
 // occasionally delete some elements and check if the array remains increasing
