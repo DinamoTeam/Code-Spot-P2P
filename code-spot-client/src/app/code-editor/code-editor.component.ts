@@ -148,7 +148,9 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeCursorPositionHandler(event: any): void {
+    console.log('Cursor Change:');
     console.log(event);
+    this.cursorService.setMyLastCursorEvent(event);
     // 3: Explicit - There was an explicit user gesture.
     if (event.reason === 3) {
       this.peerService.broadcastChangeCursorPos(event);
@@ -156,7 +158,9 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeCursorSelectionHandler(event: any): void {
+    console.log('Select Change:');
     console.log(event);
+    this.cursorService.setMyLastSelectEvent(event);
     if (event.reason === 3) {
       this.peerService.broadcastChangeSelectionPos(event);
     }
@@ -164,7 +168,7 @@ export class CodeEditorComponent implements OnInit {
 
   subscribeToPeerServiceEvents(): void {
     PeerUtils.broadcast.subscribe((message: any) => {
-      this.ngZone.run(async () => {
+      this.ngZone.run(() => {
         switch (message) {
           case BroadcastInfo.RoomName:
             this.roomName = this.peerService.getRoomName();
@@ -192,7 +196,7 @@ export class CodeEditorComponent implements OnInit {
             );
             break;
           case BroadcastInfo.RemoteAllMessages:
-            await this.editorService.handleAllMessages(
+            this.editorService.handleAllMessages(
               this.editorTextModel,
               this.auxEditorTextModel,
               this.peerService.getReceivedRemoteCrdts()
@@ -235,7 +239,7 @@ export class CodeEditorComponent implements OnInit {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
       if (successful) {
         this.roomName = this.actRoute.snapshot.params['roomName'];
-        if (this.roomName == 'NONE') {
+        if (this.roomName === 'NONE') {
           this.peerService.createNewRoom();
         } else {
           this.peerService.joinExistingRoom(this.roomName);
@@ -268,44 +272,12 @@ export class CodeEditorComponent implements OnInit {
     this.showSuccessAlert = false;
   }
 
-  drawCursor(row: number, col: number) {
-    const decoration = this.editor.deltaDecorations(
-      [],
-      [
-        {
-          range: new monaco.Range(row, col, row, col + 1),
-          options: { className: 'monaco-cursor', stickiness: 1 },
-        },
-      ]
-    );
-    this.cursorDecorations.push(decoration);
+
+  printSelect() {
+    console.log(this.cursorService.getMyLastSelectEvent());
   }
 
-  drawSelect(
-    startRow: number,
-    startCol: number,
-    endRow: number,
-    endCol: number
-  ) {
-    console.log(this.editor);
-    // stickiness: 1 - NeverGrowsWhenTypingAtEdges
-    const decoration = this.editor.deltaDecorations(
-      [],
-      [
-        {
-          range: new monaco.Range(startRow, startCol, endRow, endCol),
-          options: { className: 'monaco-select', stickiness: 1 },
-        },
-      ]
-    );
-    this.selectDecorations.push(decoration);
-  }
-
-  deleteAllCursor() {
-    this.editor.deltaDecorations(this.cursorDecorations, []);
-  }
-
-  deleteAllSelect() {
-    this.editor.deltaDecorations(this.selectDecorations, []);
+  printCursor() {
+    console.log(this.cursorService.getMyLastCursorEvent());
   }
 }

@@ -9,6 +9,8 @@ export class CursorService {
   // Color: 1 to 100
   private peerColors: Map<string, number> = new Map<string, number>();
   private myColor: number;
+  private myLastCursorEvent: any = null;
+  private myLastSelectEvent: any = null;
 
   drawCursor(editor: any, line: number, col: number, ofPeerId: string) {
     const color = this.peerColors.get(ofPeerId);
@@ -71,6 +73,23 @@ export class CursorService {
   setMyCursorColor(color: number): void {
     this.myColor = color;
   }
+
+  getMyLastCursorEvent(): any {
+    return this.myLastCursorEvent;
+  }
+
+  setMyLastCursorEvent(event: any): void {
+    this.myLastCursorEvent = event;
+  }
+
+  getMyLastSelectEvent(): any {
+    return this.myLastSelectEvent;
+  }
+
+  setMyLastSelectEvent(event: any): void {
+    this.myLastSelectEvent = event;
+  }
+
 }
 
 

@@ -59,7 +59,7 @@ export class PeerService {
         ],
       },
       pingInterval: 3000,
-      debug: 3, // Print all logs
+      // debug: 3, // Print all logs
     });
     /*this.peer = new Peer({
       host: 'localhost',
@@ -138,8 +138,8 @@ export class PeerService {
   private setupListenerForConnection(conn: any) {
     // When the connection first establish
     conn.on(PeerEvent.Open, () => {
-      // Send our cursor's color
-      this.sendMyCursorColor(conn, this.cursorService.getMyCursorColor());
+      // Send our cursor's info
+      this.sendCursorInfo(conn);
       console.log('Connection to peer ' + conn.peer + ' opened :)');
       // Only add this conn to our list when the connection has opened!
       Utils.addUniqueConnections([conn], this.connectionsIAmHolding);
@@ -225,6 +225,8 @@ export class PeerService {
             this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
             // Tell C# Server I have received AllMessages
             this.roomService.markPeerReceivedAllMessages(this.peer.id);
+            console.log('I have received LAST BATCH Old CRDTs');
+            this.sendCursorInfo(fromConn);
           }
         }
         break;
@@ -305,7 +307,7 @@ export class PeerService {
         break;
       case MessageType.ChangeCursor:
         const cursorEvent = JSON.parse(message.content);
-        console.log('Cursor');
+        console.log('Receive Cursor Change');
         console.log(cursorEvent);
         this.cursorChangeInfo = new CursorChangeInfo(
           cursorEvent.position.lineNumber,
@@ -316,6 +318,7 @@ export class PeerService {
         break;
       case MessageType.ChangeSelect:
         const selectEvent = JSON.parse(message.content);
+        console.log('Receive Select Change');
         console.log(selectEvent);
         this.selectionChangeInfo = new SelectionChangeInfo(
           selectEvent.selection.startLineNumber,
@@ -473,6 +476,9 @@ export class PeerService {
       );
       conn.send(message);
     }
+
+    const that = this;
+    setTimeout(() => that.sendCursorInfo(conn), 10); // WHY SET TIME OUT WORKS???!!!!@@$!$!$
 
     // this.messagesToBeAcknowledged.push(message);
     // const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
@@ -683,7 +689,7 @@ export class PeerService {
     });
   }
 
-  sendChangeSelectionPos(conn: any, event: any) {
+  sendChangeSelectionPos(conn: any, event: any): void {
     const message = new Message(
       JSON.stringify(event),
       MessageType.ChangeSelect,
@@ -694,14 +700,14 @@ export class PeerService {
     conn.send(message);
   }
 
-  broadcastChangeCursorPos(event: any) {
+  broadcastChangeCursorPos(event: any): void {
     console.log(event);
     this.connectionsIAmHolding.forEach((conn) => {
       this.sendChangeCursorPos(conn, event);
     });
   }
 
-  sendChangeCursorPos(conn: any, event: any) {
+  sendChangeCursorPos(conn: any, event: any): void {
     const message = new Message(
       JSON.stringify(event),
       MessageType.ChangeCursor,
@@ -710,6 +716,20 @@ export class PeerService {
       -1
     );
     conn.send(message);
+  }
+
+  sendCursorInfo(conn: any): void {
+    console.log('Sending cursor info: ');
+    console.log(this.cursorService.getMyLastCursorEvent());
+    console.log(this.cursorService.getMyLastSelectEvent());
+
+    this.sendMyCursorColor(conn, this.cursorService.getMyCursorColor());
+    if (this.cursorService.getMyLastCursorEvent() !== null) {
+      this.sendChangeCursorPos(conn, this.cursorService.getMyLastCursorEvent());
+    }
+    if (this.cursorService.getMyLastSelectEvent() !== null) {
+      this.sendChangeSelectionPos(conn, this.cursorService.getMyLastSelectEvent());
+    }
   }
 
   getAllMessages(): any[] {
