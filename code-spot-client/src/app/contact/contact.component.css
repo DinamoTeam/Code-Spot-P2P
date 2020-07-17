@@ -9,19 +9,22 @@
   color: #777777;
 }
 
+.socials {
+  margin-top: auto;
+}
+
 .card-deck {
   flex: initial;
 }
 
 .card {
-  margin: 30px 30px;
-  width: 22rem;
-  flex: initial;
   border-radius: 20px;
 }
 
-.socials {
-  margin-top: auto;
+.contact-card {
+  margin: 11px 10px;
+  width: 20rem;
+  flex: initial;
 }
 
 @media only screen and (max-width: 600px) {
@@ -30,8 +33,31 @@
     align-items: center;
   }
 
-  .card {
+  .contact-card {
     margin: 30px auto;
     width: 20rem;
   }
+
+  .feedback-card {
+    margin: 30px auto;
+    width: 20rem;
+  }
+
+  form {
+    width: 18rem;
+  }
+
+  card {
+    width: 20rem;
+  }
+}
+
+.feedback-card {
+  width: 40rem;
+  margin: 11px 10px;
+}
+
+.send-btn {
+  color: white;
+  background-color: #cb6318;
 }
