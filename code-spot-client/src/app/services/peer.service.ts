@@ -25,7 +25,7 @@ export class PeerService {
   private peerIdsToSendOldChatMessages: string[] = [];
   private peerIdsInRoom: any[] = [];
   private connectionsIAmHolding: any[] = [];
-  private hasReceivedAllMessages = false;
+  private hasReceivedAllOldCRDTs = false;
   private connsToBroadcast: any[] = [];
   private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
   connectionEstablished = new EventEmitter<boolean>();
@@ -182,13 +182,13 @@ export class PeerService {
   private handleMessageFromPeer(message: Message, fromConn: any) {
     switch (message.messageType) {
       case MessageType.ChangeLanguage:
-        this.broadcastMessageToPeers(message, this.connsToBroadcast);
+        this.broadcastMessageToNewPeers(message, this.connsToBroadcast);
         EditorService.language = message.content;
         PeerUtils.broadcastInfo(BroadcastInfo.ChangeLanguage);
         break;
       case MessageType.RemoteInsert:
       case MessageType.RemoteRemove:
-        this.broadcastMessageToPeers(message, this.connsToBroadcast);
+        this.broadcastMessageToNewPeers(message, this.connsToBroadcast);
       case MessageType.OldCRDTs:
       case MessageType.OldCRDTsLastBatch:
         const parsedCrdts: CRDT[] = JSON.parse(message.content); // plain Javascript object
@@ -211,7 +211,7 @@ export class PeerService {
           // peerMessagesTracker.receiveRemoteInserts(crdts);
           PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
           if (message.messageType === MessageType.OldCRDTsLastBatch) {
-            this.hasReceivedAllMessages = true;
+            this.hasReceivedAllOldCRDTs = true;
             PeerUtils.broadcastInfo(BroadcastInfo.ReadyToDisplayMonaco);
             this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
             // Tell C# Server I have received AllMessages
@@ -223,7 +223,7 @@ export class PeerService {
         }
         break;
       case MessageType.RequestOldCRDTs:
-        if (!this.hasReceivedAllMessages) {
+        if (!this.hasReceivedAllOldCRDTs) {
           console.log(
             "I haven't received allMessages yet. Can't send to that peer"
           );
@@ -252,6 +252,7 @@ export class PeerService {
         window.location.reload(true);
         break;
       case MessageType.ChatMessage:
+        this.broadcastMessageToNewPeers(message, this.connsToBroadcast);
         PeerUtils.addUniqueMessages([message], this.previousChatMessages);
         PeerUtils.broadcastInfo(BroadcastInfo.UpdateChatMessages);
         break;
@@ -281,10 +282,6 @@ export class PeerService {
           ) {
             this.peerIdsToSendOldChatMessages.push(fromConn.peer); // Send when opened
           } else {
-            this.broadcastNewMessagesToConnUntil(
-              fromConn,
-              BROADCAST_TILL_MILLI_SECONDS_LATER
-            );
             this.sendOldMessages(fromConn); // send now
           }
         }
@@ -352,7 +349,7 @@ export class PeerService {
     if (peerIds.length === 0) {
       // DO NOTHING
       console.log('I am the first one in this room');
-      this.hasReceivedAllMessages = true;
+      this.hasReceivedAllOldCRDTs = true;
       this.hasReceivedAllChatMessages = true;
     } else {
       this.peerIdsInRoom = peerIds;
@@ -391,7 +388,7 @@ export class PeerService {
   private waitTillGotAllMessagesOrRefreshIfThatPeerLeft(
     peerIdToGetAllMessages: string
   ) {
-    if (!this.hasReceivedAllMessages) {
+    if (!this.hasReceivedAllOldCRDTs) {
       this.roomService.getPeerIdsInRoom(this.roomName).subscribe((peerIds) => {
         console.log(peerIds);
         console.log(peerIdToGetAllMessages);
@@ -581,7 +578,7 @@ export class PeerService {
     }, milliSecondsLater);
   }
 
-  private broadcastMessageToPeers(message: Message, conns: any[]) {
+  private broadcastMessageToNewPeers(message: Message, conns: any[]) {
     conns.forEach((connection) => {
       connection.send(message);
     });

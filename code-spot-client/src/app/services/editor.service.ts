@@ -155,29 +155,6 @@ export class EditorService {
         startIndexMonaco
       );
     }
-
-    /*// Right now: Naively insert each char for testing purposes
-    const insertingChar = crdts.map((crdt) => crdt.ch);
-    for (let i = 0; i < crdts.length; i++) {
-      // Only insert not existed element
-      if (insertingIndices[i] !== -1) {
-        if (crdts[i].ch === ' ' || crdts[i].ch === '\n')
-          editorTextModel.pushStackElement();
-
-        this.writeCharToScreenAtIndex(
-          editorTextModel,
-          insertingChar[i],
-          insertingIndices[i]
-        );
-        // auxiliary editor
-        this.writeCharToScreenAtIndex(
-          auxEditorTextModel,
-          insertingChar[i],
-          insertingIndices[i]
-        );
-      }
-    }
-    */
   }
 
   handleLocalRangeRemove(
@@ -273,27 +250,6 @@ export class EditorService {
       );
     }
 
-    /*// Right now: Naively delete each char from the screen
-    for (let i = 0; i < crdts.length; i++) {
-      if (deletingIndices[i] === -1) continue; // CRDT doesn't exist. Somebody's already deleted it!
-
-      const startPos = this.indexToPos(editorTextModel, deletingIndices[i]);
-      const endPos = this.indexToPos(editorTextModel, deletingIndices[i] + 1);
-      this.deleteTextInRange(
-        editorTextModel,
-        startPos.lineNumber,
-        startPos.column,
-        endPos.lineNumber,
-        endPos.column
-      );
-      this.deleteTextInRange(
-        auxEditorTextModel,
-        startPos.lineNumber,
-        startPos.column,
-        endPos.lineNumber,
-        endPos.column
-      );
-    }*/
   }
 
   handleAllMessages(
