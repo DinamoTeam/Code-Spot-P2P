@@ -13,6 +13,7 @@ export class CursorService {
   private myLastSelectEvent: any = null;
 
   drawCursor(editor: any, line: number, col: number, ofPeerId: string) {
+    const peerName = ofPeerId.substr(0, 5);
     const color = this.peerColors.get(ofPeerId);
     const deco = this.cursorDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
@@ -21,7 +22,7 @@ export class CursorService {
       [
         {
           range: new monaco.Range(line, col, line, col + 1),
-          options: { className: 'monaco-cursor-' + color, stickiness: 1 },
+          options: { className: 'monaco-cursor-' + color, stickiness: 1, hoverMessage: {value: peerName}},
         },
       ]
     );
@@ -39,13 +40,14 @@ export class CursorService {
     endCol: number,
     ofPeerId: string
   ) {
+    const peerName = ofPeerId.substr(0, 5);
     const color = this.peerColors.get(ofPeerId);
     const deco = this.selectionDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
     const decoration = editor.deltaDecorations(oldDecoration, [
       {
         range: new monaco.Range(startLine, startCol, endLine, endCol),
-        options: { className: 'monaco-select-' + color, stickiness: 1 },
+        options: { className: 'monaco-select-' + color, stickiness: 1, hoverMessage: {value: peerName}},
       },
     ]);
     this.selectionDecorations = this.selectionDecorations.filter(
