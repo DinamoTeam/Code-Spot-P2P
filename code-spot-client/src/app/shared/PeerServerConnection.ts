@@ -1,4 +1,4 @@
-export const enum PeerEvent {
+export const enum PeerServerConnection {
   Open = 'open',
   Close = 'close',
   Connection = 'connection',

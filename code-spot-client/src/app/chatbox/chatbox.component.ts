@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { PeerService } from '../services/peer.service';
 import { FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
