@@ -26,7 +26,6 @@ export class PeerService {
   private peerIdsToSendOldChatMessages: string[] = [];
   private peerIdsInRoom: any[] = [];
   private connectionsIAmHolding: any[] = [];
-  private messagesToBeAcknowledged: Message[] = [];
   private hasReceivedAllMessages = false;
   private connsToBroadcast: any[] = [];
   private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
@@ -193,13 +192,6 @@ export class PeerService {
         this.broadcastMessageToPeers(message, this.connsToBroadcast);
       case MessageType.OldCRDTs:
       case MessageType.OldCRDTsLastBatch:
-        // Acknowledge
-        // fromConn.send(
-        //   new Message(null, MessageType.Acknowledge, null, null, message.time)
-        // );
-
-        // const crdts = this.stringToCRDTArr(message.content, this.CRDTDelimiter);
-
         const parsedCrdts: CRDT[] = JSON.parse(message.content); // plain Javascript object
         const crdts = parsedCrdts.map((crdt) =>
           CRDT.plainObjectToRealCRDT(crdt)
@@ -259,14 +251,6 @@ export class PeerService {
           'The peer we picked to send us old messages cannot send. Reloading...'
         );
         window.location.reload(true);
-        break;
-      case MessageType.Acknowledge:
-        const indexDelete = this.messagesToBeAcknowledged.findIndex(
-          (mes) => mes.time === message.time
-        );
-        if (indexDelete !== -1) {
-          this.messagesToBeAcknowledged.splice(indexDelete, 1);
-        }
         break;
       case MessageType.ChatMessage:
         Utils.addUniqueMessages([message], this.previousChatMessages);
@@ -378,7 +362,6 @@ export class PeerService {
         receivedAllMessages
       );
       if (peerIdPicked === null) {
-        // Error. No peer is ready. Go back home
         alert('All Peer in rooms have left. Going back to home...');
         Utils.refreshAndGoBackHomePage();
       } else {
@@ -480,12 +463,6 @@ export class PeerService {
 
     const that = this;
     setTimeout(() => that.sendCursorInfo(conn), 10); // WHY SET TIME OUT WORKS???!!!!@@$!$!$
-
-    // this.messagesToBeAcknowledged.push(message);
-    // const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
-    // setTimeout(function () {
-    //   that.acknowledgeOrResend(message);
-    // }, that.timeWaitForAck);
   }
 
   private sendOldMessages(conn: any) {
@@ -501,7 +478,13 @@ export class PeerService {
 
   private sendMyCursorColor(conn: any, myColor: number) {
     conn.send(
-      new Message(myColor + '', MessageType.CursorColor, this.peer.id, conn.peer, -1)
+      new Message(
+        myColor + '',
+        MessageType.CursorColor,
+        this.peer.id,
+        conn.peer,
+        -1
+      )
     );
   }
 
@@ -525,7 +508,6 @@ export class PeerService {
     this.roomService.joinExistingRoom(this.peer.id, this.roomName).subscribe(
       (data: EnterRoomInfo) => {
         if (data.siteId === -1) {
-          // Either room not exists or has been deleted
           alert('Room not exists, navigating back to home');
           Utils.refreshAndGoBackHomePage();
         }
@@ -579,11 +561,6 @@ export class PeerService {
           this.time++
         );
         conn.send(messageToSend);
-        // this.messagesToBeAcknowledged.push(messageToSend);
-        // const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
-        // setTimeout(function () {
-        //   that.acknowledgeOrResend(messageToSend);
-        // }, that.timeWaitForAck);
       });
     }
   }
@@ -606,36 +583,6 @@ export class PeerService {
       connection.send(message);
     });
   }
-
-  // acknowledgeOrResend(mess: Message, hasSent = 0) {
-  //   // If message hasn't been received
-  //   if (
-  //     this.messagesToBeAcknowledged.find(
-  //       (message) => message.time === mess.time
-  //     )
-  //   ) {
-  //     const conn = this.connectionsIAmHolding.find(
-  //       (connection) => connection.peer === mess.toPeerId
-  //     );
-  //     // Has sent for more than 5 times
-  //     if (hasSent > 5) {
-  //       this.connectionsIAmHolding = this.connectionsIAmHolding.filter(
-  //         (connection) => connection.peer !== conn.peer
-  //       );
-  //       return;
-  //     }
-
-  //     // If that peer hasn't disconnect
-  //     if (conn) {
-  //       conn.send(mess);
-  //       console.log('Waiting too long for ack. Resent messages');
-  //       const that = this; // setTimeOut will not know what 'this' is => Store 'this' in a variable
-  //       setTimeout(function () {
-  //         that.acknowledgeOrResend(mess, hasSent + 1);
-  //       }, that.timeWaitForAck);
-  //     }
-  //   }
-  // }
 
   broadcastChangeLanguage() {
     this.connectionsIAmHolding.forEach((conn) => {
@@ -729,7 +676,10 @@ export class PeerService {
       this.sendChangeCursorPos(conn, this.cursorService.getMyLastCursorEvent());
     }
     if (this.cursorService.getMyLastSelectEvent() !== null) {
-      this.sendChangeSelectionPos(conn, this.cursorService.getMyLastSelectEvent());
+      this.sendChangeSelectionPos(
+        conn,
+        this.cursorService.getMyLastSelectEvent()
+      );
     }
   }
 
@@ -759,10 +709,6 @@ export class PeerService {
 
   getAllPeerIds(): string[] {
     return this.connectionsIAmHolding.map((conn) => conn.peer);
-  }
-
-  getMessagesToBeAck(): any[] {
-    return this.messagesToBeAcknowledged;
   }
 
   private subscribeToEditorServiceEvents() {
