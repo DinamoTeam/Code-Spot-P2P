@@ -152,7 +152,10 @@ export class CodeEditorComponent implements OnInit {
     console.log(event);
     this.cursorService.setMyLastCursorEvent(event);
     // 3: Explicit - There was an explicit user gesture.
-    if (event.reason === 3) {
+    if (event.reason === 3 ||
+       (event.source === 'mouse' && event.reason === 0) || // mouse click elsewhere after select
+       (event.source === 'editor.contrib.dragAndDrop')     // drag and drop
+       ) {
       this.peerService.broadcastChangeCursorPos(event);
     }
   }
@@ -161,7 +164,10 @@ export class CodeEditorComponent implements OnInit {
     console.log('Select Change:');
     console.log(event);
     this.cursorService.setMyLastSelectEvent(event);
-    if (event.reason === 3) {
+    if (event.reason === 3 ||
+       (event.source === 'mouse' && event.reason === 0) ||
+       (event.source === 'editor.contrib.dragAndDrop')
+       ) {
       this.peerService.broadcastChangeSelectionPos(event);
     }
   }
