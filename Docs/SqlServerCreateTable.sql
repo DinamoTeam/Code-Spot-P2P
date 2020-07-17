@@ -7,5 +7,6 @@ CREATE TABLE peers (
 	PeerId VARCHAR(128) NOT NULL,
 	RoomName VARCHAR(128) NOT NULL,
 	HasReceivedAllMessages int NOT NULL,
+	CursorColor int NOT NULL,
 	FOREIGN KEY (RoomName) REFERENCES rooms(RoomName)
 );
