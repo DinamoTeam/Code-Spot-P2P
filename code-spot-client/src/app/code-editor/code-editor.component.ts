@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  Input,
-  NgZone,
-  EventEmitter,
-  Inject,
-} from '@angular/core';
+import { Component, OnInit, Input, NgZone, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
 import { ActivatedRoute } from '@angular/router';
@@ -15,8 +8,7 @@ import { Languages } from './languages';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorService } from '../services/cursor.service';
 import { PeerUtils } from '../shared/Utils';
-
-declare const monaco: any;
+import { CursorChangeReason } from '../shared/CursorChangeReason';
 
 @Component({
   selector: 'app-code-editor',
@@ -37,7 +29,6 @@ export class CodeEditorComponent implements OnInit {
   auxEditorReady = false;
   peerServiceHasConnectedToPeerServer = false;
   auxEditorTextModel: any;
-  allMessages: string[] = null;
   selectedLang: string;
   languageForm = new FormGroup({
     language: new FormControl(
@@ -45,6 +36,9 @@ export class CodeEditorComponent implements OnInit {
       Validators.compose([Validators.required])
     ),
   });
+
+  MOUSE_EVENT = 'mouse';
+  DRAG_AND_DROP_EVENT = 'editor.contrib.dragAndDrop';
 
   constructor(
     private peerService: PeerService,
@@ -61,7 +55,6 @@ export class CodeEditorComponent implements OnInit {
 
   ngOnInit() {
     this.selectedLang = EditorService.language;
-    this.allMessages = null;
   }
 
   @Input() languages = Languages;
@@ -83,8 +76,6 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onInitEditorHandler(event: any) {
-    console.log(event);
-    console.log('yehh');
     this.editor = event;
     this.editorTextModel = this.editor.getModel();
     this.editorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
@@ -127,7 +118,7 @@ export class CodeEditorComponent implements OnInit {
     }
 
     const changes = event.changes;
-    // Handle all remove and insert requests
+
     for (let i = 0; i < changes.length; i++) {
       const range = changes[i].range;
       this.editorService.handleLocalRangeRemove(
@@ -151,11 +142,13 @@ export class CodeEditorComponent implements OnInit {
     console.log('Cursor Change:');
     console.log(event);
     this.cursorService.setMyLastCursorEvent(event);
-    // 3: Explicit - There was an explicit user gesture.
-    if (event.reason === 3 ||
-       (event.source === 'mouse' && event.reason === 0) || // mouse click elsewhere after select
-       (event.source === 'editor.contrib.dragAndDrop')     // drag and drop
-       ) {
+
+    if (
+      event.reason === CursorChangeReason.Explicit ||
+      (event.source === this.MOUSE_EVENT &&
+        event.reason === CursorChangeReason.NotSet) ||
+      event.source === this.DRAG_AND_DROP_EVENT // drag and drop
+    ) {
       this.peerService.broadcastChangeCursorPos(event);
     }
   }
@@ -164,10 +157,12 @@ export class CodeEditorComponent implements OnInit {
     console.log('Select Change:');
     console.log(event);
     this.cursorService.setMyLastSelectEvent(event);
-    if (event.reason === 3 ||
-       (event.source === 'mouse' && event.reason === 0) ||
-       (event.source === 'editor.contrib.dragAndDrop')
-       ) {
+    if (
+      event.reason === CursorChangeReason.Explicit ||
+      (event.source === this.MOUSE_EVENT &&
+        event.reason === CursorChangeReason.NotSet) ||
+      event.source === this.DRAG_AND_DROP_EVENT
+    ) {
       this.peerService.broadcastChangeSelectionPos(event);
     }
   }
@@ -245,11 +240,8 @@ export class CodeEditorComponent implements OnInit {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
       if (successful) {
         this.roomName = this.actRoute.snapshot.params['roomName'];
-        if (this.roomName === 'NONE') {
-          this.peerService.createNewRoom();
-        } else {
-          this.peerService.joinExistingRoom(this.roomName);
-        }
+        if (this.roomName === 'NONE') this.peerService.createNewRoom();
+        else this.peerService.joinExistingRoom(this.roomName);
       }
     });
   }
@@ -268,7 +260,7 @@ export class CodeEditorComponent implements OnInit {
     document.execCommand('copy');
     document.body.removeChild(selBox);
 
-    alert("Link copied to clipboard!");
+    alert('Link copied to clipboard!');
 
     // TODO: Fix the box!!!
     //this.showSuccessAlert = true;
@@ -277,7 +269,6 @@ export class CodeEditorComponent implements OnInit {
   closeAlert() {
     this.showSuccessAlert = false;
   }
-
 
   printSelect() {
     console.log(this.cursorService.getMyLastSelectEvent());
