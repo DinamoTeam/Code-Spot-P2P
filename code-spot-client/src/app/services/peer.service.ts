@@ -4,12 +4,13 @@ import { RoomService } from './room.service';
 import { CRDT } from '../shared/CRDT';
 import { EditorService } from './editor.service';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
-import { PeerEvent } from '../shared/PeerEvent';
 import { CrdtUtils, PeerUtils, Utils } from '../shared/Utils';
-import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorChangeInfo } from '../shared/CursorChangeInfo';
 import { SelectionChangeInfo } from '../shared/SelectionChangeInfo';
 import { CursorService } from './cursor.service';
+import { PeerServerConnection } from '../shared/PeerServerConnection';
+import { PeersConnection } from '../shared/PeersConnection';
+import { BroadcastInfo } from '../shared/BroadcastInfo';
 
 declare const Peer: any;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 15000;
@@ -74,14 +75,14 @@ export class PeerService {
 
   //************* Connect + Reconnect to PeerServer and log errors *************
   private connectToPeerServer() {
-    this.peer.on(PeerEvent.Open, (myId: string) => {
+    this.peer.on(PeerServerConnection.Open, (myId: string) => {
       console.log('I have connected to peerServer. My id: ' + myId);
       this.connectionEstablished.emit(true);
     });
   }
 
   private reconnectToPeerServer() {
-    this.peer.on(PeerEvent.Disconnected, () => {
+    this.peer.on(PeerServerConnection.Disconnected, () => {
       // Disconnect => destroy permanently this peer. Need to test this more!
       console.log(
         'Peer disconnect with server. Destroying peer ... (Although we should try to reconnect here)'
@@ -93,7 +94,7 @@ export class PeerService {
   }
 
   private logErrors() {
-    this.peer.on(PeerEvent.Error, (error) => {
+    this.peer.on(PeerServerConnection.Error, (error) => {
       console.error('PeerServer error: ');
       console.error(error);
     });
@@ -109,7 +110,7 @@ export class PeerService {
   }
 
   private registerConnectToMeEvent() {
-    this.peer.on(PeerEvent.Connection, (conn: any) => {
+    this.peer.on(PeerServerConnection.Connection, (conn: any) => {
       console.log('Peer ' + conn.peer + ' just sent a connect request to me');
       this.setupListenerForConnection(conn);
     });
@@ -135,7 +136,7 @@ export class PeerService {
 
   private setupListenerForConnection(conn: any) {
     // When the connection first establish
-    conn.on(PeerEvent.Open, () => {
+    conn.on(PeersConnection.Open, () => {
       // Send our cursor's info
       this.sendCursorInfo(conn);
       console.log('Connection to peer ' + conn.peer + ' opened :)');
@@ -164,16 +165,16 @@ export class PeerService {
     /**
      * Subscribe to receive messages from other peers
      */
-    conn.on(PeerEvent.Data, (message: Message) =>
+    conn.on(PeersConnection.Data, (message: Message) =>
       this.handleMessageFromPeer(message, conn)
     );
 
     /**
      * Event is raised when either us or other peers close the connection
      */
-    conn.on(PeerEvent.Close, () => this.handleConnectionClose(conn));
+    conn.on(PeersConnection.Close, () => this.handleConnectionClose(conn));
 
-    conn.on(PeerEvent.Error, (error: any) => {
+    conn.on(PeersConnection.Error, (error: any) => {
       console.error('Connection error: ');
       console.error(error);
     });
