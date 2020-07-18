@@ -67,7 +67,7 @@
         [formGroup]="contactForm"
         (ngSubmit)="onSubmit(contactForm.value)"
       >
-        <h1 class="mb-3">Talk to us!</h1>
+        <h1 class="mb-3">{{ headerMessage }}</h1>
         <div class="form-group">
           <input
             type="text"
