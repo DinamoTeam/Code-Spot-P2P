@@ -11,6 +11,7 @@ import { CursorService } from './cursor.service';
 import { PeerServerConnection } from '../shared/PeerServerConnection';
 import { PeersConnection } from '../shared/PeersConnection';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { NameService } from './name.service';
 
 declare const Peer: any;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 15000;
@@ -36,11 +37,13 @@ export class PeerService {
   private previousChatMessages: Message[] = [];
   private hasReceivedAllChatMessages: boolean = false;
   private peerIdJustLeft: string;
+  private peerName = 'NO_NAME';
 
   constructor(
     private roomService: RoomService,
     private cursorService: CursorService,
-    private editorService: EditorService
+    private editorService: EditorService,
+    private nameService: NameService
   ) {}
 
   connectToPeerServerAndInit() {
@@ -138,8 +141,12 @@ export class PeerService {
   private setupListenerForConnection(conn: any) {
     // When the connection first establish
     conn.on(PeersConnection.Open, () => {
+      // TODO: Send our name
+      this.sendMyName(conn);
+
       // Send our cursor's info
       this.sendCursorInfo(conn);
+
       console.log('Connection to peer ' + conn.peer + ' opened :)');
       // Only add this conn to our list when the connection has opened!
       Utils.addUniqueConnections([conn], this.connectionsIAmHolding);
@@ -305,6 +312,10 @@ export class PeerService {
         const color = Number.parseInt(message.content, 10);
         this.cursorService.setPeerColor(fromConn.peer, color);
         break;
+      case MessageType.Name:
+        const peerName = message.content;
+        this.nameService.setPeerName(fromConn.peer, peerName);
+        break;
       default:
         console.log(message);
         throw new Error('Unhandled messageType');
@@ -340,6 +351,8 @@ export class PeerService {
       this.cursorService.setPeerColor(peerIds[i], cursorColors[i]);
     }
     this.cursorService.setMyCursorColor(cursorColor);
+
+    this.nameService.giveMyselfRandomName();
 
     if (peerIds.length === 0) {
       // DO NOTHING
@@ -670,6 +683,17 @@ export class PeerService {
         this.cursorService.getMyLastSelectEvent()
       );
     }
+  }
+
+  sendMyName(conn: any): void {
+    const message = new Message(
+      this.nameService.getMyName(),
+      MessageType.Name,
+      this.peer.id,
+      conn.peer,
+      -1
+    );
+    conn.send(message);
   }
 
   getPeerIdJustLeft(): string {

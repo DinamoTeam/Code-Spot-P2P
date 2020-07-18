@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { NameService } from './name.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +13,10 @@ export class CursorService {
   private myLastCursorEvent: any = null;
   private myLastSelectEvent: any = null;
 
+  constructor(private nameService: NameService) {}
+
   drawCursor(editor: any, line: number, col: number, ofPeerId: string) {
-    const peerName = ofPeerId.substr(0, 5);
+    const peerName = this.nameService.getPeerName(ofPeerId);
     const color = this.peerColors.get(ofPeerId);
     const deco = this.cursorDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
@@ -40,7 +43,7 @@ export class CursorService {
     endCol: number,
     ofPeerId: string
   ) {
-    const peerName = ofPeerId.substr(0, 5);
+    const peerName = this.nameService.getPeerName(ofPeerId);
     const color = this.peerColors.get(ofPeerId);
     const deco = this.selectionDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
