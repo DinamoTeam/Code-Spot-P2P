@@ -1,0 +1,8 @@
+footer a {
+  transition: all 0.7s;
+}
+
+footer a:hover {
+  text-decoration: none;
+  color: rgb(4, 0, 211);
+}

@@ -1,4 +1,4 @@
-.btn-navy {
+/* .btn-navy {
   color: white;
   background-color: #cb6318;
 }
@@ -13,4 +13,79 @@
 .cover .btn-lg {
   padding: 0.75rem 1.25rem;
   font-weight: 700;
+} */
+
+:root {
+  --primary-color: rgb(0, 162, 255);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
+
+.button {
+  padding: 20px 40px;
+  background-color: rgb(196, 95, 0);
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.7s;
+}
+
+.button:hover {
+  background-color: rgb(131, 64, 2);
+}
+
+.container {
+  margin: auto;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 120px);
+}
+
+.flex-container h1 {
+  font-size: 70px;
+  color: rgb(153, 1, 184);
+  transform: translateY(-50vh);
+  animation: heading 1s forwards ease-in;
+}
+
+@keyframes heading {
+  to {
+    transform: translateY(0);
+  }
+}
+
+.flex-container p {
+  margin-bottom: 50px;
+  color: rgb(0, 0, 0);
+  font-size: 20px;
+  transform: translateX(-100vw);
+  animation: text 1s forwards ease-in;
+}
+
+@keyframes text {
+  to {
+    transform: translateX(0);
+  }
+}
+
+.flex-container a {
+  color: white;
+  font-size: 20px;
+  opacity: 0%;
+  animation: button 0.7s forwards ease-in 1s;
+}
+
+@keyframes button {
+  to {
+    opacity: 100%;
+  }
 }
