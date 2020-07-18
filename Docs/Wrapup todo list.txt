@@ -1,0 +1,30 @@
+I.	Priority for this week:
+Minh: 
+	- Randomize user name (con vật) + cho hiện màu lên
+	- Fix cho cái sync cursor, bôi đen, nameTag hoàn hảo, hoạt động với mọi edge cases
+	- Improve UI, Add AlertifyJS
+
+Giang:
+	- Hoàn thiện feedback form: Giang
+	- Clean up code, chia nhỏ file (PeerService đang to quá)
+	- Khi đứt wifi thì cho người dùng option go home hoặc đứng yên 
+    (Nếu đứng yên thì phải báo là ko sync nữa đâu)
+	- Chọn Theme Monaco
+	
+	
+	
+II.	Must have (but later):
+1.	Optimize cái mass insert và mass delete + nhận hết batches rồi mới insert
+2.	Viết article đăng lên mạng
+3.	Test thoroughly (Sync code, UDP, đứt wifi, sync cursor, chat, ...)
+
+
+III.Nice to have:
+1.	Làm UI đẹp lung linh
+2.	Chọn màu đậm (cho cursor và select)
+3.	Thay logo của page (favicon)
+4.	Add emojis + ảnh vào chat
+5.	Lưu code trên server
+
+IV.	Out of scope:
+1. Video call
