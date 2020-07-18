@@ -9,6 +9,7 @@ import { UtilsService } from '../services/utils.service';
 })
 export class ContactComponent implements OnInit {
   contactForm: FormGroup;
+  headerMessage: string;
 
   constructor(private formBuilder: FormBuilder, private utilsService: UtilsService) {
     this.contactForm = this.formBuilder.group({
@@ -19,7 +20,9 @@ export class ContactComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.headerMessage = "Talk to us!";
+  }
 
   onSubmit(form) {
     console.log(form);
@@ -27,6 +30,7 @@ export class ContactComponent implements OnInit {
 
     if (form['message'] != '') {
       this.utilsService.sendEmail(form);
+      this.headerMessage = "THANK YOU!";
     }
   }
 }

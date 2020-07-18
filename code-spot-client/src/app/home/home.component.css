@@ -1,8 +1,3 @@
-.btn-navy {
-  color: white;
-  background-color: #cb6318;
-}
-
 .cover {
   padding: 0 1.5rem;
   display: flex;
@@ -13,4 +8,9 @@
 .cover .btn-lg {
   padding: 0.75rem 1.25rem;
   font-weight: 700;
+}
+
+.btn-navy {
+  color: white;
+  background-color: #DF691A;
 }
