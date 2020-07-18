@@ -199,17 +199,10 @@ export class PeerService {
         this.receivedRemoteCrdts = crdts;
 
         if (message.messageType === MessageType.RemoteInsert) {
-          console.log('Receive Remote Insert');
-          // peerMessagesTracker.receiveRemoteInserts(crdts);
           PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
-          // peerMessagesTracker.processDeleteBuffer();
         } else if (message.messageType === MessageType.RemoteRemove) {
-          console.log('Receive Remote Remove');
-          // peerMessagesTracker.receiveRemoteRemoves(crdts);
           PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
         } else {
-          console.log('Receive OldCRDTs');
-          // peerMessagesTracker.receiveRemoteInserts(crdts);
           PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
           if (message.messageType === MessageType.OldCRDTsLastBatch) {
             this.hasReceivedAllOldCRDTs = true;
@@ -217,7 +210,7 @@ export class PeerService {
             this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
             // Tell C# Server I have received AllMessages
             this.roomService.markPeerReceivedAllMessages(this.peer.id);
-            console.log('I have received LAST BATCH Old CRDTs');
+            // Send cursor + selection change info
             this.cursorService.setMyLastSelectEvent(null);
             this.sendCursorInfo(fromConn);
           }
@@ -289,8 +282,6 @@ export class PeerService {
         break;
       case MessageType.ChangeCursor:
         const cursorEvent = JSON.parse(message.content);
-        console.log('Receive Cursor Change');
-        console.log(cursorEvent);
         this.cursorChangeInfo = new CursorChangeInfo(
           cursorEvent.position.lineNumber,
           cursorEvent.position.column,
@@ -300,8 +291,6 @@ export class PeerService {
         break;
       case MessageType.ChangeSelect:
         const selectEvent = JSON.parse(message.content);
-        console.log('Receive Select Change');
-        console.log(selectEvent);
         this.selectionChangeInfo = new SelectionChangeInfo(
           selectEvent.selection.startLineNumber,
           selectEvent.selection.startColumn,
@@ -391,7 +380,6 @@ export class PeerService {
   ) {
     if (!this.hasReceivedAllOldCRDTs) {
       this.roomService.getPeerIdsInRoom(this.roomName).subscribe((peerIds) => {
-        console.log(peerIds);
         console.log(peerIdToGetAllMessages);
         if (peerIds.findIndex((id) => id === peerIdToGetAllMessages) === -1) {
           console.log(
