@@ -10,6 +10,7 @@ import { CursorService } from '../services/cursor.service';
 import { PeerUtils } from '../shared/Utils';
 import { CursorChangeReason } from '../shared/CursorChangeReason';
 import { AlertifyService } from '../services/alertify.service';
+import { CursorChangeSource } from '../shared/CursorChangeSource';
 
 @Component({
   selector: 'app-code-editor',
@@ -37,12 +38,6 @@ export class CodeEditorComponent implements OnInit {
       Validators.compose([Validators.required])
     ),
   });
-
-  MOUSE_EVENT = 'mouse';
-  DRAG_AND_DROP_EVENT = 'editor.contrib.dragAndDrop';
-  CTRL_SHIFT_K_EVENT = 'editor.action.deletelines';
-  CTRL_ENTER_EVENT = 'editor.action.insertLineAfter';
-  CTRL_SHIFT_ENTER_EVENT = 'editor.action.insertLineBefore';
 
   constructor(
     private peerService: PeerService,
@@ -236,12 +231,12 @@ export class CodeEditorComponent implements OnInit {
         CursorOrSelectChangeEvent.reason === CursorChangeReason.Explicit ||
         CursorOrSelectChangeEvent.reason === CursorChangeReason.Redo ||
         CursorOrSelectChangeEvent.reason === CursorChangeReason.Undo ||
-        (CursorOrSelectChangeEvent.source === this.MOUSE_EVENT &&
+        (CursorOrSelectChangeEvent.source === CursorChangeSource.MOUSE_EVENT &&
         CursorOrSelectChangeEvent.reason === CursorChangeReason.NotSet) ||
-        CursorOrSelectChangeEvent.source === this.DRAG_AND_DROP_EVENT ||
-        CursorOrSelectChangeEvent.source === this.CTRL_SHIFT_K_EVENT ||
-        CursorOrSelectChangeEvent.source === this.CTRL_ENTER_EVENT ||
-        CursorOrSelectChangeEvent.source === this.CTRL_SHIFT_ENTER_EVENT
+        CursorOrSelectChangeEvent.source === CursorChangeSource.DRAG_AND_DROP_EVENT ||
+        CursorOrSelectChangeEvent.source === CursorChangeSource.CTRL_SHIFT_K_EVENT ||
+        CursorOrSelectChangeEvent.source === CursorChangeSource.CTRL_ENTER_EVENT ||
+        CursorOrSelectChangeEvent.source === CursorChangeSource.CTRL_SHIFT_ENTER_EVENT
       ) {
         return true;
       }
