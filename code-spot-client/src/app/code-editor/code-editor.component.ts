@@ -80,6 +80,9 @@ export class CodeEditorComponent implements OnInit {
     this.editorTextModel = this.editor.getModel();
     this.editorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
+    // Disable Ctrl-D (tricky to sync cursor + select)
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_D, function() {});
+
     this.editor.onDidChangeModelContent((e: any) =>
       this.onDidChangeModelContentHandler(e)
     );
