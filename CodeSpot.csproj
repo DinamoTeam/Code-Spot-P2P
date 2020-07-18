@@ -3,10 +3,15 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="code-spot-p2p\**" />
     <Compile Remove="wwwroot\**" />
+    <Content Remove="code-spot-p2p\**" />
     <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="code-spot-p2p\**" />
     <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="code-spot-p2p\**" />
     <None Remove="wwwroot\**" />
+    <TypeScriptCompile Remove="code-spot-p2p\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
@@ -23,7 +28,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="code-spot-p2p\src\app\shared\" />
   </ItemGroup>
    <Target Name="AddGeneratedContentItems" BeforeTargets="AssignTargetPaths" DependsOnTargets="PrepareForPublish">
     <ItemGroup>

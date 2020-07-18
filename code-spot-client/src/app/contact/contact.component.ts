@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { UtilsService } from '../services/utils.service';
 
 @Component({
   selector: 'app-contact',
@@ -9,7 +10,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 export class ContactComponent implements OnInit {
   contactForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder, private utilsService: UtilsService) {
     this.contactForm = this.formBuilder.group({
       name: '',
       email: '',
@@ -25,8 +26,7 @@ export class ContactComponent implements OnInit {
     this.contactForm.reset();
 
     if (form['message'] != '') {
-      console.log(JSON.stringify(form));
-      // TODO: send to backend to send email
+      this.utilsService.sendEmail(form);
     }
   }
 }

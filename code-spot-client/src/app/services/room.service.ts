@@ -51,7 +51,7 @@ export class RoomService {
   }
 
   // Error handling
-  handleError(error) {
+  private handleError(error) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
       errorMessage = error.error.message;
