@@ -56,12 +56,16 @@ export class CursorService {
     this.cursorDecorations.push(new Decoration(decoration, ofPeerId));
   }
 
-  addPeerColor(peerId: string, color: number): void {
+  setPeerColor(peerId: string, color: number): void {
     this.peerColors.set(peerId, color);
   }
 
-  removePeerColor(peerId: string): void {
+  removePeer(editor: any, peerId: string): void {
     this.peerColors.delete(peerId);
+    const cursorDecoration = this.cursorDecorations.filter((d) => d.peerId === peerId).map((d) => d.decoration);
+    const selectDecoration = this.cursorDecorations.filter((d) => d.peerId === peerId).map((d) => d.decoration);
+    editor.deltaDecorations(cursorDecoration, []);
+    editor.deltaDecorations(selectDecoration, []);
   }
 
   getPeerColors(): Map<string, number> {

@@ -221,6 +221,10 @@ export class CodeEditorComponent implements OnInit {
               selectionChange.peerId
             );
             break;
+          case BroadcastInfo.PeerLeft:
+            const peerIdLeft = this.peerService.getPeerIdJustLeft();
+            this.cursorService.removePeer(this.editor, peerIdLeft);
+            break;
           default:
             console.log('UNKNOWN event!!!');
             console.log(message);

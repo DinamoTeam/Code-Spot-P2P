@@ -35,6 +35,7 @@ export class PeerService {
   private selectionChangeInfo: SelectionChangeInfo;
   private previousChatMessages: Message[] = [];
   private hasReceivedAllChatMessages: boolean = false;
+  private peerIdJustLeft: string;
 
   constructor(
     private roomService: RoomService,
@@ -302,7 +303,7 @@ export class PeerService {
         break;
       case MessageType.CursorColor:
         const color = Number.parseInt(message.content, 10);
-        this.cursorService.addPeerColor(fromConn.peer, color);
+        this.cursorService.setPeerColor(fromConn.peer, color);
         break;
       default:
         console.log(message);
@@ -321,6 +322,10 @@ export class PeerService {
       (connection) => connection === conn
     );
     this.connectionsIAmHolding.splice(index, 1);
+
+    // Delete peer's cursor, select,...
+    this.peerIdJustLeft = conn.peer;
+    PeerUtils.broadcastInfo(BroadcastInfo.PeerLeft);
   }
 
   //***************** Handle when join room *******************
@@ -332,7 +337,7 @@ export class PeerService {
   ) {
     // Set cursor colors
     for (let i = 0; i < peerIds.length; i++) {
-      this.cursorService.addPeerColor(peerIds[i], cursorColors[i]);
+      this.cursorService.setPeerColor(peerIds[i], cursorColors[i]);
     }
     this.cursorService.setMyCursorColor(cursorColor);
 
@@ -665,6 +670,10 @@ export class PeerService {
         this.cursorService.getMyLastSelectEvent()
       );
     }
+  }
+
+  getPeerIdJustLeft(): string {
+    return this.peerIdJustLeft;
   }
 
   getAllMessages(): any[] {
