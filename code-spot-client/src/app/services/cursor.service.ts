@@ -47,7 +47,7 @@ export class CursorService {
     const decoration = editor.deltaDecorations(oldDecoration, [
       {
         range: new monaco.Range(startLine, startCol, endLine, endCol),
-        options: { className: 'monaco-select-' + color, stickiness: 1, hoverMessage: {value: peerName}},
+        options: { className: 'monaco-select-' + color, stickiness: 3, hoverMessage: {value: peerName}},
       },
     ]);
     this.selectionDecorations = this.selectionDecorations.filter(
