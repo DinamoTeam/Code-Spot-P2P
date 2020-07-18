@@ -9,6 +9,7 @@ import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorService } from '../services/cursor.service';
 import { PeerUtils } from '../shared/Utils';
 import { CursorChangeReason } from '../shared/CursorChangeReason';
+import { AlertifyService } from '../services/alertify.service';
 
 @Component({
   selector: 'app-code-editor',
@@ -43,6 +44,7 @@ export class CodeEditorComponent implements OnInit {
   constructor(
     private peerService: PeerService,
     private cursorService: CursorService,
+    private alertifyService: AlertifyService,
     public editorService: EditorService,
     private ngZone: NgZone,
     private actRoute: ActivatedRoute,
@@ -245,26 +247,8 @@ export class CodeEditorComponent implements OnInit {
 
   showSuccessAlert: boolean = false;
   copyLink(): void {
-    const selBox = document.createElement('textarea');
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = window.location.href;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
     document.execCommand('copy');
-    document.body.removeChild(selBox);
-
-    alert('Link copied to clipboard!');
-
-    // TODO: Fix the box!!!
-    //this.showSuccessAlert = true;
-  }
-
-  closeAlert() {
-    this.showSuccessAlert = false;
+    this.alertifyService.success('Link copied to clip board');
   }
 
   printSelect() {
