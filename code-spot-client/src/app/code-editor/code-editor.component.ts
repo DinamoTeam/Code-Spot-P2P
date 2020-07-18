@@ -40,6 +40,9 @@ export class CodeEditorComponent implements OnInit {
 
   MOUSE_EVENT = 'mouse';
   DRAG_AND_DROP_EVENT = 'editor.contrib.dragAndDrop';
+  CTRL_SHIFT_K_EVENT = 'editor.action.deletelines';
+  CTRL_ENTER_EVENT = 'editor.action.insertLineAfter';
+  CTRL_SHIFT_ENTER_EVENT = 'editor.action.insertLineBefore';
 
   constructor(
     private peerService: PeerService,
@@ -141,26 +144,20 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeCursorPositionHandler(event: any): void {
+    console.log(event);
+
     this.cursorService.setMyLastCursorEvent(event);
 
-    if (
-      event.reason === CursorChangeReason.Explicit ||
-      (event.source === this.MOUSE_EVENT &&
-        event.reason === CursorChangeReason.NotSet) ||
-      event.source === this.DRAG_AND_DROP_EVENT // drag and drop
-    ) {
+    if (this.worthSending(event)) {
       this.peerService.broadcastChangeCursorPos(event);
     }
   }
 
   onDidChangeCursorSelectionHandler(event: any): void {
+    console.log(event);
+
     this.cursorService.setMyLastSelectEvent(event);
-    if (
-      event.reason === CursorChangeReason.Explicit ||
-      (event.source === this.MOUSE_EVENT &&
-        event.reason === CursorChangeReason.NotSet) ||
-      event.source === this.DRAG_AND_DROP_EVENT
-    ) {
+    if (this.worthSending(event)) {
       this.peerService.broadcastChangeSelectionPos(event);
     }
   }
@@ -232,6 +229,22 @@ export class CodeEditorComponent implements OnInit {
         }
       });
     });
+  }
+
+  private worthSending(CursorOrSelectChangeEvent: any): boolean {
+    if (
+        CursorOrSelectChangeEvent.reason === CursorChangeReason.Explicit ||
+        CursorOrSelectChangeEvent.reason === CursorChangeReason.Redo ||
+        CursorOrSelectChangeEvent.reason === CursorChangeReason.Undo ||
+        (CursorOrSelectChangeEvent.source === this.MOUSE_EVENT &&
+        CursorOrSelectChangeEvent.reason === CursorChangeReason.NotSet) ||
+        CursorOrSelectChangeEvent.source === this.DRAG_AND_DROP_EVENT ||
+        CursorOrSelectChangeEvent.source === this.CTRL_SHIFT_K_EVENT ||
+        CursorOrSelectChangeEvent.source === this.CTRL_ENTER_EVENT ||
+        CursorOrSelectChangeEvent.source === this.CTRL_SHIFT_ENTER_EVENT
+      ) {
+        return true;
+      }
   }
 
   getRoomName(): void {
