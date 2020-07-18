@@ -2,7 +2,7 @@
      class="d-flex">
   <div [ngClass]="{ 'align-items-end': senderName == myPeerId }"
        class="d-flex flex-column">
-    <p class="name">{{ displayName }}</p>
+    <p class="name">{{ this.nameService.getPeerName(this.senderName) }}</p>
     <div [ngClass]="{
         otherPplMessage: senderName != myPeerId,
         myMessage: senderName == myPeerId

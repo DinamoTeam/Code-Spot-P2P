@@ -103,17 +103,18 @@ export class NameService {
     'Walrus'
   ];
 
-  giveMyselfRandomName(): void {
+  giveMyselfRandomName(peerId: string): void {
     const randIndex = Math.floor(Math.random() * this.names.length);
-    this.myName = this.names[randIndex];
+    this.setMyName(peerId, this.names[randIndex]);
   }
 
   getMyName(): string {
     return this.myName;
   }
 
-  setMyName(name: string): void {
+  setMyName(peerId: string, name: string): void {
     this.myName = name;
+    this.setPeerName(peerId, name);
   }
 
   setPeerName(peerId: string, name: string): void {

@@ -352,7 +352,7 @@ export class PeerService {
     }
     this.cursorService.setMyCursorColor(cursorColor);
 
-    this.nameService.giveMyselfRandomName();
+    this.nameService.giveMyselfRandomName(this.peer.id);
 
     if (peerIds.length === 0) {
       // DO NOTHING
