@@ -8,6 +8,10 @@ html {
   }
 }
 
+.nav-link {
+  font-size: 18px;
+}
+
 .nav-item {
   padding: 2px;
   margin-left: 7px;
@@ -15,4 +19,19 @@ html {
 
 .clickable {
   cursor: pointer;
+}
+
+.btn-navy {
+  margin-left: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  background-color: #df691a;
+}
+
+@media (max-width: 768px) {
+  .container-fluid {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+  }
 }
