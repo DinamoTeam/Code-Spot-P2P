@@ -21,1102 +21,1315 @@
 	}
 }
 
+.disappear {
+  opacity: 100%;
+  animation: blur 2s step-end forwards;
+}
+
+@keyframes blur {
+  to {
+    opacity: 0%;
+  }
+}
+
+:root {
+  --monaco-color-1: hsla(352, 100%, 46%, 1);
+  --monaco-color-2: hsla(60, 100%, 62%, 1);
+  --monaco-color-3: hsla(282, 100%, 65%, 1);
+  --monaco-color-4: hsla(121, 100%, 48%, 1);
+  --monaco-color-5: hsla(280, 100%, 57%, 1);
+  --monaco-color-6: hsla(289, 100%, 65%, 1);
+  --monaco-color-7: hsla(118, 100%, 42%, 1);
+  --monaco-color-8: hsla(332, 100%, 58%, 1);
+  --monaco-color-9: hsla(241, 100%, 47%, 1);
+  --monaco-color-10: hsla(8, 100%, 54%, 1);
+  --monaco-color-11: hsla(180, 100%, 58%, 1);
+  --monaco-color-12: hsla(62, 100%, 64%, 1);
+  --monaco-color-13: hsla(137, 100%, 59%, 1);
+  --monaco-color-14: hsla(85, 100%, 63%, 1);
+  --monaco-color-15: hsla(19, 100%, 59%, 1);
+  --monaco-color-16: hsla(94, 100%, 48%, 1);
+  --monaco-color-17: hsla(258, 100%, 40%, 1);
+  --monaco-color-18: hsla(226, 100%, 46%, 1);
+  --monaco-color-19: hsla(143, 100%, 48%, 1);
+  --monaco-color-20: hsla(97, 100%, 52%, 1);
+  --monaco-color-21: hsla(254, 100%, 67%, 1);
+  --monaco-color-22: hsla(338, 100%, 44%, 1);
+  --monaco-color-23: hsla(116, 100%, 58%, 1);
+  --monaco-color-24: hsla(123, 100%, 68%, 1);
+  --monaco-color-25: hsla(286, 100%, 54%, 1);
+  --monaco-color-26: hsla(226, 100%, 47%, 1);
+  --monaco-color-27: hsla(127, 100%, 65%, 1);
+  --monaco-color-28: hsla(285, 100%, 42%, 1);
+  --monaco-color-29: hsla(278, 100%, 59%, 1);
+  --monaco-color-30: hsla(44, 100%, 40%, 1);
+  --monaco-color-31: hsla(161, 100%, 44%, 1);
+  --monaco-color-32: hsla(1, 100%, 51%, 1);
+  --monaco-color-33: hsla(94, 100%, 55%, 1);
+  --monaco-color-34: hsla(41, 100%, 42%, 1);
+  --monaco-color-35: hsla(22, 100%, 46%, 1);
+  --monaco-color-36: hsla(53, 100%, 66%, 1);
+  --monaco-color-37: hsla(335, 100%, 56%, 1);
+  --monaco-color-38: hsla(23, 100%, 47%, 1);
+  --monaco-color-39: hsla(309, 100%, 58%, 1);
+  --monaco-color-40: hsla(28, 100%, 52%, 1);
+  --monaco-color-41: hsla(286, 100%, 69%, 1);
+  --monaco-color-42: hsla(134, 100%, 47%, 1);
+  --monaco-color-43: hsla(184, 100%, 50%, 1);
+  --monaco-color-44: hsla(346, 100%, 63%, 1);
+  --monaco-color-45: hsla(83, 100%, 43%, 1);
+  --monaco-color-46: hsla(323, 100%, 47%, 1);
+  --monaco-color-47: hsla(145, 100%, 53%, 1);
+  --monaco-color-48: hsla(157, 100%, 48%, 1);
+  --monaco-color-49: hsla(221, 100%, 49%, 1);
+  --monaco-color-50: hsla(282, 100%, 65%, 1);
+  --monaco-color-51: hsla(73, 100%, 42%, 1);
+  --monaco-color-52: hsla(136, 100%, 59%, 1);
+  --monaco-color-53: hsla(235, 100%, 43%, 1);
+  --monaco-color-54: hsla(276, 100%, 55%, 1);
+  --monaco-color-55: hsla(213, 100%, 44%, 1);
+  --monaco-color-56: hsla(221, 100%, 68%, 1);
+  --monaco-color-57: hsla(303, 100%, 65%, 1);
+  --monaco-color-58: hsla(147, 100%, 63%, 1);
+  --monaco-color-59: hsla(216, 100%, 56%, 1);
+  --monaco-color-60: hsla(37, 100%, 47%, 1);
+  --monaco-color-61: hsla(242, 100%, 46%, 1);
+  --monaco-color-62: hsla(338, 100%, 43%, 1);
+  --monaco-color-63: hsla(131, 100%, 44%, 1);
+  --monaco-color-64: hsla(160, 100%, 51%, 1);
+  --monaco-color-65: hsla(150, 100%, 52%, 1);
+  --monaco-color-66: hsla(252, 100%, 45%, 1);
+  --monaco-color-67: hsla(98, 100%, 48%, 1);
+  --monaco-color-68: hsla(274, 100%, 57%, 1);
+  --monaco-color-69: hsla(249, 100%, 44%, 1);
+  --monaco-color-70: hsla(103, 100%, 41%, 1);
+  --monaco-color-71: hsla(275, 100%, 55%, 1);
+  --monaco-color-72: hsla(91, 100%, 66%, 1);
+  --monaco-color-73: hsla(46, 100%, 55%, 1);
+  --monaco-color-74: hsla(330, 100%, 64%, 1);
+  --monaco-color-75: hsla(103, 100%, 66%, 1);
+  --monaco-color-76: hsla(13, 100%, 54%, 1);
+  --monaco-color-77: hsla(286, 100%, 64%, 1);
+  --monaco-color-78: hsla(249, 100%, 41%, 1);
+  --monaco-color-79: hsla(55, 100%, 51%, 1);
+  --monaco-color-80: hsla(16, 100%, 69%, 1);
+  --monaco-color-81: hsla(91, 100%, 43%, 1);
+  --monaco-color-82: hsla(235, 100%, 64%, 1);
+  --monaco-color-83: hsla(115, 100%, 53%, 1);
+  --monaco-color-84: hsla(27, 100%, 45%, 1);
+  --monaco-color-85: hsla(133, 100%, 66%, 1);
+  --monaco-color-86: hsla(319, 100%, 63%, 1);
+  --monaco-color-87: hsla(123, 100%, 61%, 1);
+  --monaco-color-88: hsla(102, 100%, 67%, 1);
+  --monaco-color-89: hsla(98, 100%, 59%, 1);
+  --monaco-color-90: hsla(22, 100%, 40%, 1);
+  --monaco-color-91: hsla(352, 100%, 52%, 1);
+  --monaco-color-92: hsla(256, 100%, 49%, 1);
+  --monaco-color-93: hsla(23, 100%, 55%, 1);
+  --monaco-color-94: hsla(55, 100%, 47%, 1);
+  --monaco-color-95: hsla(84, 100%, 46%, 1);
+  --monaco-color-96: hsla(235, 100%, 48%, 1);
+  --monaco-color-97: hsla(71, 100%, 69%, 1);
+  --monaco-color-98: hsla(78, 100%, 67%, 1);
+  --monaco-color-99: hsla(304, 100%, 45%, 1);
+  --monaco-color-100: hsla(335, 100%, 67%, 1);
+}
 .monaco-select-1 {
-  background: hsla(277, 100%, 47%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-1) !important;
+  opacity: 70%;
 }
 .monaco-cursor-1 {
-  background: hsla(277, 100%, 47%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-1) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-2 {
-  background: hsla(47, 100%, 45%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-2) !important;
+  opacity: 70%;
 }
 .monaco-cursor-2 {
-  background: hsla(47, 100%, 45%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-2) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-3 {
-  background: hsla(114, 100%, 50%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-3) !important;
+  opacity: 70%;
 }
 .monaco-cursor-3 {
-  background: hsla(114, 100%, 50%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-3) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-4 {
-  background: hsla(128, 100%, 52%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-4) !important;
+  opacity: 70%;
 }
 .monaco-cursor-4 {
-  background: hsla(128, 100%, 52%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-4) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-5 {
-  background: hsla(49, 100%, 61%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-5) !important;
+  opacity: 70%;
 }
 .monaco-cursor-5 {
-  background: hsla(49, 100%, 61%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-5) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-6 {
-  background: hsla(171, 100%, 57%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-6) !important;
+  opacity: 70%;
 }
 .monaco-cursor-6 {
-  background: hsla(171, 100%, 57%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-6) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-7 {
-  background: hsla(269, 100%, 65%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-7) !important;
+  opacity: 70%;
 }
 .monaco-cursor-7 {
-  background: hsla(269, 100%, 65%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-7) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-8 {
-  background: hsla(120, 100%, 44%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-8) !important;
+  opacity: 70%;
 }
 .monaco-cursor-8 {
-  background: hsla(120, 100%, 44%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-8) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-9 {
-  background: hsla(311, 100%, 68%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-9) !important;
+  opacity: 70%;
 }
 .monaco-cursor-9 {
-  background: hsla(311, 100%, 68%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-9) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-10 {
-  background: hsla(288, 100%, 63%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-10) !important;
+  opacity: 70%;
 }
 .monaco-cursor-10 {
-  background: hsla(288, 100%, 63%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-10) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-11 {
-  background: hsla(135, 100%, 61%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-11) !important;
+  opacity: 70%;
 }
 .monaco-cursor-11 {
-  background: hsla(135, 100%, 61%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-11) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-12 {
-  background: hsla(236, 100%, 59%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-12) !important;
+  opacity: 70%;
 }
 .monaco-cursor-12 {
-  background: hsla(236, 100%, 59%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-12) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-13 {
-  background: hsla(254, 100%, 55%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-13) !important;
+  opacity: 70%;
 }
 .monaco-cursor-13 {
-  background: hsla(254, 100%, 55%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-13) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-14 {
-  background: hsla(217, 100%, 44%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-14) !important;
+  opacity: 70%;
 }
 .monaco-cursor-14 {
-  background: hsla(217, 100%, 44%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-14) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-15 {
-  background: hsla(40, 100%, 68%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-15) !important;
+  opacity: 70%;
 }
 .monaco-cursor-15 {
-  background: hsla(40, 100%, 68%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-15) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-16 {
-  background: hsla(232, 100%, 58%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-16) !important;
+  opacity: 70%;
 }
 .monaco-cursor-16 {
-  background: hsla(232, 100%, 58%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-16) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-17 {
-  background: hsla(45, 100%, 60%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-17) !important;
+  opacity: 70%;
 }
 .monaco-cursor-17 {
-  background: hsla(45, 100%, 60%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-17) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-18 {
-  background: hsla(163, 100%, 67%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-18) !important;
+  opacity: 70%;
 }
 .monaco-cursor-18 {
-  background: hsla(163, 100%, 67%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-18) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-19 {
-  background: hsla(182, 100%, 40%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-19) !important;
+  opacity: 70%;
 }
 .monaco-cursor-19 {
-  background: hsla(182, 100%, 40%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-19) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-20 {
-  background: hsla(86, 100%, 57%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-20) !important;
+  opacity: 70%;
 }
 .monaco-cursor-20 {
-  background: hsla(86, 100%, 57%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-20) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-21 {
-  background: hsla(73, 100%, 66%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-21) !important;
+  opacity: 70%;
 }
 .monaco-cursor-21 {
-  background: hsla(73, 100%, 66%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-21) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-22 {
-  background: hsla(209, 100%, 52%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-22) !important;
+  opacity: 70%;
 }
 .monaco-cursor-22 {
-  background: hsla(209, 100%, 52%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-22) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-23 {
-  background: hsla(193, 100%, 41%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-23) !important;
+  opacity: 70%;
 }
 .monaco-cursor-23 {
-  background: hsla(193, 100%, 41%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-23) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-24 {
-  background: hsla(57, 100%, 49%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-24) !important;
+  opacity: 70%;
 }
 .monaco-cursor-24 {
-  background: hsla(57, 100%, 49%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-24) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-25 {
-  background: hsla(212, 100%, 59%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-25) !important;
+  opacity: 70%;
 }
 .monaco-cursor-25 {
-  background: hsla(212, 100%, 59%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-25) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-26 {
-  background: hsla(280, 100%, 62%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-26) !important;
+  opacity: 70%;
 }
 .monaco-cursor-26 {
-  background: hsla(280, 100%, 62%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-26) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-27 {
-  background: hsla(354, 100%, 43%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-27) !important;
+  opacity: 70%;
 }
 .monaco-cursor-27 {
-  background: hsla(354, 100%, 43%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-27) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-28 {
-  background: hsla(74, 100%, 68%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-28) !important;
+  opacity: 70%;
 }
 .monaco-cursor-28 {
-  background: hsla(74, 100%, 68%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-28) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-29 {
-  background: hsla(221, 100%, 40%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-29) !important;
+  opacity: 70%;
 }
 .monaco-cursor-29 {
-  background: hsla(221, 100%, 40%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-29) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-30 {
-  background: hsla(102, 100%, 43%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-30) !important;
+  opacity: 70%;
 }
 .monaco-cursor-30 {
-  background: hsla(102, 100%, 43%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-30) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-31 {
-  background: hsla(231, 100%, 60%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-31) !important;
+  opacity: 70%;
 }
 .monaco-cursor-31 {
-  background: hsla(231, 100%, 60%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-31) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-32 {
-  background: hsla(179, 100%, 64%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-32) !important;
+  opacity: 70%;
 }
 .monaco-cursor-32 {
-  background: hsla(179, 100%, 64%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-32) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-33 {
-  background: hsla(358, 100%, 41%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-33) !important;
+  opacity: 70%;
 }
 .monaco-cursor-33 {
-  background: hsla(358, 100%, 41%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-33) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-34 {
-  background: hsla(242, 100%, 48%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-34) !important;
+  opacity: 70%;
 }
 .monaco-cursor-34 {
-  background: hsla(242, 100%, 48%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-34) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-35 {
-  background: hsla(338, 100%, 69%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-35) !important;
+  opacity: 70%;
 }
 .monaco-cursor-35 {
-  background: hsla(338, 100%, 69%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-35) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-36 {
-  background: hsla(284, 100%, 64%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-36) !important;
+  opacity: 70%;
 }
 .monaco-cursor-36 {
-  background: hsla(284, 100%, 64%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-36) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-37 {
-  background: hsla(284, 100%, 55%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-37) !important;
+  opacity: 70%;
 }
 .monaco-cursor-37 {
-  background: hsla(284, 100%, 55%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-37) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-38 {
-  background: hsla(331, 100%, 46%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-38) !important;
+  opacity: 70%;
 }
 .monaco-cursor-38 {
-  background: hsla(331, 100%, 46%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-38) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-39 {
-  background: hsla(249, 100%, 60%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-39) !important;
+  opacity: 70%;
 }
 .monaco-cursor-39 {
-  background: hsla(249, 100%, 60%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-39) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-40 {
-  background: hsla(62, 100%, 65%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-40) !important;
+  opacity: 70%;
 }
 .monaco-cursor-40 {
-  background: hsla(62, 100%, 65%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-40) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-41 {
-  background: hsla(178, 100%, 47%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-41) !important;
+  opacity: 70%;
 }
 .monaco-cursor-41 {
-  background: hsla(178, 100%, 47%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-41) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-42 {
-  background: hsla(54, 100%, 43%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-42) !important;
+  opacity: 70%;
 }
 .monaco-cursor-42 {
-  background: hsla(54, 100%, 43%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-42) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-43 {
-  background: hsla(41, 100%, 47%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-43) !important;
+  opacity: 70%;
 }
 .monaco-cursor-43 {
-  background: hsla(41, 100%, 47%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-43) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-44 {
-  background: hsla(290, 100%, 64%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-44) !important;
+  opacity: 70%;
 }
 .monaco-cursor-44 {
-  background: hsla(290, 100%, 64%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-44) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-45 {
-  background: hsla(181, 100%, 45%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-45) !important;
+  opacity: 70%;
 }
 .monaco-cursor-45 {
-  background: hsla(181, 100%, 45%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-45) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-46 {
-  background: hsla(291, 100%, 68%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-46) !important;
+  opacity: 70%;
 }
 .monaco-cursor-46 {
-  background: hsla(291, 100%, 68%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-46) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-47 {
-  background: hsla(100, 100%, 51%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-47) !important;
+  opacity: 70%;
 }
 .monaco-cursor-47 {
-  background: hsla(100, 100%, 51%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-47) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-48 {
-  background: hsla(175, 100%, 46%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-48) !important;
+  opacity: 70%;
 }
 .monaco-cursor-48 {
-  background: hsla(175, 100%, 46%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-48) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-49 {
-  background: hsla(84, 100%, 40%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-49) !important;
+  opacity: 70%;
 }
 .monaco-cursor-49 {
-  background: hsla(84, 100%, 40%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-49) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-50 {
-  background: hsla(56, 100%, 49%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-50) !important;
+  opacity: 70%;
 }
 .monaco-cursor-50 {
-  background: hsla(56, 100%, 49%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-50) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-51 {
-  background: hsla(224, 100%, 48%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-51) !important;
+  opacity: 70%;
 }
 .monaco-cursor-51 {
-  background: hsla(224, 100%, 48%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-51) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-52 {
-  background: hsla(61, 100%, 66%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-52) !important;
+  opacity: 70%;
 }
 .monaco-cursor-52 {
-  background: hsla(61, 100%, 66%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-52) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-53 {
-  background: hsla(251, 100%, 68%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-53) !important;
+  opacity: 70%;
 }
 .monaco-cursor-53 {
-  background: hsla(251, 100%, 68%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-53) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-54 {
-  background: hsla(140, 100%, 50%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-54) !important;
+  opacity: 70%;
 }
 .monaco-cursor-54 {
-  background: hsla(140, 100%, 50%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-54) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-55 {
-  background: hsla(100, 100%, 57%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-55) !important;
+  opacity: 70%;
 }
 .monaco-cursor-55 {
-  background: hsla(100, 100%, 57%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-55) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-56 {
-  background: hsla(283, 100%, 67%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-56) !important;
+  opacity: 70%;
 }
 .monaco-cursor-56 {
-  background: hsla(283, 100%, 67%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-56) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-57 {
-  background: hsla(118, 100%, 62%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-57) !important;
+  opacity: 70%;
 }
 .monaco-cursor-57 {
-  background: hsla(118, 100%, 62%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-57) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-58 {
-  background: hsla(299, 100%, 46%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-58) !important;
+  opacity: 70%;
 }
 .monaco-cursor-58 {
-  background: hsla(299, 100%, 46%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-58) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-59 {
-  background: hsla(79, 100%, 44%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-59) !important;
+  opacity: 70%;
 }
 .monaco-cursor-59 {
-  background: hsla(79, 100%, 44%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-59) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-60 {
-  background: hsla(349, 100%, 41%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-60) !important;
+  opacity: 70%;
 }
 .monaco-cursor-60 {
-  background: hsla(349, 100%, 41%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-60) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-61 {
-  background: hsla(109, 100%, 51%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-61) !important;
+  opacity: 70%;
 }
 .monaco-cursor-61 {
-  background: hsla(109, 100%, 51%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-61) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-62 {
-  background: hsla(317, 100%, 67%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-62) !important;
+  opacity: 70%;
 }
 .monaco-cursor-62 {
-  background: hsla(317, 100%, 67%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-62) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-63 {
-  background: hsla(206, 100%, 53%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-63) !important;
+  opacity: 70%;
 }
 .monaco-cursor-63 {
-  background: hsla(206, 100%, 53%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-63) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-64 {
-  background: hsla(181, 100%, 68%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-64) !important;
+  opacity: 70%;
 }
 .monaco-cursor-64 {
-  background: hsla(181, 100%, 68%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-64) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-65 {
-  background: hsla(254, 100%, 66%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-65) !important;
+  opacity: 70%;
 }
 .monaco-cursor-65 {
-  background: hsla(254, 100%, 66%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-65) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-66 {
-  background: hsla(268, 100%, 56%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-66) !important;
+  opacity: 70%;
 }
 .monaco-cursor-66 {
-  background: hsla(268, 100%, 56%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-66) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-67 {
-  background: hsla(205, 100%, 63%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-67) !important;
+  opacity: 70%;
 }
 .monaco-cursor-67 {
-  background: hsla(205, 100%, 63%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-67) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-68 {
-  background: hsla(226, 100%, 50%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-68) !important;
+  opacity: 70%;
 }
 .monaco-cursor-68 {
-  background: hsla(226, 100%, 50%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-68) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-69 {
-  background: hsla(84, 100%, 47%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-69) !important;
+  opacity: 70%;
 }
 .monaco-cursor-69 {
-  background: hsla(84, 100%, 47%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-69) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-70 {
-  background: hsla(56, 100%, 62%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-70) !important;
+  opacity: 70%;
 }
 .monaco-cursor-70 {
-  background: hsla(56, 100%, 62%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-70) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-71 {
-  background: hsla(354, 100%, 53%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-71) !important;
+  opacity: 70%;
 }
 .monaco-cursor-71 {
-  background: hsla(354, 100%, 53%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-71) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-72 {
-  background: hsla(191, 100%, 56%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-72) !important;
+  opacity: 70%;
 }
 .monaco-cursor-72 {
-  background: hsla(191, 100%, 56%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-72) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-73 {
-  background: hsla(122, 100%, 44%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-73) !important;
+  opacity: 70%;
 }
 .monaco-cursor-73 {
-  background: hsla(122, 100%, 44%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-73) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-74 {
-  background: hsla(189, 100%, 52%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-74) !important;
+  opacity: 70%;
 }
 .monaco-cursor-74 {
-  background: hsla(189, 100%, 52%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-74) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-75 {
-  background: hsla(8, 100%, 52%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-75) !important;
+  opacity: 70%;
 }
 .monaco-cursor-75 {
-  background: hsla(8, 100%, 52%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-75) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-76 {
-  background: hsla(222, 100%, 49%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-76) !important;
+  opacity: 70%;
 }
 .monaco-cursor-76 {
-  background: hsla(222, 100%, 49%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-76) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-77 {
-  background: hsla(351, 100%, 52%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-77) !important;
+  opacity: 70%;
 }
 .monaco-cursor-77 {
-  background: hsla(351, 100%, 52%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-77) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-78 {
-  background: hsla(110, 100%, 42%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-78) !important;
+  opacity: 70%;
 }
 .monaco-cursor-78 {
-  background: hsla(110, 100%, 42%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-78) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-79 {
-  background: hsla(4, 100%, 43%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-79) !important;
+  opacity: 70%;
 }
 .monaco-cursor-79 {
-  background: hsla(4, 100%, 43%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-79) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-80 {
-  background: hsla(150, 100%, 66%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-80) !important;
+  opacity: 70%;
 }
 .monaco-cursor-80 {
-  background: hsla(150, 100%, 66%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-80) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-81 {
-  background: hsla(124, 100%, 40%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-81) !important;
+  opacity: 70%;
 }
 .monaco-cursor-81 {
-  background: hsla(124, 100%, 40%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-81) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-82 {
-  background: hsla(170, 100%, 57%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-82) !important;
+  opacity: 70%;
 }
 .monaco-cursor-82 {
-  background: hsla(170, 100%, 57%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-82) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-83 {
-  background: hsla(139, 100%, 43%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-83) !important;
+  opacity: 70%;
 }
 .monaco-cursor-83 {
-  background: hsla(139, 100%, 43%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-83) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-84 {
-  background: hsla(84, 100%, 49%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-84) !important;
+  opacity: 70%;
 }
 .monaco-cursor-84 {
-  background: hsla(84, 100%, 49%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-84) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-85 {
-  background: hsla(117, 100%, 44%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-85) !important;
+  opacity: 70%;
 }
 .monaco-cursor-85 {
-  background: hsla(117, 100%, 44%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-85) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-86 {
-  background: hsla(142, 100%, 69%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-86) !important;
+  opacity: 70%;
 }
 .monaco-cursor-86 {
-  background: hsla(142, 100%, 69%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-86) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-87 {
-  background: hsla(280, 100%, 56%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-87) !important;
+  opacity: 70%;
 }
 .monaco-cursor-87 {
-  background: hsla(280, 100%, 56%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-87) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-88 {
-  background: hsla(308, 100%, 44%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-88) !important;
+  opacity: 70%;
 }
 .monaco-cursor-88 {
-  background: hsla(308, 100%, 44%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-88) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-89 {
-  background: hsla(170, 100%, 40%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-89) !important;
+  opacity: 70%;
 }
 .monaco-cursor-89 {
-  background: hsla(170, 100%, 40%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-89) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-90 {
-  background: hsla(205, 100%, 62%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-90) !important;
+  opacity: 70%;
 }
 .monaco-cursor-90 {
-  background: hsla(205, 100%, 62%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-90) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-91 {
-  background: hsla(78, 100%, 52%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-91) !important;
+  opacity: 70%;
 }
 .monaco-cursor-91 {
-  background: hsla(78, 100%, 52%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-91) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-92 {
-  background: hsla(344, 100%, 49%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-92) !important;
+  opacity: 70%;
 }
 .monaco-cursor-92 {
-  background: hsla(344, 100%, 49%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-92) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-93 {
-  background: hsla(271, 100%, 56%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-93) !important;
+  opacity: 70%;
 }
 .monaco-cursor-93 {
-  background: hsla(271, 100%, 56%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-93) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-94 {
-  background: hsla(322, 100%, 59%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-94) !important;
+  opacity: 70%;
 }
 .monaco-cursor-94 {
-  background: hsla(322, 100%, 59%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-94) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-95 {
-  background: hsla(277, 100%, 49%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-95) !important;
+  opacity: 70%;
 }
 .monaco-cursor-95 {
-  background: hsla(277, 100%, 49%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-95) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-96 {
-  background: hsla(5, 100%, 48%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-96) !important;
+  opacity: 70%;
 }
 .monaco-cursor-96 {
-  background: hsla(5, 100%, 48%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-96) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-97 {
-  background: hsla(165, 100%, 49%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-97) !important;
+  opacity: 70%;
 }
 .monaco-cursor-97 {
-  background: hsla(165, 100%, 49%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-97) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-98 {
-  background: hsla(177, 100%, 68%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-98) !important;
+  opacity: 70%;
 }
 .monaco-cursor-98 {
-  background: hsla(177, 100%, 68%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-98) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-99 {
-  background: hsla(38, 100%, 47%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-99) !important;
+  opacity: 70%;
 }
 .monaco-cursor-99 {
-  background: hsla(38, 100%, 47%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-99) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
 
 .monaco-select-100 {
-  background: hsla(307, 100%, 63%, 1) !important;
-  opacity: 85%;
+  background: var(--monaco-color-100) !important;
+  opacity: 70%;
 }
 .monaco-cursor-100 {
-  background: hsla(307, 100%, 63%, 1) !important;
-  width: 4px !important;
+  background: var(--monaco-color-100) !important;
+  width: 2px !important;
+  width: 2px !important;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }

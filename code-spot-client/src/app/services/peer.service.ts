@@ -37,7 +37,6 @@ export class PeerService {
   private previousChatMessages: Message[] = [];
   private hasReceivedAllChatMessages: boolean = false;
   private peerIdJustLeft: string;
-  private peerName = 'NO_NAME';
 
   constructor(
     private roomService: RoomService,

@@ -1,18 +1,28 @@
 public class Main
 {
 	public static void main(String[] args) {
-		for (int i = 1; i <= 100; i++) {
+	    final int numColor = 100; // adjust this
+	    
+	    // Print color variables
+	    System.out.println(":root {");
+		for (int i = 1; i <= numColor; i++) {
 		    int h = (int)(Math.random() * 360);
 		    int s = 100;
 		    int l = 40 + (int)(Math.random() * 30);
 		    int a = 1;
+		    System.out.println("\t --monaco-color-" + i + ": " + "hsla(" + h + ", " + s + "%, " + l + "%, " + a + ");");
+		}
+		System.out.println("}");
+		
+		// Print classes
+		for (int i = 1; i <= numColor; i++) {
 		    System.out.println(".monaco-select-" + i + " {");
-		    System.out.println("\t background: hsla(" + h + ", " + s + "%, " + l + "%, " + a + ") !important;");
+		    System.out.println("\t background: var(--monaco-color-" + i + ") !important;");
 		    System.out.println("\t opacity: 70%;");
 		    System.out.println("}");
 		    
 		    System.out.println(".monaco-cursor-" + i + " {");
-		    System.out.println("\t background: hsla(" + h + ", " + s + "%, " + l + "%, " + a + ") !important;");
+		    System.out.println("\t background: var(--monaco-color-" + i + ") !important;");
 		    System.out.println("\t width: 2px !important;");
 		    System.out.println("\t width: 2px !important;");
 		    System.out.println("\t animation: blinking 0.5s infinite alternate;");
