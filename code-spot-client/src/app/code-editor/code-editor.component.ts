@@ -9,6 +9,8 @@ import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorService } from '../services/cursor.service';
 import { PeerUtils } from '../shared/Utils';
 import { CursorChangeReason } from '../shared/CursorChangeReason';
+import { AlertifyService } from '../services/alertify.service';
+import { CursorChangeSource } from '../shared/CursorChangeSource';
 
 @Component({
   selector: 'app-code-editor',
@@ -37,12 +39,10 @@ export class CodeEditorComponent implements OnInit {
     ),
   });
 
-  MOUSE_EVENT = 'mouse';
-  DRAG_AND_DROP_EVENT = 'editor.contrib.dragAndDrop';
-
   constructor(
     private peerService: PeerService,
     private cursorService: CursorService,
+    private alertifyService: AlertifyService,
     public editorService: EditorService,
     private ngZone: NgZone,
     private actRoute: ActivatedRoute,
@@ -80,6 +80,9 @@ export class CodeEditorComponent implements OnInit {
     this.editorTextModel = this.editor.getModel();
     this.editorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
+    // Disable Ctrl-D (tricky to sync cursor + select)
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_D, function() {});
+
     this.editor.onDidChangeModelContent((e: any) =>
       this.onDidChangeModelContentHandler(e)
     );
@@ -112,7 +115,6 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeModelContentHandler(event: any): void {
-    console.log(event);
     if (EditorService.remoteOpLeft > 0) {
       EditorService.remoteOpLeft--;
       return;
@@ -140,26 +142,20 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeCursorPositionHandler(event: any): void {
+    console.log(event);
+
     this.cursorService.setMyLastCursorEvent(event);
 
-    if (
-      event.reason === CursorChangeReason.Explicit ||
-      (event.source === this.MOUSE_EVENT &&
-        event.reason === CursorChangeReason.NotSet) ||
-      event.source === this.DRAG_AND_DROP_EVENT // drag and drop
-    ) {
+    if (this.worthSending(event)) {
       this.peerService.broadcastChangeCursorPos(event);
     }
   }
 
   onDidChangeCursorSelectionHandler(event: any): void {
+    console.log(event);
+
     this.cursorService.setMyLastSelectEvent(event);
-    if (
-      event.reason === CursorChangeReason.Explicit ||
-      (event.source === this.MOUSE_EVENT &&
-        event.reason === CursorChangeReason.NotSet) ||
-      event.source === this.DRAG_AND_DROP_EVENT
-    ) {
+    if (this.worthSending(event)) {
       this.peerService.broadcastChangeSelectionPos(event);
     }
   }
@@ -225,12 +221,32 @@ export class CodeEditorComponent implements OnInit {
               selectionChange.peerId
             );
             break;
+          case BroadcastInfo.PeerLeft:
+            const peerIdLeft = this.peerService.getPeerIdJustLeft();
+            this.cursorService.removePeer(this.editor, peerIdLeft);
+            break;
           default:
             console.log('UNKNOWN event!!!');
             console.log(message);
         }
       });
     });
+  }
+
+  private worthSending(CursorOrSelectChangeEvent: any): boolean {
+    if (
+        CursorOrSelectChangeEvent.reason === CursorChangeReason.Explicit ||
+        CursorOrSelectChangeEvent.reason === CursorChangeReason.Redo ||
+        CursorOrSelectChangeEvent.reason === CursorChangeReason.Undo ||
+        (CursorOrSelectChangeEvent.source === CursorChangeSource.MOUSE_EVENT &&
+        CursorOrSelectChangeEvent.reason === CursorChangeReason.NotSet) ||
+        CursorOrSelectChangeEvent.source === CursorChangeSource.DRAG_AND_DROP_EVENT ||
+        CursorOrSelectChangeEvent.source === CursorChangeSource.CTRL_SHIFT_K_EVENT ||
+        CursorOrSelectChangeEvent.source === CursorChangeSource.CTRL_ENTER_EVENT ||
+        CursorOrSelectChangeEvent.source === CursorChangeSource.CTRL_SHIFT_ENTER_EVENT
+      ) {
+        return true;
+      }
   }
 
   getRoomName(): void {
@@ -245,26 +261,8 @@ export class CodeEditorComponent implements OnInit {
 
   showSuccessAlert: boolean = false;
   copyLink(): void {
-    const selBox = document.createElement('textarea');
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = window.location.href;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
     document.execCommand('copy');
-    document.body.removeChild(selBox);
-
-    alert('Link copied to clipboard!');
-
-    // TODO: Fix the box!!!
-    //this.showSuccessAlert = true;
-  }
-
-  closeAlert() {
-    this.showSuccessAlert = false;
+    this.alertifyService.success('Link copied to clip board');
   }
 
   printSelect() {

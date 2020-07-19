@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PeerService } from '../services/peer.service';
+import { NameService } from '../services/name.service';
 
 @Component({
   selector: 'app-message-bubble',
@@ -13,10 +14,10 @@ export class MessageBubbleComponent implements OnInit {
   myPeerId: string;
   displayName: string;
 
-  constructor(private peerService: PeerService) { }
+  constructor(private peerService: PeerService, public nameService: NameService) { }
 
   ngOnInit() {
     this.myPeerId = this.peerService.getPeerId();
-    this.displayName = this.senderName.substr(0, 8);
+    this.displayName = this.nameService.getPeerName(this.senderName);
   }
 }

@@ -11,6 +11,7 @@ import { CursorService } from './cursor.service';
 import { PeerServerConnection } from '../shared/PeerServerConnection';
 import { PeersConnection } from '../shared/PeersConnection';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { NameService } from './name.service';
 
 declare const Peer: any;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 15000;
@@ -35,11 +36,14 @@ export class PeerService {
   private selectionChangeInfo: SelectionChangeInfo;
   private previousChatMessages: Message[] = [];
   private hasReceivedAllChatMessages: boolean = false;
+  private peerIdJustLeft: string;
+  private peerName = 'NO_NAME';
 
   constructor(
     private roomService: RoomService,
     private cursorService: CursorService,
-    private editorService: EditorService
+    private editorService: EditorService,
+    private nameService: NameService
   ) {}
 
   connectToPeerServerAndInit() {
@@ -137,8 +141,12 @@ export class PeerService {
   private setupListenerForConnection(conn: any) {
     // When the connection first establish
     conn.on(PeersConnection.Open, () => {
+      // TODO: Send our name
+      this.sendMyName(conn);
+
       // Send our cursor's info
       this.sendCursorInfo(conn);
+
       console.log('Connection to peer ' + conn.peer + ' opened :)');
       // Only add this conn to our list when the connection has opened!
       Utils.addUniqueConnections([conn], this.connectionsIAmHolding);
@@ -199,17 +207,10 @@ export class PeerService {
         this.receivedRemoteCrdts = crdts;
 
         if (message.messageType === MessageType.RemoteInsert) {
-          console.log('Receive Remote Insert');
-          // peerMessagesTracker.receiveRemoteInserts(crdts);
           PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
-          // peerMessagesTracker.processDeleteBuffer();
         } else if (message.messageType === MessageType.RemoteRemove) {
-          console.log('Receive Remote Remove');
-          // peerMessagesTracker.receiveRemoteRemoves(crdts);
           PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
         } else {
-          console.log('Receive OldCRDTs');
-          // peerMessagesTracker.receiveRemoteInserts(crdts);
           PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
           if (message.messageType === MessageType.OldCRDTsLastBatch) {
             this.hasReceivedAllOldCRDTs = true;
@@ -217,7 +218,7 @@ export class PeerService {
             this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
             // Tell C# Server I have received AllMessages
             this.roomService.markPeerReceivedAllMessages(this.peer.id);
-            console.log('I have received LAST BATCH Old CRDTs');
+            // Send cursor + selection change info
             this.cursorService.setMyLastSelectEvent(null);
             this.sendCursorInfo(fromConn);
           }
@@ -289,8 +290,6 @@ export class PeerService {
         break;
       case MessageType.ChangeCursor:
         const cursorEvent = JSON.parse(message.content);
-        console.log('Receive Cursor Change');
-        console.log(cursorEvent);
         this.cursorChangeInfo = new CursorChangeInfo(
           cursorEvent.position.lineNumber,
           cursorEvent.position.column,
@@ -300,8 +299,6 @@ export class PeerService {
         break;
       case MessageType.ChangeSelect:
         const selectEvent = JSON.parse(message.content);
-        console.log('Receive Select Change');
-        console.log(selectEvent);
         this.selectionChangeInfo = new SelectionChangeInfo(
           selectEvent.selection.startLineNumber,
           selectEvent.selection.startColumn,
@@ -313,7 +310,11 @@ export class PeerService {
         break;
       case MessageType.CursorColor:
         const color = Number.parseInt(message.content, 10);
-        this.cursorService.addPeerColor(fromConn.peer, color);
+        this.cursorService.setPeerColor(fromConn.peer, color);
+        break;
+      case MessageType.Name:
+        const peerName = message.content;
+        this.nameService.setPeerName(fromConn.peer, peerName);
         break;
       default:
         console.log(message);
@@ -332,6 +333,10 @@ export class PeerService {
       (connection) => connection === conn
     );
     this.connectionsIAmHolding.splice(index, 1);
+
+    // Delete peer's cursor, select,...
+    this.peerIdJustLeft = conn.peer;
+    PeerUtils.broadcastInfo(BroadcastInfo.PeerLeft);
   }
 
   //***************** Handle when join room *******************
@@ -343,9 +348,11 @@ export class PeerService {
   ) {
     // Set cursor colors
     for (let i = 0; i < peerIds.length; i++) {
-      this.cursorService.addPeerColor(peerIds[i], cursorColors[i]);
+      this.cursorService.setPeerColor(peerIds[i], cursorColors[i]);
     }
     this.cursorService.setMyCursorColor(cursorColor);
+
+    this.nameService.giveMyselfRandomName(this.peer.id);
 
     if (peerIds.length === 0) {
       // DO NOTHING
@@ -391,7 +398,6 @@ export class PeerService {
   ) {
     if (!this.hasReceivedAllOldCRDTs) {
       this.roomService.getPeerIdsInRoom(this.roomName).subscribe((peerIds) => {
-        console.log(peerIds);
         console.log(peerIdToGetAllMessages);
         if (peerIds.findIndex((id) => id === peerIdToGetAllMessages) === -1) {
           console.log(
@@ -677,6 +683,21 @@ export class PeerService {
         this.cursorService.getMyLastSelectEvent()
       );
     }
+  }
+
+  sendMyName(conn: any): void {
+    const message = new Message(
+      this.nameService.getMyName(),
+      MessageType.Name,
+      this.peer.id,
+      conn.peer,
+      -1
+    );
+    conn.send(message);
+  }
+
+  getPeerIdJustLeft(): string {
+    return this.peerIdJustLeft;
   }
 
   getAllMessages(): any[] {

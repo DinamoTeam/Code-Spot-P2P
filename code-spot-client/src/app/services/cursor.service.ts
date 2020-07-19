@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { NameService } from './name.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +13,10 @@ export class CursorService {
   private myLastCursorEvent: any = null;
   private myLastSelectEvent: any = null;
 
+  constructor(private nameService: NameService) {}
+
   drawCursor(editor: any, line: number, col: number, ofPeerId: string) {
-    const peerName = ofPeerId.substr(0, 5);
+    const peerName = this.nameService.getPeerName(ofPeerId);
     const color = this.peerColors.get(ofPeerId);
     const deco = this.cursorDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
@@ -40,14 +43,14 @@ export class CursorService {
     endCol: number,
     ofPeerId: string
   ) {
-    const peerName = ofPeerId.substr(0, 5);
+    const peerName = this.nameService.getPeerName(ofPeerId);
     const color = this.peerColors.get(ofPeerId);
     const deco = this.selectionDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
     const decoration = editor.deltaDecorations(oldDecoration, [
       {
         range: new monaco.Range(startLine, startCol, endLine, endCol),
-        options: { className: 'monaco-select-' + color, stickiness: 1, hoverMessage: {value: peerName}},
+        options: { className: 'monaco-select-' + color, stickiness: 3, hoverMessage: {value: peerName}},
       },
     ]);
     this.selectionDecorations = this.selectionDecorations.filter(
@@ -56,12 +59,16 @@ export class CursorService {
     this.cursorDecorations.push(new Decoration(decoration, ofPeerId));
   }
 
-  addPeerColor(peerId: string, color: number): void {
+  setPeerColor(peerId: string, color: number): void {
     this.peerColors.set(peerId, color);
   }
 
-  removePeerColor(peerId: string): void {
+  removePeer(editor: any, peerId: string): void {
     this.peerColors.delete(peerId);
+    const cursorDecoration = this.cursorDecorations.filter((d) => d.peerId === peerId).map((d) => d.decoration);
+    const selectDecoration = this.cursorDecorations.filter((d) => d.peerId === peerId).map((d) => d.decoration);
+    editor.deltaDecorations(cursorDecoration, []);
+    editor.deltaDecorations(selectDecoration, []);
   }
 
   getPeerColors(): Map<string, number> {

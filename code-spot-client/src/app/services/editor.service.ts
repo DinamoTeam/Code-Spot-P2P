@@ -346,6 +346,7 @@ export class EditorService {
         {
           range: range,
           text: text,
+          forceMoveMarkers: true
         },
       ]
     );
