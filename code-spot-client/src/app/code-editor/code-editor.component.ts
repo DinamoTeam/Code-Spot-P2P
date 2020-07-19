@@ -86,6 +86,17 @@ export class CodeEditorComponent implements OnInit {
       function () {}
     );
 
+    // Add "padding" to the top
+    var viewZoneId = null;
+    this.editor.changeViewZones(function(changeAccessor) {
+        var domNode = document.createElement('div');
+        viewZoneId = changeAccessor.addZone({
+              afterLineNumber: 0,
+              heightInLines: 1.5,
+              domNode: domNode
+        });
+    });
+
     this.editor.onDidChangeModelContent((e: any) =>
       this.onDidChangeModelContentHandler(e)
     );
