@@ -1,8 +1,18 @@
 .cover {
-  padding: 0 1.5rem;
-  display: flex;
   height: 80vh;
   align-items: center;
+  margin-bottom: 350px;
+}
+
+.laptop-img {
+  height: auto;
+  width: 100%;
+}
+
+.container {
+  position: absolute;
+  top: 220px;
+  left: -90px;
 }
 
 .cover .btn-lg {
@@ -12,5 +22,84 @@
 
 .btn-navy {
   color: white;
-  background-color: #DF691A;
+  background-color: #df691a;
+}
+
+.btn-navy:hover {
+  color: white;
+}
+
+.features {
+  margin: 0 100px;
+}
+
+.feature {
+  margin-bottom: 130px;
+}
+
+h1 {
+  color: #151b26;
+}
+
+.feature-img {
+  height: 300px;
+  width: 400px;
+}
+
+h3,
+.feature-text {
+  color: #646f79;
+}
+
+.feature-text-left {
+  margin-left: 100px;
+}
+
+.feature-text-right {
+  padding-right: 100px;
+}
+
+@media (max-width: 768px) {
+  .cover {
+    flex-direction: column;
+    margin-bottom: 100px;
+  }
+
+  .container {
+    position: initial;
+  }
+
+  .laptop-img {
+    margin-bottom: 40px;
+  }
+
+  .features {
+    margin: 0px 0px;
+  }
+
+  .feature {
+    margin-bottom: 20px;
+  }
+
+  .feature-img {
+    order: 0;
+    height: auto;
+    width: 80%;
+    margin: 0 auto;
+  }
+
+  .feature-name {
+    font-size: 2rem;
+  }
+
+  .feature-text {
+    font-size: 1rem;
+  }
+
+  .feature-text-left,
+  .feature-text-right {
+    order: 1;
+    margin: 40px 0px;
+    padding: 0 40px;
+  }
 }
