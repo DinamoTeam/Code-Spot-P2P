@@ -167,13 +167,14 @@ export class CodeEditorComponent implements OnInit {
 
     // DO NOT UNCOMMENT THIS! IT'LL BREAK. FOR REFERENCE ONLY
     // console.log(this.peerService.getPeerId());
-    // // Draw name tag
-    // this.cursorService.drawNameTag(
-    //   this.editor,
-    //   this.peerService.getPeerId(),
-    //   event.position.lineNumber,
-    //   event.position.column
-    // );
+    // Draw my name tag
+    this.cursorService.drawNameTag(
+      this.editor,
+      this.peerService.getPeerId(),
+      event.position.lineNumber,
+      event.position.column,
+      true
+    );
 
     if (this.worthSending(event)) {
       this.peerService.broadcastChangeCursorPos(event);
@@ -245,7 +246,8 @@ export class CodeEditorComponent implements OnInit {
               this.editor,
               cursorChange.peerId,
               cursorChange.line,
-              cursorChange.col
+              cursorChange.col,
+              false
             );
             break;
           case BroadcastInfo.SelectionChange:

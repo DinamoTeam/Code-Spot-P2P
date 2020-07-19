@@ -10,8 +10,8 @@ export class CursorService {
   // Color: 1 to 100
   private peerColors: Map<string, number> = new Map<string, number>();
   private oldNameTags: Map<string, any> = new Map<string, any>();
-  private peerNameTagIndices = new Map<string, number>();
-  private myColor: number;
+  private otherPeerNameTagIndices = new Map<string, number>();
+  private myPeerId: string;
   private myLastCursorEvent: any = null;
   private myLastSelectEvent: any = null;
   private contentWidgetId = 0;
@@ -74,7 +74,8 @@ export class CursorService {
     editor: any,
     ofPeerId: string,
     newLineNumber: number,
-    newColumn: number
+    newColumn: number,
+    isMyNameTag: boolean
   ) {
     const oldNameTag = this.oldNameTags.get(ofPeerId);
 
@@ -112,12 +113,13 @@ export class CursorService {
     editor.addContentWidget(newNameTagWidget);
     this.oldNameTags.set(ofPeerId, newNameTagWidget);
 
-    const index = editor
-      .getModel()
-      .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
-
-    console.log('Just add nametag of ' + nameTagOwner + ' at index ' + index);
-    this.peerNameTagIndices.set(ofPeerId, index);
+    // "My name tag" is updated differently (matching "my cursor")
+    if (!isMyNameTag) {
+      const index = editor
+        .getModel()
+        .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
+      this.otherPeerNameTagIndices.set(ofPeerId, index);
+    }
   }
 
   nameTagIndexAfterInsert(
@@ -149,19 +151,19 @@ export class CursorService {
     insertLength: number
   ): void {
     console.log('Calculating - startIndex: ' + insertStartIndex + ', insertLength: ' + insertLength);
-    const peerIds = Array.from(this.peerNameTagIndices.keys());
+    const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
       if (!peerId) {
         console.error('PeerId undefined! What happened?!');
       }
-      const oldIndex = this.peerNameTagIndices.get(peerId);
+      const oldIndex = this.otherPeerNameTagIndices.get(peerId);
       const newIndex = this.nameTagIndexAfterInsert(
-        this.peerNameTagIndices.get(peerId),
+        this.otherPeerNameTagIndices.get(peerId),
         insertStartIndex,
         insertLength
       );
-      this.peerNameTagIndices.set(peerId, newIndex);
+      this.otherPeerNameTagIndices.set(peerId, newIndex);
       console.log('PeerId: ' + peerId + ', oldIndex: ' + oldIndex + ', newIndex: ' + newIndex);
     }
   }
@@ -170,27 +172,27 @@ export class CursorService {
     removeStartIndex: number,
     removeLength: number
   ): void {
-    const peerIds = Array.from(this.peerNameTagIndices.keys());
+    const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
       if (!peerId) {
         console.error('PeerId undefined! What happened?!');
       }
       const newIndex = this.nameTagIndexAfterRemove(
-        this.peerNameTagIndices.get(peerId),
+        this.otherPeerNameTagIndices.get(peerId),
         removeStartIndex,
         removeLength
       );
-      this.peerNameTagIndices.set(peerId, newIndex);
+      this.otherPeerNameTagIndices.set(peerId, newIndex);
     }
   }
 
   redrawAllNameTags(editor: any): void {
     console.log('Redrawing all name tags: ');
-    console.log(this.peerNameTagIndices);
-    this.peerNameTagIndices.forEach((index: number, peerId: string) => {
+    console.log(this.otherPeerNameTagIndices);
+    this.otherPeerNameTagIndices.forEach((index: number, peerId: string) => {
       const pos = editor.getModel().getPositionAt(index);
-      this.drawNameTag(editor, peerId, pos.lineNumber, pos.column);
+      this.drawNameTag(editor, peerId, pos.lineNumber, pos.column, false);
     });
   }
 
@@ -215,11 +217,12 @@ export class CursorService {
   }
 
   getMyCursorColor(): number {
-    return this.myColor;
+    return this.peerColors.get(this.myPeerId);
   }
 
-  setMyCursorColor(color: number): void {
-    this.myColor = color;
+  setMyCursorColorAndPeerId(myPeerId: string, color: number): void {
+    this.setPeerColor(myPeerId, color);
+    this.myPeerId = myPeerId;
   }
 
   getMyLastCursorEvent(): any {

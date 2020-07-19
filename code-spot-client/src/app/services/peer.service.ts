@@ -349,7 +349,7 @@ export class PeerService {
     for (let i = 0; i < peerIds.length; i++) {
       this.cursorService.setPeerColor(peerIds[i], cursorColors[i]);
     }
-    this.cursorService.setMyCursorColor(cursorColor);
+    this.cursorService.setMyCursorColorAndPeerId(this.peer.id, cursorColor);
 
     this.nameService.giveMyselfRandomName(this.peer.id);
 
