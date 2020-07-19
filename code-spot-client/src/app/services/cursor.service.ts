@@ -15,6 +15,7 @@ export class CursorService {
   private myLastCursorEvent: any = null;
   private myLastSelectEvent: any = null;
   private contentWidgetId = 0;
+  peerIdsNeverSendCursorTo = new Set<string>();
 
   constructor(private nameService: NameService) {}
 
@@ -240,6 +241,7 @@ export class CursorService {
   setMyLastSelectEvent(event: any): void {
     this.myLastSelectEvent = event;
   }
+
 }
 
 class Decoration {

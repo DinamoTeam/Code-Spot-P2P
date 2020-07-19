@@ -172,6 +172,7 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeCursorPositionHandler(event: any): void {
+    console.log('Change cursor pos!');
     console.log(event);
 
     this.cursorService.setMyLastCursorEvent(event);
@@ -187,8 +188,9 @@ export class CodeEditorComponent implements OnInit {
       true
     );
 
-    if (this.worthSending(event)) {
+    if (this.worthSending(event) || this.cursorService.peerIdsNeverSendCursorTo.size > 0) {
       this.peerService.broadcastChangeCursorPos(event);
+      this.cursorService.peerIdsNeverSendCursorTo.clear();
     }
   }
 

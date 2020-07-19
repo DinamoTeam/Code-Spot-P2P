@@ -146,6 +146,9 @@ export class PeerService {
       // Send our cursor's info
       this.sendCursorInfo(conn);
 
+      // Seems weird but we need it
+      this.cursorService.peerIdsNeverSendCursorTo.add(conn.peer);
+
       console.log('Connection to peer ' + conn.peer + ' opened :)');
       // Only add this conn to our list when the connection has opened!
       Utils.addUniqueConnections([conn], this.connectionsIAmHolding);
@@ -218,7 +221,7 @@ export class PeerService {
             // Tell C# Server I have received AllMessages
             this.roomService.markPeerReceivedAllMessages(this.peer.id);
             // Send cursor + selection change info
-            this.cursorService.setMyLastSelectEvent(null);
+            // this.cursorService.setMyLastSelectEvent(null);
             this.sendCursorInfo(fromConn);
           }
         }
