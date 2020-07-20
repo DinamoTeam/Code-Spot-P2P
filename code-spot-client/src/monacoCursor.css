@@ -40,6 +40,8 @@
   }
 } */
 
+
+
 :root {
   --monaco-color-1: hsla(352, 100%, 46%, 1);
   --monaco-color-2: hsla(60, 100%, 62%, 1);
@@ -142,6 +144,308 @@
   --monaco-color-99: hsla(304, 100%, 45%, 1);
   --monaco-color-100: hsla(335, 100%, 67%, 1);
 }
+
+background-1 {
+  background: var(--monaco-color-1);
+}
+background-2 {
+  background: var(--monaco-color-2);
+}
+background-3 {
+  background: var(--monaco-color-3);
+}
+background-4 {
+  background: var(--monaco-color-4);
+}
+background-5 {
+  background: var(--monaco-color-5);
+}
+background-6 {
+  background: var(--monaco-color-6);
+}
+background-7 {
+  background: var(--monaco-color-7);
+}
+background-8 {
+  background: var(--monaco-color-8);
+}
+background-9 {
+  background: var(--monaco-color-9);
+}
+background-10 {
+  background: var(--monaco-color-10);
+}
+background-11 {
+  background: var(--monaco-color-11);
+}
+background-12 {
+  background: var(--monaco-color-12);
+}
+background-13 {
+  background: var(--monaco-color-13);
+}
+background-14 {
+  background: var(--monaco-color-14);
+}
+background-15 {
+  background: var(--monaco-color-15);
+}
+background-16 {
+  background: var(--monaco-color-16);
+}
+background-17 {
+  background: var(--monaco-color-17);
+}
+background-18 {
+  background: var(--monaco-color-18);
+}
+background-19 {
+  background: var(--monaco-color-19);
+}
+background-20 {
+  background: var(--monaco-color-20);
+}
+background-21 {
+  background: var(--monaco-color-21);
+}
+background-22 {
+  background: var(--monaco-color-22);
+}
+background-23 {
+  background: var(--monaco-color-23);
+}
+background-24 {
+  background: var(--monaco-color-24);
+}
+background-25 {
+  background: var(--monaco-color-25);
+}
+background-26 {
+  background: var(--monaco-color-26);
+}
+background-27 {
+  background: var(--monaco-color-27);
+}
+background-28 {
+  background: var(--monaco-color-28);
+}
+background-29 {
+  background: var(--monaco-color-29);
+}
+background-30 {
+  background: var(--monaco-color-30);
+}
+background-31 {
+  background: var(--monaco-color-31);
+}
+background-32 {
+  background: var(--monaco-color-32);
+}
+background-33 {
+  background: var(--monaco-color-33);
+}
+background-34 {
+  background: var(--monaco-color-34);
+}
+background-35 {
+  background: var(--monaco-color-35);
+}
+background-36 {
+  background: var(--monaco-color-36);
+}
+background-37 {
+  background: var(--monaco-color-37);
+}
+background-38 {
+  background: var(--monaco-color-38);
+}
+background-39 {
+  background: var(--monaco-color-39);
+}
+background-40 {
+  background: var(--monaco-color-40);
+}
+background-41 {
+  background: var(--monaco-color-41);
+}
+background-42 {
+  background: var(--monaco-color-42);
+}
+background-43 {
+  background: var(--monaco-color-43);
+}
+background-44 {
+  background: var(--monaco-color-44);
+}
+background-45 {
+  background: var(--monaco-color-45);
+}
+background-46 {
+  background: var(--monaco-color-46);
+}
+background-47 {
+  background: var(--monaco-color-47);
+}
+background-48 {
+  background: var(--monaco-color-48);
+}
+background-49 {
+  background: var(--monaco-color-49);
+}
+background-50 {
+  background: var(--monaco-color-50);
+}
+background-51 {
+  background: var(--monaco-color-51);
+}
+background-52 {
+  background: var(--monaco-color-52);
+}
+background-53 {
+  background: var(--monaco-color-53);
+}
+background-54 {
+  background: var(--monaco-color-54);
+}
+background-55 {
+  background: var(--monaco-color-55);
+}
+background-56 {
+  background: var(--monaco-color-56);
+}
+background-57 {
+  background: var(--monaco-color-57);
+}
+background-58 {
+  background: var(--monaco-color-58);
+}
+background-59 {
+  background: var(--monaco-color-59);
+}
+background-60 {
+  background: var(--monaco-color-60);
+}
+background-61 {
+  background: var(--monaco-color-61);
+}
+background-62 {
+  background: var(--monaco-color-62);
+}
+background-63 {
+  background: var(--monaco-color-63);
+}
+background-64 {
+  background: var(--monaco-color-64);
+}
+background-65 {
+  background: var(--monaco-color-65);
+}
+background-66 {
+  background: var(--monaco-color-66);
+}
+background-67 {
+  background: var(--monaco-color-67);
+}
+background-68 {
+  background: var(--monaco-color-68);
+}
+background-69 {
+  background: var(--monaco-color-69);
+}
+background-70 {
+  background: var(--monaco-color-70);
+}
+background-71 {
+  background: var(--monaco-color-71);
+}
+background-72 {
+  background: var(--monaco-color-72);
+}
+background-73 {
+  background: var(--monaco-color-73);
+}
+background-74 {
+  background: var(--monaco-color-74);
+}
+background-75 {
+  background: var(--monaco-color-75);
+}
+background-76 {
+  background: var(--monaco-color-76);
+}
+background-77 {
+  background: var(--monaco-color-77);
+}
+background-78 {
+  background: var(--monaco-color-78);
+}
+background-79 {
+  background: var(--monaco-color-79);
+}
+background-80 {
+  background: var(--monaco-color-80);
+}
+background-81 {
+  background: var(--monaco-color-81);
+}
+background-82 {
+  background: var(--monaco-color-82);
+}
+background-83 {
+  background: var(--monaco-color-83);
+}
+background-84 {
+  background: var(--monaco-color-84);
+}
+background-85 {
+  background: var(--monaco-color-85);
+}
+background-86 {
+  background: var(--monaco-color-86);
+}
+background-87 {
+  background: var(--monaco-color-87);
+}
+background-88 {
+  background: var(--monaco-color-88);
+}
+background-89 {
+  background: var(--monaco-color-89);
+}
+background-90 {
+  background: var(--monaco-color-90);
+}
+background-91 {
+  background: var(--monaco-color-91);
+}
+background-92 {
+  background: var(--monaco-color-92);
+}
+background-93 {
+  background: var(--monaco-color-93);
+}
+background-94 {
+  background: var(--monaco-color-94);
+}
+background-95 {
+  background: var(--monaco-color-95);
+}
+background-96 {
+  background: var(--monaco-color-96);
+}
+background-97 {
+  background: var(--monaco-color-97);
+}
+background-98 {
+  background: var(--monaco-color-98);
+}
+background-99 {
+  background: var(--monaco-color-99);
+}
+background-100 {
+  background: var(--monaco-color-100);
+}
+
 .monaco-select-1 {
   background: var(--monaco-color-1) !important;
   background-blend-mode: multiply;
