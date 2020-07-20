@@ -243,8 +243,8 @@ export class CursorService {
     }
   }
 
-  getPeerColors(): Map<string, number> {
-    return this.peerColors;
+  getPeerColor(peerId: string): number {
+    return this.peerColors.get(peerId);
   }
 
   getMyCursorColor(): number {
