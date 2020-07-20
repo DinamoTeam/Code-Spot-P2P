@@ -202,6 +202,7 @@ export class CursorService {
 
   removePeer(editor: any, peerId: string): void {
     this.peerColors.delete(peerId);
+
     const cursorDecoration = this.cursorDecorations
       .filter((d) => d.peerId === peerId)
       .map((d) => d.decoration);
@@ -210,6 +211,11 @@ export class CursorService {
       .map((d) => d.decoration);
     editor.deltaDecorations(cursorDecoration, []);
     editor.deltaDecorations(selectDecoration, []);
+
+    const oldNameTag = this.oldNameTags.get(peerId);
+    if (oldNameTag) {
+      editor.removeContentWidget(oldNameTag);
+    }
   }
 
   getPeerColors(): Map<string, number> {
