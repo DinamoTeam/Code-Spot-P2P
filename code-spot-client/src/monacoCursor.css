@@ -25,6 +25,10 @@
   opacity: 0%;
 }
 
+.nameTagText {
+  font-size: 16px;
+}
+
 /* .disappear {
   opacity: 100%;
   animation: blur 2s step-end forwards;

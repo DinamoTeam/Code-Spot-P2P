@@ -99,6 +99,7 @@ export class CursorService {
           this.domNode = document.createElement('div');
           this.domNode.innerHTML = nameTagOwner;
           this.domNode.style.background = 'var(--monaco-color-' + nameTagColor + ')';
+          this.domNode.classList.add('nameTagText');
           if (!showTag) {
             this.domNode.classList.add('hide');
           }
