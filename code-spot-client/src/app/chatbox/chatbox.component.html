@@ -1,29 +1,63 @@
+<div class="dropdown mb-3 d-flex">
+  <button
+    class="btn btn-block btn-navy dropdown-toggle font-weight-bold"
+    type="button"
+    id="dropdownMenuButton"
+    data-toggle="dropdown"
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    People
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <a class="dropdown-item" href="#">
+      <i class="fa fa-circle fa-fw" style="color: red;"></i>
+      Ox
+    </a>
+    <a class="dropdown-item" href="#">
+      <i class="fa fa-circle fa-fw" style="color: green;"></i>
+      Parrot
+    </a>
+    <a class="dropdown-item" href="#">
+      <i class="fa fa-circle fa-fw" style="color: blue;"></i>
+      Dog
+    </a>
+  </div>
+</div>
+
 <div #messagebox class="chatBox card shadow-sm p-3 mb-5 bg-white rounded">
   <div class="mt-2">
     <div *ngFor="let mess of messages">
-      <app-message-bubble [senderName]="mess.fromPeerId" [content]="mess.content">
+      <app-message-bubble
+        [senderName]="mess.fromPeerId"
+        [content]="mess.content"
+      >
       </app-message-bubble>
     </div>
   </div>
 
   <div>&nbsp;</div>
 
-  <form class="ml-3 mr-2 mt-auto"
-        [formGroup]="messageForm"
-        (ngSubmit)="sendMessage(messageForm.value)">
+  <form
+    class="ml-3 mr-2 mt-auto"
+    [formGroup]="messageForm"
+    (ngSubmit)="sendMessage(messageForm.value)"
+  >
     <div class="form-group d-flex">
-        <input type="text"
-              formControlName="messageToSend"
-              class="form-control"
-              placeholder="Aa"
-              autofocus />
-      <button *ngIf="messageToSend.value != ''"
-              class="invisibleBtn"
-              type="submit">
+      <input
+        type="text"
+        formControlName="messageToSend"
+        class="form-control"
+        placeholder="Aa"
+        autofocus
+      />
+      <button
+        *ngIf="messageToSend.value != ''"
+        class="invisibleBtn"
+        type="submit"
+      >
         <img class="ml-1" src="../../assets/send-mail.svg" />
       </button>
     </div>
   </form>
 </div>
-
-

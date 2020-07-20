@@ -1,19 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
-
   isExpanded = false;
 
-  constructor(private router: Router) { }
+  constructor() {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   collapse() {
     this.isExpanded = false;
@@ -25,16 +22,16 @@ export class HeaderComponent implements OnInit {
 
   goHome() {
     this.isExpanded = false;
-    window.location.replace("/");
+    window.location.replace('/');
   }
 
   onBtnAboutClick() {
     this.isExpanded = false;
-    window.location.replace("/About");
+    window.location.replace('/About');
   }
 
   onBtnContactClick() {
     this.isExpanded = false;
-    window.location.replace("/Contact");
+    window.location.replace('/Contact');
   }
 }
