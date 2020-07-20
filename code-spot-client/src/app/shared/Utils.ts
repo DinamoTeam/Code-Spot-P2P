@@ -101,6 +101,14 @@ export class PeerUtils {
       }
     });
   }
+
+  static handlePeerError(message: string) {
+    let ans = confirm(message);
+    if (ans === true) window.location.replace('/');
+    else console.log("WARN USER THAT THIS HAS STOP SYNC");
+
+    // TODO: WARN USER THAT THIS HAS STOP SYNC
+  }
 }
 
 export class Utils {
@@ -119,10 +127,6 @@ export class Utils {
         listToBeAddedTo.push(obj);
       }
     });
-  }
-
-  static refreshAndGoBackHomePage() {
-    window.location.replace('/');
   }
 
   static broadcastInfo(infoType: BroadcastInfo): void {

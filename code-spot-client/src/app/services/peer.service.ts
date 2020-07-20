@@ -91,8 +91,8 @@ export class PeerService {
         'Peer disconnect with server. Destroying peer ... (Although we should try to reconnect here)'
       );
       this.peer.destroy();
-      alert('Wifi connection error! Going back home...');
-      Utils.refreshAndGoBackHomePage();
+
+      PeerUtils.handlePeerError('Wifi connection error! Going back to Home page?');
     });
   }
 
@@ -107,8 +107,7 @@ export class PeerService {
   private listenToBrowserOffline() {
     // Need a better way to check internet connection! This method is error prone
     window.addEventListener('offline', (e) => {
-      alert('Please check your Internet connection. Navigating back home...');
-      Utils.refreshAndGoBackHomePage();
+      PeerUtils.handlePeerError('Please check your Internet connection. Going back to Home page?');
     });
   }
 
@@ -369,8 +368,7 @@ export class PeerService {
         receivedAllMessages
       );
       if (peerIdPicked === null) {
-        alert('All Peer in rooms have left. Going back to home...');
-        Utils.refreshAndGoBackHomePage();
+        PeerUtils.handlePeerError('All people have left the room. Going back to Home page?');
       } else {
         this.connectToPeer(peerIdPicked, true);
         this.waitTillGotAllMessagesOrRefreshIfThatPeerLeft(peerIdPicked);
@@ -518,8 +516,7 @@ export class PeerService {
     this.roomService.joinExistingRoom(this.peer.id, this.roomName).subscribe(
       (data: EnterRoomInfo) => {
         if (data.siteId === -1) {
-          alert('Room not exists, navigating back to home');
-          Utils.refreshAndGoBackHomePage();
+          PeerUtils.handlePeerError('Room not exists! Going back to Home page?');
         }
         EditorService.setSiteId(data.siteId);
         const boolArrHasReceivedAllMessages = data.hasReceivedAllMessages.map(
