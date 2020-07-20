@@ -240,6 +240,8 @@ export class CursorService {
     const oldNameTag = this.oldNameTags.get(peerId);
     if (oldNameTag) {
       editor.removeContentWidget(oldNameTag);
+      this.oldNameTags.delete(peerId);
+      this.otherPeerNameTagIndices.delete(peerId);
     }
   }
 

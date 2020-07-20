@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class NameService {
   private myName: string;
   private peerNames = new Map<string, string>();
-  private names = [
+  private animalNames = [
     'Bird',
     'Dog',
     'Donkey',
@@ -103,9 +103,44 @@ export class NameService {
     'Walrus'
   ];
 
+  private adjectives = [
+    'Likeable',
+    'Amiable',
+    'Charming',
+    'Polite',
+    'Gregarious',
+    'Considerate',
+    'Generous',
+    'Sympathetic',
+    'Sincere',
+    'Helpful',
+    'Patient',
+    'Diligent',
+    'Organised',
+    'Practical',
+    'Reliable',
+    'Trustworthy',
+    'Loyal',
+    'Energetic',
+    'Adventurous',
+    'Enthusiastic',
+    'Cheerful',
+    'Chatty',
+    'Hilarious',
+    'Witty',
+    'Humorous',
+    'Amusing',
+    'Ambitious',
+    'Determined',
+    'Passionate',
+    'Decisive',
+    'Fearless'
+  ]
+
   giveMyselfRandomName(peerId: string): void {
-    const randIndex = Math.floor(Math.random() * this.names.length);
-    this.setMyName(peerId, this.names[randIndex]);
+    const randAnimalIndex = Math.floor(Math.random() * this.animalNames.length);
+    const randAdjIndex = Math.floor(Math.random() * this.adjectives.length);
+    this.setMyName(peerId, this.adjectives[randAdjIndex] + ' ' + this.animalNames[randAnimalIndex]);
   }
 
   getMyName(): string {
