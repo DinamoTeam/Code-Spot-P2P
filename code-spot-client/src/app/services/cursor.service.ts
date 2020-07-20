@@ -97,7 +97,7 @@ export class CursorService {
       getDomNode: function () {
         if (!this.domNode) {
           this.domNode = document.createElement('div');
-          this.domNode.innerHTML = nameTagOwner;
+          this.domNode.textContent = nameTagOwner;
           this.domNode.style.background = 'var(--monaco-color-' + nameTagColor + ')';
           this.domNode.classList.add('nameTagText');
           if (!showTag) {
