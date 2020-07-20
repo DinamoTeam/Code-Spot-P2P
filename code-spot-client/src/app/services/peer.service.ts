@@ -12,6 +12,7 @@ import { PeerServerConnection } from '../shared/PeerServerConnection';
 import { PeersConnection } from '../shared/PeersConnection';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { NameService } from './name.service';
+import { AlertifyService } from './alertify.service';
 
 declare const Peer: any;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 15000;
@@ -42,7 +43,8 @@ export class PeerService {
     private roomService: RoomService,
     private cursorService: CursorService,
     private editorService: EditorService,
-    private nameService: NameService
+    private nameService: NameService,
+    private alertifyService: AlertifyService
   ) {}
 
   connectToPeerServerAndInit() {
@@ -92,7 +94,9 @@ export class PeerService {
       );
       this.peer.destroy();
 
-      PeerUtils.handlePeerError('Wifi connection error! Going back to Home page?');
+      PeerUtils.handlePeerError(
+        'Wifi connection error! Going back to Home page?'
+      );
     });
   }
 
@@ -107,7 +111,9 @@ export class PeerService {
   private listenToBrowserOffline() {
     // Need a better way to check internet connection! This method is error prone
     window.addEventListener('offline', (e) => {
-      PeerUtils.handlePeerError('Please check your Internet connection. Going back to Home page?');
+      PeerUtils.handlePeerError(
+        'Please check your Internet connection. Going back to Home page?'
+      );
     });
   }
 
@@ -139,10 +145,8 @@ export class PeerService {
   private setupListenerForConnection(conn: any) {
     // When the connection first establish
     conn.on(PeersConnection.Open, () => {
-      // TODO: Send our name
       this.sendMyName(conn);
 
-      // Send our cursor's info
       this.sendCursorInfo(conn);
 
       // Seems weird but we need it
@@ -192,9 +196,14 @@ export class PeerService {
   private handleMessageFromPeer(message: Message, fromConn: any) {
     switch (message.messageType) {
       case MessageType.ChangeLanguage:
-        this.broadcastMessageToNewPeers(message, this.connsToBroadcast);
         EditorService.language = message.content;
         PeerUtils.broadcastInfo(BroadcastInfo.ChangeLanguage);
+
+        // Tell user language has been changed
+        const name = this.nameService.getPeerName(fromConn.peer);
+        this.alertifyService.message(
+          name + ' has changed language to ' + message.content
+        );
         break;
       case MessageType.RemoteInsert:
       case MessageType.RemoteRemove:
@@ -220,9 +229,7 @@ export class PeerService {
             // Tell C# Server I have received AllMessages
             this.roomService.markPeerReceivedAllMessages(this.peer.id);
             // Send cursor + selection change info
-            // this.cursorService.setMyLastSelectEvent(null);
             this.sendCursorInfo(fromConn);
-            const that = this;
           }
         }
         break;
@@ -339,6 +346,10 @@ export class PeerService {
     // Delete peer's cursor, select,...
     this.peerIdJustLeft = conn.peer;
     PeerUtils.broadcastInfo(BroadcastInfo.PeerLeft);
+
+    // Tell user that peer just left room
+    const name = this.nameService.getPeerName(conn.peer);
+    this.alertifyService.warning(name + ' just left');
   }
 
   //***************** Handle when join room *******************
@@ -368,7 +379,9 @@ export class PeerService {
         receivedAllMessages
       );
       if (peerIdPicked === null) {
-        PeerUtils.handlePeerError('All people have left the room. Going back to Home page?');
+        PeerUtils.handlePeerError(
+          'All people have left the room. Going back to Home page?'
+        );
       } else {
         this.connectToPeer(peerIdPicked, true);
         this.waitTillGotAllMessagesOrRefreshIfThatPeerLeft(peerIdPicked);
@@ -516,7 +529,9 @@ export class PeerService {
     this.roomService.joinExistingRoom(this.peer.id, this.roomName).subscribe(
       (data: EnterRoomInfo) => {
         if (data.siteId === -1) {
-          PeerUtils.handlePeerError('Room not exists! Going back to Home page?');
+          PeerUtils.handlePeerError(
+            'Room not exists! Going back to Home page?'
+          );
         }
         EditorService.setSiteId(data.siteId);
         const boolArrHasReceivedAllMessages = data.hasReceivedAllMessages.map(
