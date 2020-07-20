@@ -69,7 +69,7 @@
         [options]="editorOptions"
         (onInit)="onInitEditorHandler($event)"
       ></ngx-monaco-editor>
-      <div class="btn-container d-flex">
+      <div class="btn-container d-flex" [style.visibility]="ready ? 'visible' : 'hidden'">
         <button
           class="btn btn-md btn-navy mt-3 mb-4 font-weight-bold"
           (click)="copyLink()"
