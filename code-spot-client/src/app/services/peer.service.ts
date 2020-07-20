@@ -37,7 +37,6 @@ export class PeerService {
   private previousChatMessages: Message[] = [];
   private hasReceivedAllChatMessages: boolean = false;
   private peerIdJustLeft: string;
-  private peerName = 'NO_NAME';
 
   constructor(
     private roomService: RoomService,
@@ -147,6 +146,9 @@ export class PeerService {
       // Send our cursor's info
       this.sendCursorInfo(conn);
 
+      // Seems weird but we need it
+      this.cursorService.peerIdsNeverSendCursorTo.add(conn.peer);
+
       console.log('Connection to peer ' + conn.peer + ' opened :)');
       // Only add this conn to our list when the connection has opened!
       Utils.addUniqueConnections([conn], this.connectionsIAmHolding);
@@ -219,7 +221,7 @@ export class PeerService {
             // Tell C# Server I have received AllMessages
             this.roomService.markPeerReceivedAllMessages(this.peer.id);
             // Send cursor + selection change info
-            this.cursorService.setMyLastSelectEvent(null);
+            // this.cursorService.setMyLastSelectEvent(null);
             this.sendCursorInfo(fromConn);
           }
         }
@@ -350,7 +352,7 @@ export class PeerService {
     for (let i = 0; i < peerIds.length; i++) {
       this.cursorService.setPeerColor(peerIds[i], cursorColors[i]);
     }
-    this.cursorService.setMyCursorColor(cursorColor);
+    this.cursorService.setMyCursorColorAndPeerId(this.peer.id, cursorColor);
 
     this.nameService.giveMyselfRandomName(this.peer.id);
 

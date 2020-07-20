@@ -2,6 +2,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
 import { BalancedBST } from '../shared/BalancedBST';
+import { CursorService } from './cursor.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,7 @@ export class EditorService {
     EditorService.siteId = id;
   }
 
-  constructor() {
+  constructor(private cursorService: CursorService) {
     this.bst = new BalancedBST<CRDT>();
     this.bst.insert(
       new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
@@ -81,6 +82,7 @@ export class EditorService {
   }
 
   handleRemoteRangeInsert(
+    editor: any,
     editorTextModel: any,
     auxEditorTextModel: any,
     crdts: CRDT[],
@@ -141,12 +143,20 @@ export class EditorService {
         editorTextModel.pushStackElement();
       }
 
+      // Insert to the screen
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
+
+      // main Editor
       this.writeRangeOfTextToScreenAtIndex(
         editorTextModel,
         textToInsert,
         startIndexMonaco
       );
+
+      console.log('Remote insert: startIndex: ' + startIndexMonaco + ', textToInsert: ' + textToInsert + ', length: ' + textToInsert.length);
+      
+      // Calculate new pos for nameTag after remote insert
+      this.cursorService.recalculateAllNameTagIndicesAfterInsert(startIndexMonaco, textToInsert.length);
 
       // aux Editor
       this.writeRangeOfTextToScreenAtIndex(
@@ -155,6 +165,9 @@ export class EditorService {
         startIndexMonaco
       );
     }
+
+    // Actually redraw nameTag
+    this.cursorService.redrawAllNameTags(editor);
   }
 
   handleLocalRangeRemove(
@@ -193,6 +206,7 @@ export class EditorService {
   }
 
   handleRemoteRangeRemove(
+    editor: any,
     editorTextModel: any,
     auxEditorTextModel: any,
     crdts: CRDT[]
@@ -236,11 +250,17 @@ export class EditorService {
 
       // Delete from the screen
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
+
+      // main Editor
       this.deleteTextInRangeIndex(
         editorTextModel,
         startIndexMonaco,
         endIndexMonaco + 1
       );
+
+      // Calculate new pos for nameTag after remote remove
+      const deleteLength = endIndexMonaco - startIndexMonaco + 1;
+      this.cursorService.recalculateAllNameTagIndicesAfterRemove(startIndexMonaco, deleteLength);
 
       // aux Editor
       this.deleteTextInRangeIndex(
@@ -250,14 +270,18 @@ export class EditorService {
       );
     }
 
+    // Actually redraw nameTag
+    this.cursorService.redrawAllNameTags(editor);
   }
 
   handleAllMessages(
+    editor: any,
     editorTextModel: any,
     auxEditorTextModel: any,
     crdts: CRDT[]
   ): void {
     this.handleRemoteRangeInsert(
+      editor,
       editorTextModel,
       auxEditorTextModel,
       crdts,
@@ -352,7 +376,7 @@ export class EditorService {
     );
   }
 
-  private posToIndex(
+  posToIndex(
     editorTextModel: any,
     endLineNumber: number,
     endColumn: number
@@ -362,7 +386,7 @@ export class EditorService {
     );
   }
 
-  private indexToPos(editorTextModel: any, index: number): any {
+  indexToPos(editorTextModel: any, index: number): any {
     return editorTextModel.getPositionAt(index);
   }
 }
