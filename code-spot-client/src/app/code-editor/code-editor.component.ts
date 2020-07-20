@@ -374,6 +374,10 @@ export class CodeEditorComponent implements OnInit {
     document.execCommand('copy');
     document.body.removeChild(selBox);
     this.alertifyService.success('Link copied to clip board');
+    this.alertifyService.message('Link copied to clip board');
+    this.alertifyService.warning('Link copied to clip board');
+    this.alertifyService.error('Link copied to clip board');
+
   }
 
   printSelect() {

@@ -98,7 +98,7 @@ export class CursorService {
         if (!this.domNode) {
           this.domNode = document.createElement('div');
           this.domNode.textContent = nameTagOwner;
-          this.domNode.style.whiteSpace = "nowrap";
+          this.domNode.style.whiteSpace = 'nowrap';
           this.domNode.style.background = 'var(--monaco-color-' + nameTagColor + ')';
           this.domNode.classList.add('nameTagText');
           if (!showTag) {
