@@ -31,10 +31,21 @@ export class CodeEditorComponent implements OnInit {
   auxEditorReady = false;
   peerServiceHasConnectedToPeerServer = false;
   auxEditorTextModel: any;
+  @Input() languages = Languages;
+  themes = [
+    { name: 'Visual Studio Dark', value: 'vs-dark' },
+    { name: 'Visual Studio Light', value: 'vs' },
+    { name: 'High Contrast Dark', value: 'hc-black' },
+  ];
   selectedLang: string;
-  languageForm = new FormGroup({
+  selectedTheme: string;
+  editorForm = new FormGroup({
     language: new FormControl(
       EditorService.language,
+      Validators.compose([Validators.required])
+    ),
+    theme: new FormControl(
+      'vs-dark',
       Validators.compose([Validators.required])
     ),
   });
@@ -46,8 +57,7 @@ export class CodeEditorComponent implements OnInit {
     public editorService: EditorService,
     private ngZone: NgZone,
     private actRoute: ActivatedRoute,
-    private location: Location,
-    @Inject(DOCUMENT) document
+    private location: Location
   ) {
     this.subscribeToPeerServiceEvents();
     this.getRoomName();
@@ -55,9 +65,8 @@ export class CodeEditorComponent implements OnInit {
 
   ngOnInit() {
     this.selectedLang = EditorService.language;
+    this.selectedTheme = 'vs-dark';
   }
-
-  @Input() languages = Languages;
 
   editorOptions = {
     theme: 'vs-dark',
@@ -65,7 +74,7 @@ export class CodeEditorComponent implements OnInit {
     stickiness: 1,
   };
 
-  onLanguageChange(res) {
+  onLanguageChange(res: string) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);
     this.editorOptions = Object.assign({}, this.editorOptions, {
       language: this.selectedLang,
@@ -73,6 +82,13 @@ export class CodeEditorComponent implements OnInit {
 
     EditorService.language = this.selectedLang;
     this.peerService.broadcastChangeLanguage();
+  }
+
+  onThemeChange(res: string) {
+    this.selectedTheme = res.slice(res.indexOf(':') + 2);
+    this.editorOptions = Object.assign({}, this.editorOptions, {
+      theme: this.selectedTheme,
+    });
   }
 
   onInitEditorHandler(event: any) {
@@ -87,14 +103,14 @@ export class CodeEditorComponent implements OnInit {
     );
 
     // Add "padding" to the top
-    var viewZoneId = null;
-    this.editor.changeViewZones(function(changeAccessor) {
-        var domNode = document.createElement('div');
-        viewZoneId = changeAccessor.addZone({
-              afterLineNumber: 0,
-              heightInLines: 1.5,
-              domNode: domNode
-        });
+    let viewZoneId;
+    this.editor.changeViewZones((changeAccessor) => {
+      var domNode = document.createElement('div');
+      viewZoneId = changeAccessor.addZone({
+        afterLineNumber: 0,
+        heightInLines: 1.5,
+        domNode: domNode,
+      });
     });
 
     this.editor.onDidChangeModelContent((e: any) =>
@@ -140,8 +156,15 @@ export class CodeEditorComponent implements OnInit {
       const range = changes[i].range;
 
       // Calculate new pos for nameTag when local remove
-      let index = this.editorService.posToIndex(this.auxEditor.getModel(), range.startLineNumber, range.startColumn);
-      this.cursorService.recalculateAllNameTagIndicesAfterRemove(index, changes[i].rangeLength);
+      let index = this.editorService.posToIndex(
+        this.auxEditor.getModel(),
+        range.startLineNumber,
+        range.startColumn
+      );
+      this.cursorService.recalculateAllNameTagIndicesAfterRemove(
+        index,
+        changes[i].rangeLength
+      );
 
       // Handle local remove (if any)
       this.editorService.handleLocalRangeRemove(
@@ -154,9 +177,21 @@ export class CodeEditorComponent implements OnInit {
       );
 
       // Calculate new pos for nameTag when local insert
-      console.log('Local insert: startIndex: ' + index + ', textToInsert: ' + changes[i].text);
-      index = this.editorService.posToIndex(this.auxEditor.getModel(), range.startLineNumber, range.startColumn);
-      this.cursorService.recalculateAllNameTagIndicesAfterInsert(index, changes[i].text.length);
+      console.log(
+        'Local insert: startIndex: ' +
+          index +
+          ', textToInsert: ' +
+          changes[i].text
+      );
+      index = this.editorService.posToIndex(
+        this.auxEditor.getModel(),
+        range.startLineNumber,
+        range.startColumn
+      );
+      this.cursorService.recalculateAllNameTagIndicesAfterInsert(
+        index,
+        changes[i].text.length
+      );
 
       // Handle local insert (if any)
       this.editorService.handleLocalRangeInsert(
@@ -188,7 +223,10 @@ export class CodeEditorComponent implements OnInit {
       true
     );
 
-    if (this.worthSending(event) || this.cursorService.peerIdsNeverSendCursorTo.size > 0) {
+    if (
+      this.worthSending(event) ||
+      this.cursorService.peerIdsNeverSendCursorTo.size > 0
+    ) {
       this.peerService.broadcastChangeCursorPos(event);
       this.cursorService.peerIdsNeverSendCursorTo.clear();
     }
@@ -216,7 +254,7 @@ export class CodeEditorComponent implements OnInit {
             this.editorOptions = Object.assign({}, this.editorOptions, {
               language: this.selectedLang,
             });
-            this.languageForm.patchValue({ language: this.selectedLang });
+            this.editorForm.patchValue({ language: this.selectedLang });
             break;
           case BroadcastInfo.RemoteInsert:
             this.editorService.handleRemoteRangeInsert(

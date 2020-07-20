@@ -18,7 +18,7 @@
 </div>
 
 <div class="d-flex ml-3 mr-2 flex-md-row flex-column mt-4">
-  <form class="form-horizontal col-md-9 col-xs-12" [formGroup]="languageForm">
+  <form class="form-horizontal col-md-9 col-xs-12" [formGroup]="editorForm">
     <div class="d-flex form-row">
       <!--Select Language-->
       <div *ngIf="ready" class="form-group">
@@ -42,14 +42,11 @@
         <div class="col-sm-2 pl-0">
           <select
             class="form-control"
-            formControlName="language"
-            (change)="onLanguageChange($event.target.value)"
+            formControlName="theme"
+            (change)="onThemeChange($event.target.value)"
           >
-            <option
-              *ngFor="let language of languages"
-              [ngValue]="language.value"
-            >
-              {{ language.name }}
+            <option *ngFor="let theme of themes" [ngValue]="theme.value">
+              {{ theme.name }}
             </option>
           </select>
         </div>
