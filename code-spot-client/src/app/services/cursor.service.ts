@@ -60,8 +60,7 @@ export class CursorService {
         range: new monaco.Range(startLine, startCol, endLine, endCol),
         options: {
           className: 'monaco-select-' + color,
-          stickiness: 3,
-          hoverMessage: { value: peerName },
+          stickiness: 3
         },
       },
     ]);
