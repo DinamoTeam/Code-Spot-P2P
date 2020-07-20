@@ -104,6 +104,8 @@ export class PeerUtils {
 }
 
 export class Utils {
+  static broadcast = new EventEmitter<BroadcastInfo>();
+
   static addUniqueConnections(list: any[], listToBeAddedTo: any[]) {
     list.forEach((obj) => {
       let hasExist = false;
@@ -121,5 +123,9 @@ export class Utils {
 
   static refreshAndGoBackHomePage() {
     window.location.replace('/');
+  }
+
+  static broadcastInfo(infoType: BroadcastInfo): void {
+    Utils.broadcast.emit(infoType);
   }
 }

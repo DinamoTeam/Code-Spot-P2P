@@ -8,5 +8,6 @@ export const enum BroadcastInfo {
   ReadyToDisplayMonaco = 6,
   CursorChange = 7,
   SelectionChange = 8,
-  PeerLeft = 9
+  PeerLeft = 9,
+  LeftHomePage = 10
 }
