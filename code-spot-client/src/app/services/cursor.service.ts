@@ -15,6 +15,7 @@ export class CursorService {
   private myLastCursorEvent: any = null;
   private myLastSelectEvent: any = null;
   private contentWidgetId = 0;
+  private showNameTag = true;
   justJoinRoom = true;
   peerIdsNeverSendCursorTo = new Set<string>();
 
@@ -87,6 +88,7 @@ export class CursorService {
     const nameTagColor = this.peerColors.get(ofPeerId);
 
     const contentWidgetId = this.contentWidgetId++ + '';
+    const showTag = this.showNameTag;
     const newNameTagWidget = {
       domNode: null,
       getId: function () {
@@ -97,7 +99,9 @@ export class CursorService {
           this.domNode = document.createElement('div');
           this.domNode.innerHTML = nameTagOwner;
           this.domNode.style.background = 'var(--monaco-color-' + nameTagColor + ')';
-          // this.domNode.className += 'disappear';
+          if (!showTag) {
+            this.domNode.classList.add('hide');
+          }
         }
         return this.domNode;
       },
@@ -121,6 +125,24 @@ export class CursorService {
         .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
       this.otherPeerNameTagIndices.set(ofPeerId, index);
     }
+  }
+
+  hideAllNameTags() {
+    const nameTags = Array.from(this.oldNameTags.values());
+    for (let i = 0; i < nameTags.length; i++) {
+      const nameTag = nameTags[i];
+      nameTag.domNode.classList.add('hide');
+    }
+    this.showNameTag = false;
+  }
+
+  showAllNameTags() {
+    const nameTags = Array.from(this.oldNameTags.values());
+    for (let i = 0; i < nameTags.length; i++) {
+      const nameTag = nameTags[i];
+      nameTag.domNode.classList.remove('hide');
+    }
+    this.showNameTag = true;
   }
 
   nameTagIndexAfterInsert(

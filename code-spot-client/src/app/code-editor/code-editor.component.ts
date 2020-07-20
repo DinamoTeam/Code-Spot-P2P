@@ -383,4 +383,12 @@ export class CodeEditorComponent implements OnInit {
   printCursor() {
     console.log(this.cursorService.getMyLastCursorEvent());
   }
+
+  hideNameTags() {
+    this.cursorService.hideAllNameTags();
+  }
+
+  showNameTags() {
+    this.cursorService.showAllNameTags();
+  }
 }

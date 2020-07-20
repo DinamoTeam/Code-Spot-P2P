@@ -21,7 +21,11 @@
 	}
 }
 
-.disappear {
+.hide {
+  opacity: 0%;
+}
+
+/* .disappear {
   opacity: 100%;
   animation: blur 2s step-end forwards;
 }
@@ -30,7 +34,7 @@
   to {
     opacity: 0%;
   }
-}
+} */
 
 :root {
   --monaco-color-1: hsla(352, 100%, 46%, 1);
