@@ -223,6 +223,7 @@ export class PeerService {
             // Send cursor + selection change info
             // this.cursorService.setMyLastSelectEvent(null);
             this.sendCursorInfo(fromConn);
+            const that = this;
           }
         }
         break;

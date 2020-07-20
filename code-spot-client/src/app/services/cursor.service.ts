@@ -15,6 +15,7 @@ export class CursorService {
   private myLastCursorEvent: any = null;
   private myLastSelectEvent: any = null;
   private contentWidgetId = 0;
+  justJoinRoom = true;
   peerIdsNeverSendCursorTo = new Set<string>();
 
   constructor(private nameService: NameService) {}

@@ -225,10 +225,16 @@ export class CodeEditorComponent implements OnInit {
 
     if (
       this.worthSending(event) ||
-      this.cursorService.peerIdsNeverSendCursorTo.size > 0
+      this.cursorService.peerIdsNeverSendCursorTo.size > 0 ||
+      this.cursorService.justJoinRoom
     ) {
       this.peerService.broadcastChangeCursorPos(event);
+
+      // Handle edge cases when first join room
       this.cursorService.peerIdsNeverSendCursorTo.clear();
+      if (this.cursorService.justJoinRoom) {
+        setTimeout(() => this.cursorService.justJoinRoom = false, 2000);
+      }
     }
   }
 
