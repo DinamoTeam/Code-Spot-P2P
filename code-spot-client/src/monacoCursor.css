@@ -69,80 +69,80 @@
   --monaco-color-25: hsla(215, 100%, 19%, 1);
 }
 
-background-1 {
-  background: var(--monaco-color-1);
+.color-1 {
+  color: var(--monaco-color-1);
 }
-background-2 {
-  background: var(--monaco-color-2);
+.color-2 {
+  color: var(--monaco-color-2);
 }
-background-3 {
-  background: var(--monaco-color-3);
+.color-3 {
+  color: var(--monaco-color-3);
 }
-background-4 {
-  background: var(--monaco-color-4);
+.color-4 {
+  color: var(--monaco-color-4);
 }
-background-5 {
-  background: var(--monaco-color-5);
+.color-5 {
+  color: var(--monaco-color-5);
 }
-background-6 {
-  background: var(--monaco-color-6);
+.color-6 {
+  color: var(--monaco-color-6);
 }
-background-7 {
-  background: var(--monaco-color-7);
+.color-7 {
+  color: var(--monaco-color-7);
 }
-background-8 {
-  background: var(--monaco-color-8);
+.color-8 {
+  color: var(--monaco-color-8);
 }
-background-9 {
-  background: var(--monaco-color-9);
+.color-9 {
+  color: var(--monaco-color-9);
 }
-background-10 {
-  background: var(--monaco-color-10);
+.color-10 {
+  color: var(--monaco-color-10);
 }
-background-11 {
-  background: var(--monaco-color-11);
+.color-11 {
+  color: var(--monaco-color-11);
 }
-background-12 {
-  background: var(--monaco-color-12);
+.color-12 {
+  color: var(--monaco-color-12);
 }
-background-13 {
-  background: var(--monaco-color-13);
+.color-13 {
+  color: var(--monaco-color-13);
 }
-background-14 {
-  background: var(--monaco-color-14);
+.color-14 {
+  color: var(--monaco-color-14);
 }
-background-15 {
-  background: var(--monaco-color-15);
+.color-15 {
+  color: var(--monaco-color-15);
 }
-background-16 {
-  background: var(--monaco-color-16);
+.color-16 {
+  color: var(--monaco-color-16);
 }
-background-17 {
-  background: var(--monaco-color-17);
+.color-17 {
+  color: var(--monaco-color-17);
 }
-background-18 {
-  background: var(--monaco-color-18);
+.color-18 {
+  color: var(--monaco-color-18);
 }
-background-19 {
-  background: var(--monaco-color-19);
+.color-19 {
+  color: var(--monaco-color-19);
 }
-background-20 {
-  background: var(--monaco-color-20);
+.color-20 {
+  color: var(--monaco-color-20);
 }
-background-21 {
-  background: var(--monaco-color-21);
+.color-21 {
+  color: var(--monaco-color-21);
 }
-background-22 {
-  background: var(--monaco-color-22);
+.color-22 {
+  color: var(--monaco-color-22);
 }
-background-23 {
-  background: var(--monaco-color-23);
+.color-23 {
+  color: var(--monaco-color-23);
 }
-background-24 {
-  background: var(--monaco-color-24);
+.color-24 {
+  color: var(--monaco-color-24);
 }
-background-25 {
-  background: var(--monaco-color-25);
+.color-25 {
+  color: var(--monaco-color-25);
 }
 
 .monaco-select-1 {

@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class NameService {
   private myName: string;
-  private peerNames = new Map<string, string>();
+  private peersNames = new Map<string, string>();
   private animalNames = [
     'Bird',
     'Dog',
@@ -153,10 +153,10 @@ export class NameService {
   }
 
   setPeerName(peerId: string, name: string): void {
-    this.peerNames.set(peerId, name);
+    this.peersNames.set(peerId, name);
   }
 
   getPeerName(peerId: string): string {
-    return this.peerNames.get(peerId);
+    return this.peersNames.get(peerId);
   }
 }

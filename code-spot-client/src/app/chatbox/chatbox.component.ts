@@ -9,6 +9,10 @@ import { PeerService } from '../services/peer.service';
 import { FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { PeerUtils } from '../shared/Utils';
+import { CursorService } from '../services/cursor.service';
+import { NameService } from '../services/name.service';
+import { Message } from '@angular/compiler/src/i18n/i18n_ast';
+import { NameColor } from '../shared/NameColor';
 
 @Component({
   selector: 'app-chatbox',
@@ -18,7 +22,8 @@ import { PeerUtils } from '../shared/Utils';
 export class ChatboxComponent implements OnInit {
   messageForm: FormGroup;
   messageToSend: FormControl;
-  messages: any[] = [];
+  messages: Message[] = [];
+  namesColors: NameColor[] = [];
   myPeerId: string;
   @ViewChild('messagebox', { static: false }) messagebox?: ElementRef<
     HTMLElement
@@ -27,7 +32,9 @@ export class ChatboxComponent implements OnInit {
   constructor(
     private peerService: PeerService,
     private ngZone: NgZone,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private cursorService: CursorService,
+    private nameService: NameService
   ) {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
       if (successful) this.myPeerId = this.peerService.getPeerId();
@@ -42,18 +49,28 @@ export class ChatboxComponent implements OnInit {
     });
   }
 
+  getNamesColors() {
+    const peerIds = this.peerService.getAllPeerIds();
+    for (var i = 0; i < peerIds.length; i++) {
+      let nameColor = new NameColor(this.nameService.getPeerName(peerIds[i]), this.cursorService.getPeerColor(peerIds[i]));
+      this.namesColors.push(nameColor);
+    }
+    console.log(this.namesColors);
+    return this.namesColors;
+  }
+
   subscribeToPeerServerEvents() {
     PeerUtils.broadcast.subscribe((message: BroadcastInfo) => {
       this.ngZone.run(() => {
         switch (message) {
           case BroadcastInfo.UpdateChatMessages:
             this.messages = this.peerService.getAllMessages();
-            console.log(this.messagebox);
             // Wait 10 milli sec for message to be updated
             setTimeout(
               () => this.messagebox.nativeElement.scrollTo(0, 10000000),
               10
             );
+            this.namesColors = this.getNamesColors();
             break;
           default:
         }

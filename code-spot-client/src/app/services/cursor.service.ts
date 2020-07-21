@@ -7,7 +7,7 @@ import { NameService } from './name.service';
 export class CursorService {
   private cursorDecorations: Decoration[] = [];
   private selectionDecorations: Decoration[] = [];
-  // Color: 1 to 100
+  // Color: 1 to 25
   private peerColors: Map<string, number> = new Map<string, number>();
   private oldNameTags: Map<string, any> = new Map<string, any>();
   private otherPeerNameTagIndices = new Map<string, number>();
@@ -213,8 +213,6 @@ export class CursorService {
   }
 
   redrawAllNameTags(editor: any): void {
-    console.log('Redrawing all name tags: ');
-    console.log(this.otherPeerNameTagIndices);
     this.otherPeerNameTagIndices.forEach((index: number, peerId: string) => {
       const pos = editor.getModel().getPositionAt(index);
       this.drawNameTag(editor, peerId, pos.lineNumber, pos.column, false);

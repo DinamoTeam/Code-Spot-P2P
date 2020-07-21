@@ -41,7 +41,7 @@ namespace CodeSpotP2P.Controllers
 		{
             var rand = new Random();
             string roomName = GenerateRoomName();
-            int cursorColor = (rand.Next() % 100) + 1; // 1 to 100
+            int cursorColor = (rand.Next() % 25) + 1; // 1 to 25
             _database.rooms.Add(new Room(roomName));
             _database.peers.Add(new Peer(peerId, roomName, 1, cursorColor));
             await _database.SaveChangesAsync();
@@ -122,9 +122,9 @@ namespace CodeSpotP2P.Controllers
                                     .Select(p => p.CursorColor)
                                     .ToList();
             var rand = new Random();
-            int randomColor = (rand.Next() % 100) + 1;
+            int randomColor = (rand.Next() % 25) + 1;
             while (cursorColorList.Contains(randomColor)) {
-                randomColor = (rand.Next() % 100) + 1;
+                randomColor = (rand.Next() % 25) + 1;
             }
             return randomColor;
         }
