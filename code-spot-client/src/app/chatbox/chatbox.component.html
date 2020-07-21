@@ -9,9 +9,9 @@
   >
     People
   </button>
-  <div *ngFor="let nameColor of getNamesColors()" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="#">
-      <i class="fa fa-circle fa-fw" [ngClass]="{'color-9': true}"></i>
+  <div class="dropdown-menu">
+    <a *ngFor="let nameColor of namesColors" class="dropdown-item">
+      <i class="fa fa-circle fa-fw" [ngClass]="{ 'color-9': true }"></i>
       {{ nameColor.name }}
     </a>
   </div>

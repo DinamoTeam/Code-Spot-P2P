@@ -361,6 +361,7 @@ export class PeerService {
         }
         break;
       case MessageType.CanDisplayMeJustJoinRoom:
+        PeerUtils.broadcastInfo(BroadcastInfo.NewPeerJoining);
         this.alertifyService.success(this.nameService.getPeerName(fromConn.peer) + ' just joined room');
         break;
       default:
@@ -383,10 +384,12 @@ export class PeerService {
 
     // Delete peer's cursor, select,...
     this.peerIdJustLeft = conn.peer;
-    PeerUtils.broadcastInfo(BroadcastInfo.PeerLeft);
 
     // Delete peer's nameColor
     this.nameColorList = this.nameColorList.filter(x => x.ofPeerId !== conn.peer);
+
+    // IMPORTANT: Must be after delete peer's name color out of the list
+    PeerUtils.broadcastInfo(BroadcastInfo.PeerLeft);
 
     // Tell user that peer just left room
     const name = this.nameService.getPeerName(conn.peer);
@@ -415,6 +418,8 @@ export class PeerService {
         this.peer.id
       )
     );
+
+    PeerUtils.broadcastInfo(BroadcastInfo.NewPeerJoining);
 
     if (peerIds.length === 0) {
       // DO NOTHING

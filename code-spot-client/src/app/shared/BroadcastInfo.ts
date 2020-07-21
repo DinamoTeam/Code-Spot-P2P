@@ -9,5 +9,6 @@ export const enum BroadcastInfo {
   CursorChange = 7,
   SelectionChange = 8,
   PeerLeft = 9,
-  LeftHomePage = 10
+  NewPeerJoining = 10,
+  LeftHomePage = 11,
 }

@@ -9,8 +9,6 @@ import { PeerService } from '../services/peer.service';
 import { FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { PeerUtils } from '../shared/Utils';
-import { CursorService } from '../services/cursor.service';
-import { NameService } from '../services/name.service';
 import { NameColor } from '../shared/NameColor';
 import { Message } from '../shared/Message';
 
@@ -23,6 +21,7 @@ export class ChatboxComponent implements OnInit {
   messageForm: FormGroup;
   messageToSend: FormControl;
   messages: Message[] = [];
+  namesColors: NameColor[] = [];
   myPeerId: string;
   @ViewChild('messagebox', { static: false }) messagebox?: ElementRef<
     HTMLElement
@@ -31,9 +30,7 @@ export class ChatboxComponent implements OnInit {
   constructor(
     private peerService: PeerService,
     private ngZone: NgZone,
-    private formBuilder: FormBuilder,
-    private cursorService: CursorService,
-    private nameService: NameService
+    private formBuilder: FormBuilder
   ) {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
       if (successful) this.myPeerId = this.peerService.getPeerId();
@@ -48,32 +45,17 @@ export class ChatboxComponent implements OnInit {
     });
   }
 
-  getNamesColors(): NameColor[] {
-    // const namesColors: NameColor[] = [];
-    // const peerIds = this.peerService.getAllPeerIds();
-    // console.log('All peerIds: ');
-    // console.log(peerIds);
-    // for (let i = 0; i < peerIds.length; i++) {
-    //   const nameColor = new NameColor(this.nameService.getPeerName(peerIds[i]), this.cursorService.getPeerColor(peerIds[i]));
-    //   namesColors.push(nameColor);
-    // }
-    // console.log(namesColors);
-    // return namesColors;
-    console.log(this.peerService.getNameColorList());
-    return this.peerService.getNameColorList();
-  }
-
   subscribeToPeerServerEvents() {
     PeerUtils.broadcast.subscribe((message: BroadcastInfo) => {
       this.ngZone.run(() => {
         switch (message) {
           case BroadcastInfo.UpdateChatMessages:
             this.messages = this.peerService.getAllMessages();
-            // Wait 10 milli sec for message to be updated
-            setTimeout(
-              () => this.messagebox.nativeElement.scrollTo(0, 10000000),
-              10
-            );
+            this.scrollMessageBox();
+            break;
+          case BroadcastInfo.NewPeerJoining:
+          case BroadcastInfo.PeerLeft:
+            this.namesColors = this.peerService.getNameColorList();
             break;
           default:
         }
@@ -85,6 +67,10 @@ export class ChatboxComponent implements OnInit {
     this.peerService.sendMessage(this.messageToSend.value);
     this.messages = this.peerService.getAllMessages();
     this.messageForm.setValue({ messageToSend: '' });
+    this.scrollMessageBox();
+  }
+
+  scrollMessageBox() {
     // Wait 10 milli sec for message to be updated
     setTimeout(() => this.messagebox.nativeElement.scrollTo(0, 10000000), 10);
   }
