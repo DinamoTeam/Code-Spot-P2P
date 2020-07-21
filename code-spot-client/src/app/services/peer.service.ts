@@ -27,7 +27,7 @@ export class PeerService {
   private connToGetOldMessages: any;
   private peerIdsToSendOldCrdts: string[] = [];
   private peerIdsToSendOldChatMessages: string[] = [];
-  private peerIdsInRoom: any[] = [];
+  private peerIdsInRoomWhenFirstEnter: any[] = [];
   private connectionsIAmHolding: any[] = [];
   private hasReceivedAllOldCRDTs = false;
   private connsToBroadcast: any[] = [];
@@ -139,7 +139,7 @@ export class PeerService {
   }
 
   private connectToTheRestInRoom(exceptPeerId: any) {
-    this.peerIdsInRoom.forEach((peerId) => {
+    this.peerIdsInRoomWhenFirstEnter.forEach((peerId) => {
       if (peerId !== exceptPeerId) this.connectToPeer(peerId, false);
     });
   }
@@ -176,6 +176,14 @@ export class PeerService {
         this.requestOldMessages(conn, MessageType.RequestOldCRDTs);
         this.requestOldMessages(conn, MessageType.RequestOldChatMessages);
       }
+
+      // If we just join room (this peer is here before us) and are ready (have received all CRDTs)
+      if (
+        this.peerIdsInRoomWhenFirstEnter.find((id) => id === conn.peer) &&
+        this.hasReceivedAllOldCRDTs
+      ) {
+        conn.send(new Message(null, MessageType.CanDisplayMeJustJoinRoom, null, null, -1));
+      }
     });
 
     /**
@@ -205,7 +213,7 @@ export class PeerService {
         // Tell user language has been changed
         const name = this.nameService.getPeerName(fromConn.peer);
         this.alertifyService.message(
-          name + ' has changed language to ' + message.content
+          'Language has been changed to ' + message.content
         );
         break;
       case MessageType.RemoteInsert:
@@ -233,6 +241,8 @@ export class PeerService {
             this.roomService.markPeerReceivedAllMessages(this.peer.id);
             // Send cursor + selection change info
             this.sendCursorInfo(fromConn);
+            // Tell that user they can display us just join room now
+            fromConn.send(new Message(null, MessageType.CanDisplayMeJustJoinRoom, null, null, -1));
           }
         }
         break;
@@ -348,6 +358,9 @@ export class PeerService {
           );
         }
         break;
+      case MessageType.CanDisplayMeJustJoinRoom:
+        this.alertifyService.success(this.nameService.getPeerName(fromConn.peer) + ' just joined room');
+        break;
       default:
         console.log(message);
         throw new Error('Unhandled messageType');
@@ -403,7 +416,7 @@ export class PeerService {
       this.hasReceivedAllOldCRDTs = true;
       this.hasReceivedAllChatMessages = true;
     } else {
-      this.peerIdsInRoom = peerIds;
+      this.peerIdsInRoomWhenFirstEnter = peerIds;
       const peerIdPicked = this.pickReadyPeerToGetAllMessages(
         peerIds,
         receivedAllMessages

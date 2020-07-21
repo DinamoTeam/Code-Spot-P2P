@@ -39,5 +39,6 @@ export const enum MessageType {
   ChangeCursor = 12,
   ChangeSelect = 13,
   CursorColor = 14,
-  Name = 15
+  Name = 15,
+  CanDisplayMeJustJoinRoom = 16
 }
