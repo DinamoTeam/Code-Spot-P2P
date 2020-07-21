@@ -2,6 +2,7 @@ import { CRDT } from './CRDT';
 import { Message } from './Message';
 import { EventEmitter } from '@angular/core';
 import { BroadcastInfo } from './BroadcastInfo';
+import { NameColor } from './NameColor';
 
 export class CrdtUtils {
   // Prototype: linear search. Future: binary search
@@ -127,6 +128,12 @@ export class Utils {
         listToBeAddedTo.push(obj);
       }
     });
+  }
+
+  static addUniqueNameColor(nameColor: NameColor, listToBeAddedTo: NameColor[]) {
+    if (!listToBeAddedTo.find(x => x.name === nameColor.name && x.color === nameColor.color)) {
+      listToBeAddedTo.push(nameColor);
+    }
   }
 
   static broadcastInfo(infoType: BroadcastInfo): void {

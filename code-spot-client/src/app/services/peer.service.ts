@@ -13,6 +13,7 @@ import { PeersConnection } from '../shared/PeersConnection';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { NameService } from './name.service';
 import { AlertifyService } from './alertify.service';
+import { NameColor } from '../shared/NameColor';
 
 declare const Peer: any;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 15000;
@@ -38,6 +39,7 @@ export class PeerService {
   private previousChatMessages: Message[] = [];
   private hasReceivedAllChatMessages: boolean = false;
   private peerIdJustLeft: string;
+  private nameColorList: NameColor[] = [];
 
   constructor(
     private roomService: RoomService,
@@ -145,6 +147,7 @@ export class PeerService {
   private setupListenerForConnection(conn: any) {
     // When the connection first establish
     conn.on(PeersConnection.Open, () => {
+      // Order is important! Name first and then cursor info!
       this.sendMyName(conn);
 
       this.sendCursorInfo(conn);
@@ -320,10 +323,30 @@ export class PeerService {
       case MessageType.CursorColor:
         const color = Number.parseInt(message.content, 10);
         this.cursorService.setPeerColor(fromConn.peer, color);
+        if (this.nameService.getPeerName(fromConn.peer)) {
+          // Have name and color => Add to list
+          Utils.addUniqueNameColor(
+            new NameColor(
+              this.nameService.getPeerName(fromConn.peer),
+              this.cursorService.getPeerColor(fromConn.peer)
+            ),
+            this.nameColorList
+          );
+        }
         break;
       case MessageType.Name:
         const peerName = message.content;
         this.nameService.setPeerName(fromConn.peer, peerName);
+        if (this.cursorService.getPeerColor(fromConn.peer)) {
+          // Have name and color => Add to list
+          Utils.addUniqueNameColor(
+            new NameColor(
+              this.nameService.getPeerName(fromConn.peer),
+              this.cursorService.getPeerColor(fromConn.peer)
+            ),
+            this.nameColorList
+          );
+        }
         break;
       default:
         console.log(message);
@@ -366,6 +389,13 @@ export class PeerService {
     this.cursorService.setMyCursorColorAndPeerId(this.peer.id, cursorColor);
 
     this.nameService.giveMyselfRandomName(this.peer.id);
+
+    this.nameColorList.push(
+      new NameColor(
+        this.nameService.getPeerName(this.peer.id),
+        this.cursorService.getPeerColor(this.peer.id)
+      )
+    );
 
     if (peerIds.length === 0) {
       // DO NOTHING
@@ -740,7 +770,15 @@ export class PeerService {
   }
 
   getAllPeerIds(): string[] {
-    return this.connectionsIAmHolding.map((conn) => conn.peer);
+    const peerIdsInRoom = this.connectionsIAmHolding.map((conn) => conn.peer);
+    if (this.peer) {
+      peerIdsInRoom.push(this.peer.id);
+    }
+    return peerIdsInRoom;
+  }
+
+  getNameColorList(): NameColor[] {
+    return this.nameColorList;
   }
 
   private subscribeToEditorServiceEvents() {

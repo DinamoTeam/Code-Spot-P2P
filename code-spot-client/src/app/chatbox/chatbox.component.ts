@@ -11,8 +11,8 @@ import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { PeerUtils } from '../shared/Utils';
 import { CursorService } from '../services/cursor.service';
 import { NameService } from '../services/name.service';
-import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 import { NameColor } from '../shared/NameColor';
+import { Message } from '../shared/Message';
 
 @Component({
   selector: 'app-chatbox',
@@ -23,7 +23,6 @@ export class ChatboxComponent implements OnInit {
   messageForm: FormGroup;
   messageToSend: FormControl;
   messages: Message[] = [];
-  namesColors: NameColor[] = [];
   myPeerId: string;
   @ViewChild('messagebox', { static: false }) messagebox?: ElementRef<
     HTMLElement
@@ -49,14 +48,19 @@ export class ChatboxComponent implements OnInit {
     });
   }
 
-  getNamesColors() {
-    const peerIds = this.peerService.getAllPeerIds();
-    for (var i = 0; i < peerIds.length; i++) {
-      let nameColor = new NameColor(this.nameService.getPeerName(peerIds[i]), this.cursorService.getPeerColor(peerIds[i]));
-      this.namesColors.push(nameColor);
-    }
-    console.log(this.namesColors);
-    return this.namesColors;
+  getNamesColors(): NameColor[] {
+    // const namesColors: NameColor[] = [];
+    // const peerIds = this.peerService.getAllPeerIds();
+    // console.log('All peerIds: ');
+    // console.log(peerIds);
+    // for (let i = 0; i < peerIds.length; i++) {
+    //   const nameColor = new NameColor(this.nameService.getPeerName(peerIds[i]), this.cursorService.getPeerColor(peerIds[i]));
+    //   namesColors.push(nameColor);
+    // }
+    // console.log(namesColors);
+    // return namesColors;
+    console.log(this.peerService.getNameColorList());
+    return this.peerService.getNameColorList();
   }
 
   subscribeToPeerServerEvents() {
@@ -70,7 +74,6 @@ export class ChatboxComponent implements OnInit {
               () => this.messagebox.nativeElement.scrollTo(0, 10000000),
               10
             );
-            this.namesColors = this.getNamesColors();
             break;
           default:
         }
