@@ -233,7 +233,7 @@ export class CodeEditorComponent implements OnInit {
       // Handle edge cases when first join room
       this.cursorService.peerIdsNeverSendCursorTo.clear();
       if (this.cursorService.justJoinRoom) {
-        setTimeout(() => this.cursorService.justJoinRoom = false, 2000);
+        setTimeout(() => (this.cursorService.justJoinRoom = false), 2000);
       }
     }
   }
@@ -289,8 +289,6 @@ export class CodeEditorComponent implements OnInit {
           case BroadcastInfo.ReadyToDisplayMonaco:
             this.ready = true;
             break;
-          case BroadcastInfo.UpdateChatMessages:
-            break;
           case BroadcastInfo.CursorChange:
             const cursorChange = this.peerService.getCursorChangeInfo();
             this.cursorService.drawCursor(
@@ -323,8 +321,6 @@ export class CodeEditorComponent implements OnInit {
             this.cursorService.removePeer(this.editor, peerIdLeft);
             break;
           default:
-            console.log('UNKNOWN event!!!');
-            console.log(message);
         }
       });
     });
@@ -373,11 +369,7 @@ export class CodeEditorComponent implements OnInit {
     selBox.select();
     document.execCommand('copy');
     document.body.removeChild(selBox);
-    this.alertifyService.success('Link copied to clip board');
-    this.alertifyService.message('Link copied to clip board');
-    this.alertifyService.warning('Link copied to clip board');
-    this.alertifyService.error('Link copied to clip board');
-
+    this.alertifyService.success('Link copied to clipboard!');
   }
 
   printSelect() {
