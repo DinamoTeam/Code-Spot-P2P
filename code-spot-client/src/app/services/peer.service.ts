@@ -338,7 +338,8 @@ export class PeerService {
           Utils.addUniqueNameColor(
             new NameColor(
               this.nameService.getPeerName(fromConn.peer),
-              this.cursorService.getPeerColor(fromConn.peer)
+              this.cursorService.getPeerColor(fromConn.peer),
+              fromConn.peer
             ),
             this.nameColorList
           );
@@ -352,7 +353,8 @@ export class PeerService {
           Utils.addUniqueNameColor(
             new NameColor(
               this.nameService.getPeerName(fromConn.peer),
-              this.cursorService.getPeerColor(fromConn.peer)
+              this.cursorService.getPeerColor(fromConn.peer),
+              fromConn.peer
             ),
             this.nameColorList
           );
@@ -383,6 +385,9 @@ export class PeerService {
     this.peerIdJustLeft = conn.peer;
     PeerUtils.broadcastInfo(BroadcastInfo.PeerLeft);
 
+    // Delete peer's nameColor
+    this.nameColorList = this.nameColorList.filter(x => x.ofPeerId !== conn.peer);
+
     // Tell user that peer just left room
     const name = this.nameService.getPeerName(conn.peer);
     this.alertifyService.warning(name + ' just left');
@@ -406,7 +411,8 @@ export class PeerService {
     this.nameColorList.push(
       new NameColor(
         this.nameService.getPeerName(this.peer.id),
-        this.cursorService.getPeerColor(this.peer.id)
+        this.cursorService.getPeerColor(this.peer.id),
+        this.peer.id
       )
     );
 
