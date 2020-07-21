@@ -40,7 +40,7 @@
 
   .feedback-card {
     margin: 30px auto;
-    width: 20rem;
+/*    width: 20rem;*/
   }
 
   form {
@@ -53,7 +53,7 @@
 }
 
 .feedback-card {
-  width: 40rem;
+/*  width: 40rem;*/
   margin: 11px 10px;
 }
 

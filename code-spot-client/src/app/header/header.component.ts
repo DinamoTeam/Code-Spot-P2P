@@ -1,6 +1,7 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { Utils } from '../shared/Utils';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -11,7 +12,7 @@ export class HeaderComponent implements OnInit {
   isExpanded = false;
   showCreateNewRoomBtn = true;
 
-  constructor(private ngZone: NgZone) {
+  constructor(private ngZone: NgZone, private router: Router) {
     this.subscribeToUtilsEvents();
   }
 
@@ -41,6 +42,12 @@ export class HeaderComponent implements OnInit {
     this.isExpanded = false;
     window.location.replace('/Contact');
     this.showCreateNewRoomBtn = true;
+  }
+
+  onBtnCreateNewRoomClick() {
+    this.isExpanded = false;
+    this.router.navigate(['editor']);
+    this.showCreateNewRoomBtn = false;
   }
 
   subscribeToUtilsEvents() {

@@ -45,7 +45,10 @@
             >
           </li>
           <li *ngIf="showCreateNewRoomBtn" class="nav-item">
-            <a class="btn btn-lg btn-navy" role="button" routerLink="/editor"
+            <a
+              class="btn btn-lg btn-navy"
+              role="button"
+              (click)="onBtnCreateNewRoomClick()"
               >Create New Room &raquo;</a
             >
           </li>
