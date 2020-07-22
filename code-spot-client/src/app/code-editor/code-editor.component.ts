@@ -22,6 +22,7 @@ export class CodeEditorComponent implements OnInit {
   selectDecorations = [];
   cursorDecorations = [];
 
+  showNameTags: boolean = true;
   ready = false;
   roomName: string;
   editor: any;
@@ -89,6 +90,11 @@ export class CodeEditorComponent implements OnInit {
     this.editorOptions = Object.assign({}, this.editorOptions, {
       theme: this.selectedTheme,
     });
+  }
+
+  toggleNameTag() {
+    if (this.showNameTags) this.cursorService.showAllNameTags();
+    else this.cursorService.hideAllNameTags();
   }
 
   onInitEditorHandler(event: any) {
@@ -374,13 +380,5 @@ export class CodeEditorComponent implements OnInit {
 
   printCursor() {
     console.log(this.cursorService.getMyLastCursorEvent());
-  }
-
-  hideNameTags() {
-    this.cursorService.hideAllNameTags();
-  }
-
-  showNameTags() {
-    this.cursorService.showAllNameTags();
   }
 }

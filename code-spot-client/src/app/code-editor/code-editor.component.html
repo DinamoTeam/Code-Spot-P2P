@@ -1,6 +1,3 @@
-<button (click)="showNameTags();">Show Nametag</button>
-<button (click)="hideNameTags();">Hide Nametag</button>
-
 <div
   *ngIf="!ready"
   class="d-flex ml-3 mr-2 justify-content-center align-items-center loading"
@@ -19,37 +16,36 @@
 
 <div class="d-flex ml-3 mr-2 flex-md-row flex-column mt-4">
   <form class="form-horizontal col-md-9 col-xs-12" [formGroup]="editorForm">
-    <div class="d-flex form-row">
+    <div *ngIf="ready" class="d-flex form-row">
       <!--Select Language-->
-      <div *ngIf="ready" class="form-group">
+      <div class="form-group">
         <div class="col-sm-2 pl-0">
-          <select
-            class="form-control"
-            formControlName="language"
-            (change)="onLanguageChange($event.target.value)"
-          >
-            <option
-              *ngFor="let language of languages"
-              [ngValue]="language.value"
-            >
+          <select class="form-control"
+                  formControlName="language"
+                  (change)="onLanguageChange($event.target.value)">
+            <option *ngFor="let language of languages"
+                    [ngValue]="language.value">
               {{ language.name }}
             </option>
           </select>
         </div>
       </div>
       <!--Select Theme-->
-      <div *ngIf="ready" class="form-group">
+      <div class="form-group">
         <div class="col-sm-2 pl-0">
-          <select
-            class="form-control"
-            formControlName="theme"
-            (change)="onThemeChange($event.target.value)"
-          >
+          <select class="form-control"
+                  formControlName="theme"
+                  (change)="onThemeChange($event.target.value)">
             <option *ngFor="let theme of themes" [ngValue]="theme.value">
               {{ theme.name }}
             </option>
           </select>
         </div>
+      </div>
+      <!--Toggle Name Tag-->
+      <div class="custom-control custom-switch form-group d-flex align-items-center">
+        <input type="checkbox" class="custom-control-input" id="tagNameSwitch" [(ngModel)]="showNameTags" (change)="toggleNameTag()" [ngModelOptions]="{standalone: true}">
+        <label class="custom-control-label" for="tagNameSwitch">Show name tags</label>
       </div>
     </div>
     <!-- Aux Editor needs to initialize early-->
