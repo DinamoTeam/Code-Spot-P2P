@@ -605,6 +605,7 @@ export class PeerService {
   }
 
   broadcastInsertOrRemove(crdts: CRDT[], isInsert: boolean) {
+    const that = this;
     setTimeout(() => {
       const messageType = isInsert
       ? MessageType.RemoteInsert
@@ -629,12 +630,12 @@ export class PeerService {
       }
 
       for (let i = 0; i < numberOfTimesSend; i++) {
-        this.connectionsIAmHolding.forEach((conn) => {
+        that.connectionsIAmHolding.forEach((conn) => {
           const messageToSend = new Message(
             crdtJSONs[i],
             messageType,
-            this.peer.id,
-            this.packageId++,
+            that.peer.id,
+            that.packageId++,
             i,
             numberOfTimesSend
           );
