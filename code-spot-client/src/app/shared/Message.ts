@@ -2,24 +2,23 @@ export class Message {
   content: string;
   messageType: MessageType;
   fromPeerId: string;
-  toPeerId: string;
-  time: number;
+  packageId: number;
+  crdtBatchNumber: number;
+  totalCrdtBatches: number;
   constructor(
     content: string,
     messageType: MessageType,
     fromPeerId: string,
-    toPeerId: string,
-    time: number
+    packageId?: number,
+    batchNumber?: number,
+    totalBatches?: number
   ) {
     this.content = content;
     this.messageType = messageType;
     this.fromPeerId = fromPeerId;
-    this.toPeerId = toPeerId;
-    this.time = time;
-  }
-
-  toString(): string {
-    return 'Time: ' + this.time;
+    this.packageId = packageId;
+    this.crdtBatchNumber = batchNumber;
+    this.totalCrdtBatches = totalBatches;
   }
 }
 

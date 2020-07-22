@@ -91,7 +91,7 @@ export class PeerUtils {
       for (let i = 0; i < listToBeAddedTo.length; i++) {
         if (
           listToBeAddedTo[i].fromPeerId === message.fromPeerId &&
-          listToBeAddedTo[i].time === message.time
+          listToBeAddedTo[i].packageId === message.packageId
         ) {
           weHadThatMessage = true;
           break;

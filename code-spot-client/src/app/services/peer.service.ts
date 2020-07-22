@@ -21,7 +21,7 @@ const BROADCAST_TILL_MILLI_SECONDS_LATER = 15000;
   providedIn: 'root',
 })
 export class PeerService {
-  private time = 0;
+  private packageId = 0;
   private peer: any;
   private roomName: string;
   private connToGetOldMessages: any;
@@ -182,7 +182,9 @@ export class PeerService {
         this.peerIdsInRoomWhenFirstEnter.find((id) => id === conn.peer) &&
         this.hasReceivedAllOldCRDTs
       ) {
-        conn.send(new Message(null, MessageType.CanDisplayMeJustJoinRoom, null, null, -1));
+        conn.send(
+          new Message(null, MessageType.CanDisplayMeJustJoinRoom, this.peer.id)
+        );
       }
     });
 
@@ -211,7 +213,6 @@ export class PeerService {
         PeerUtils.broadcastInfo(BroadcastInfo.ChangeLanguage);
 
         // Tell user language has been changed
-        const name = this.nameService.getPeerName(fromConn.peer);
         this.alertifyService.message(
           'Language has been changed to ' + message.content
         );
@@ -242,7 +243,13 @@ export class PeerService {
             // Send cursor + selection change info
             this.sendCursorInfo(fromConn);
             // Tell that user they can display us just join room now
-            fromConn.send(new Message(null, MessageType.CanDisplayMeJustJoinRoom, null, null, -1));
+            fromConn.send(
+              new Message(
+                null,
+                MessageType.CanDisplayMeJustJoinRoom,
+                this.peer.id
+              )
+            );
           }
         }
         break;
@@ -252,7 +259,7 @@ export class PeerService {
             "I haven't received allMessages yet. Can't send to that peer"
           );
           fromConn.send(
-            new Message(null, MessageType.CannotSendOldCRDTs, null, null, -1)
+            new Message(null, MessageType.CannotSendOldCRDTs, this.peer.id)
           );
         } else {
           if (
@@ -295,9 +302,7 @@ export class PeerService {
             new Message(
               null,
               MessageType.CannotSendOldChatMessages,
-              null,
-              null,
-              -1
+              this.peer.id
             )
           );
         } else {
@@ -362,7 +367,9 @@ export class PeerService {
         break;
       case MessageType.CanDisplayMeJustJoinRoom:
         PeerUtils.broadcastInfo(BroadcastInfo.NewPeerJoining);
-        this.alertifyService.success(this.nameService.getPeerName(fromConn.peer) + ' just joined room');
+        this.alertifyService.success(
+          this.nameService.getPeerName(fromConn.peer) + ' just joined room'
+        );
         break;
       default:
         console.log(message);
@@ -386,7 +393,9 @@ export class PeerService {
     this.peerIdJustLeft = conn.peer;
 
     // Delete peer's nameColor
-    this.nameColorList = this.nameColorList.filter(x => x.ofPeerId !== conn.peer);
+    this.nameColorList = this.nameColorList.filter(
+      (x) => x.ofPeerId !== conn.peer
+    );
 
     // IMPORTANT: Must be after delete peer's name color out of the list
     PeerUtils.broadcastInfo(BroadcastInfo.PeerLeft);
@@ -485,7 +494,7 @@ export class PeerService {
   }
 
   private requestOldMessages(conn: any, messageType: MessageType) {
-    const message = new Message(null, messageType, null, null, this.time++);
+    const message = new Message(null, messageType, this.peer.id);
     conn.send(message);
   }
 
@@ -530,8 +539,9 @@ export class PeerService {
         crdtJSONs[i],
         messageType,
         this.peer.id,
-        conn.peer,
-        this.time++
+        this.packageId++,
+        i,
+        numberOfTimesSend
       );
       conn.send(message);
     }
@@ -544,23 +554,13 @@ export class PeerService {
     const message = new Message(
       JSON.stringify(this.previousChatMessages),
       MessageType.OldChatMessages,
-      this.peer.id,
-      conn.peer,
-      this.time++
+      this.peer.id
     );
     conn.send(message);
   }
 
   private sendMyCursorColor(conn: any, myColor: number) {
-    conn.send(
-      new Message(
-        myColor + '',
-        MessageType.CursorColor,
-        this.peer.id,
-        conn.peer,
-        -1
-      )
-    );
+    conn.send(new Message(myColor + '', MessageType.CursorColor, this.peer.id));
   }
 
   //*************************************************************
@@ -633,8 +633,9 @@ export class PeerService {
           crdtJSONs[i],
           messageType,
           this.peer.id,
-          conn.peer,
-          this.time++
+          this.packageId++,
+          i,
+          numberOfTimesSend
         );
         conn.send(messageToSend);
       });
@@ -670,9 +671,7 @@ export class PeerService {
     const messageToSend = new Message(
       EditorService.language,
       MessageType.ChangeLanguage,
-      this.peer.id,
-      conn.peer,
-      -1 // for test purpose
+      this.peer.id
     );
     conn.send(messageToSend);
   }
@@ -683,13 +682,7 @@ export class PeerService {
     }
 
     this.previousChatMessages.push(
-      new Message(
-        content,
-        MessageType.ChatMessage,
-        this.peer.id,
-        null,
-        this.time
-      )
+      new Message(content, MessageType.ChatMessage, this.peer.id, this.packageId)
     );
 
     this.connectionsIAmHolding.forEach((conn) => {
@@ -697,13 +690,12 @@ export class PeerService {
         content,
         MessageType.ChatMessage,
         this.peer.id,
-        conn.peer,
-        this.time
+        this.packageId
       );
 
       conn.send(messageToSend);
     });
-    this.time++;
+    this.packageId++;
   }
 
   /* Cursor Change + Selection Change*/
@@ -717,9 +709,7 @@ export class PeerService {
     const message = new Message(
       JSON.stringify(event),
       MessageType.ChangeSelect,
-      this.peer.id,
-      conn.peer,
-      -1
+      this.peer.id
     );
     conn.send(message);
   }
@@ -734,9 +724,7 @@ export class PeerService {
     const message = new Message(
       JSON.stringify(event),
       MessageType.ChangeCursor,
-      this.peer.id,
-      conn.peer,
-      -1
+      this.peer.id
     );
     conn.send(message);
   }
@@ -758,9 +746,7 @@ export class PeerService {
     const message = new Message(
       this.nameService.getMyName(),
       MessageType.Name,
-      this.peer.id,
-      conn.peer,
-      -1
+      this.peer.id
     );
     conn.send(message);
   }
