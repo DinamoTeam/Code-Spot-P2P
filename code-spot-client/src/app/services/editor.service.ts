@@ -109,63 +109,81 @@ export class EditorService {
       (index) => index !== -1
     );
 
-    // Write continuous ranges of text to screen
-    let i = 0;
-    let startIndexMonaco = -1;
-    let endIndexMonaco = -1;
-    while (i < actuallyInsertingIndices.length) {
-      // Find continuous ranges of text
-      startIndexMonaco = actuallyInsertingIndices[i];
-      endIndexMonaco = startIndexMonaco;
-      while (i < actuallyInsertingIndices.length) {
-        if (
-          endIndexMonaco !== startIndexMonaco &&
-          actuallyInsertingIndices[i] !== actuallyInsertingIndices[i - 1] + 1
-        ) {
-          break;
-        }
-        endIndexMonaco = actuallyInsertingIndices[i];
-        i++;
-      }
-      // Get text to be inserted
-      const numElements = endIndexMonaco - startIndexMonaco + 1;
-      const endIndexArrInclusive = i - 1;
-      const startIndexArr = endIndexArrInclusive - numElements + 1;
-      const textToInsert = actuallyInsertingChars
-        .slice(startIndexArr, endIndexArrInclusive + 1)
-        .join('');
-
-      if (
-        actuallyInsertingChars[startIndexArr] === ' ' ||
-        actuallyInsertingChars[startIndexArr] === '\n' ||
-        actuallyInsertingChars.length > 10
-      ) {
-        editorTextModel.pushStackElement();
-      }
-
-      // Insert to the screen
+    for (let i = 0; i < actuallyInsertingIndices.length; i++) {
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
-
       // main Editor
       this.writeRangeOfTextToScreenAtIndex(
         editorTextModel,
-        textToInsert,
-        startIndexMonaco
+        actuallyInsertingChars[i],
+        actuallyInsertingIndices[i]
       );
-      
-      // Calculate new pos for nameTag after remote insert
-      this.cursorService.recalculateAllNameTagIndicesAfterInsert(startIndexMonaco, textToInsert.length);
 
       // aux Editor
       this.writeRangeOfTextToScreenAtIndex(
         auxEditorTextModel,
-        textToInsert,
-        startIndexMonaco
+        actuallyInsertingChars[i],
+        actuallyInsertingIndices[i]
       );
     }
 
-    // Actually redraw nameTag
-    this.cursorService.redrawAllNameTags(editor);
+
+    // // Write continuous ranges of text to screen
+    // let i = 0;
+    // let startIndexMonaco = -1;
+    // let endIndexMonaco = -1;
+    // while (i < actuallyInsertingIndices.length) {
+    //   // Find continuous ranges of text
+    //   startIndexMonaco = actuallyInsertingIndices[i];
+    //   endIndexMonaco = startIndexMonaco;
+    //   while (i < actuallyInsertingIndices.length) {
+    //     if (
+    //       endIndexMonaco !== startIndexMonaco &&
+    //       actuallyInsertingIndices[i] !== actuallyInsertingIndices[i - 1] + 1
+    //     ) {
+    //       break;
+    //     }
+    //     endIndexMonaco = actuallyInsertingIndices[i];
+    //     i++;
+    //   }
+    //   // Get text to be inserted
+    //   const numElements = endIndexMonaco - startIndexMonaco + 1;
+    //   const endIndexArrInclusive = i - 1;
+    //   const startIndexArr = endIndexArrInclusive - numElements + 1;
+    //   const textToInsert = actuallyInsertingChars
+    //     .slice(startIndexArr, endIndexArrInclusive + 1)
+    //     .join('');
+
+    //   if (
+    //     actuallyInsertingChars[startIndexArr] === ' ' ||
+    //     actuallyInsertingChars[startIndexArr] === '\n' ||
+    //     actuallyInsertingChars.length > 10
+    //   ) {
+    //     editorTextModel.pushStackElement();
+    //   }
+
+    //   // Insert to the screen
+    //   EditorService.remoteOpLeft++; // Avoid triggering monaco change event
+
+    //   // main Editor
+    //   this.writeRangeOfTextToScreenAtIndex(
+    //     editorTextModel,
+    //     textToInsert,
+    //     startIndexMonaco
+    //   );
+      
+    //   // Calculate new pos for nameTag after remote insert
+    //   this.cursorService.recalculateAllNameTagIndicesAfterInsert(startIndexMonaco, textToInsert.length);
+
+    //   // aux Editor
+    //   this.writeRangeOfTextToScreenAtIndex(
+    //     auxEditorTextModel,
+    //     textToInsert,
+    //     startIndexMonaco
+    //   );
+    // }
+
+    // // Actually redraw nameTag
+    // this.cursorService.redrawAllNameTags(editor);
   }
 
   handleLocalRangeRemove(
@@ -210,7 +228,7 @@ export class EditorService {
     crdts: CRDT[]
   ): void {
     const deletingIndices = new Array<number>(crdts.length);
-    let offSet = 0;
+    let offSet = 0; // offSet to add back to index because deleting 1 element will decrease the indices of all elements after it
     for (let i = 0; i < crdts.length; i++) {
       const deletingIndex = this.bst.remove(crdts[i]);
       if (deletingIndex === -1) deletingIndices[i] = -1;
@@ -224,52 +242,72 @@ export class EditorService {
       (index) => index !== -1
     );
 
-    // Delete continuous ranges of text from the screen
-    let i = 0;
-    let startIndexMonaco = -1;
-    let endIndexMonaco = -1;
-    while (i < actuallyDeletingIndices.length) {
-      // Find continuous ranges of text
-      startIndexMonaco = actuallyDeletingIndices[i];
-      endIndexMonaco = startIndexMonaco;
-      while (i < actuallyDeletingIndices.length) {
-        if (
-          endIndexMonaco !== startIndexMonaco &&
-          actuallyDeletingIndices[i] !== actuallyDeletingIndices[i - 1] + 1
-        ) {
-          break;
-        }
-        endIndexMonaco = actuallyDeletingIndices[i];
-        i++;
-      }
+    console.log(actuallyDeletingIndices);
 
-      if (actuallyDeletingIndices.length > 10)
-        editorTextModel.pushStackElement();
-
-      // Delete from the screen
+    for (let i = actuallyDeletingIndices.length - 1; i >= 0; i--) {
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
 
       // main Editor
       this.deleteTextInRangeIndex(
         editorTextModel,
-        startIndexMonaco,
-        endIndexMonaco + 1
+        actuallyDeletingIndices[i],
+        actuallyDeletingIndices[i] + 1
       );
-
-      // Calculate new pos for nameTag after remote remove
-      const deleteLength = endIndexMonaco - startIndexMonaco + 1;
-      this.cursorService.recalculateAllNameTagIndicesAfterRemove(startIndexMonaco, deleteLength);
 
       // aux Editor
       this.deleteTextInRangeIndex(
         auxEditorTextModel,
-        startIndexMonaco,
-        endIndexMonaco + 1
+        actuallyDeletingIndices[i],
+        actuallyDeletingIndices[i] + 1
       );
     }
 
-    // Actually redraw nameTag
-    this.cursorService.redrawAllNameTags(editor);
+    // // Delete continuous ranges of text from the screen
+    // let i = 0;
+    // let startIndexMonaco = -1;
+    // let endIndexMonaco = -1;
+    // while (i < actuallyDeletingIndices.length) {
+    //   // Find continuous ranges of text
+    //   startIndexMonaco = actuallyDeletingIndices[i];
+    //   endIndexMonaco = startIndexMonaco;
+    //   while (i < actuallyDeletingIndices.length) {
+    //     if (
+    //       endIndexMonaco !== startIndexMonaco &&
+    //       actuallyDeletingIndices[i] !== actuallyDeletingIndices[i - 1] + 1
+    //     ) {
+    //       break;
+    //     }
+    //     endIndexMonaco = actuallyDeletingIndices[i];
+    //     i++;
+    //   }
+
+    //   if (actuallyDeletingIndices.length > 10)
+    //     editorTextModel.pushStackElement();
+
+    //   // Delete from the screen
+    //   EditorService.remoteOpLeft++; // Avoid triggering monaco change event
+
+    //   // main Editor
+    //   this.deleteTextInRangeIndex(
+    //     editorTextModel,
+    //     startIndexMonaco,
+    //     endIndexMonaco + 1
+    //   );
+
+    //   // Calculate new pos for nameTag after remote remove
+    //   const deleteLength = endIndexMonaco - startIndexMonaco + 1;
+    //   this.cursorService.recalculateAllNameTagIndicesAfterRemove(startIndexMonaco, deleteLength);
+
+    //   // aux Editor
+    //   this.deleteTextInRangeIndex(
+    //     auxEditorTextModel,
+    //     startIndexMonaco,
+    //     endIndexMonaco + 1
+    //   );
+    // }
+
+    // // Actually redraw nameTag
+    // this.cursorService.redrawAllNameTags(editor);
   }
 
   handleAllMessages(
