@@ -152,8 +152,6 @@ export class EditorService {
         textToInsert,
         startIndexMonaco
       );
-
-      console.log('Remote insert: startIndex: ' + startIndexMonaco + ', textToInsert: ' + textToInsert + ', length: ' + textToInsert.length);
       
       // Calculate new pos for nameTag after remote insert
       this.cursorService.recalculateAllNameTagIndicesAfterInsert(startIndexMonaco, textToInsert.length);

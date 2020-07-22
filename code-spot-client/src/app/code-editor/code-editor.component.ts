@@ -183,12 +183,6 @@ export class CodeEditorComponent implements OnInit {
       );
 
       // Calculate new pos for nameTag when local insert
-      console.log(
-        'Local insert: startIndex: ' +
-          index +
-          ', textToInsert: ' +
-          changes[i].text
-      );
       index = this.editorService.posToIndex(
         this.auxEditor.getModel(),
         range.startLineNumber,
@@ -213,11 +207,8 @@ export class CodeEditorComponent implements OnInit {
   }
 
   onDidChangeCursorPositionHandler(event: any): void {
-    console.log('Change cursor pos!');
     this.cursorService.setMyLastCursorEvent(event);
 
-    // DO NOT UNCOMMENT THIS! IT'LL BREAK. FOR REFERENCE ONLY
-    // console.log(this.peerService.getPeerId());
     // Draw my name tag
     this.cursorService.drawNameTag(
       this.editor,

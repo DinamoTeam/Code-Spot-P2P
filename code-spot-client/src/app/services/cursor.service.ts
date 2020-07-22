@@ -175,7 +175,6 @@ export class CursorService {
     insertStartIndex: number,
     insertLength: number
   ): void {
-    console.log('Calculating - startIndex: ' + insertStartIndex + ', insertLength: ' + insertLength);
     const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
@@ -189,7 +188,6 @@ export class CursorService {
         insertLength
       );
       this.otherPeerNameTagIndices.set(peerId, newIndex);
-      console.log('PeerId: ' + peerId + ', oldIndex: ' + oldIndex + ', newIndex: ' + newIndex);
     }
   }
 
