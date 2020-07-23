@@ -538,42 +538,14 @@ export class PeerService {
         )
       );
       this.packageId++;
+      return;
     }
 
-    const numberOfTimesSend = Math.ceil(
-      previousCRDTs.length / CrdtUtils.MAX_CRDT_PER_SEND
-    );
+    const crdtStrings = CrdtUtils.breakCrdtsIntoCrdtStringBatches(previousCRDTs, this.CRDTDelimiter);
 
-    const crdtBatches = CrdtUtils.breakCrdtsIntoBatches(
-      previousCRDTs,
-      numberOfTimesSend
-    );
-
-    for (let i = 0; i < numberOfTimesSend; i++) {
-      const startInclusive = CrdtUtils.MAX_CRDT_PER_SEND * i;
-      // Taking care of the case: sending the last batch
-      const endExclusive = Math.min(
-        CrdtUtils.MAX_CRDT_PER_SEND * (i + 1),
-        previousCRDTs.length
-      );
-      crdtBatches.push(previousCRDTs.slice(startInclusive, endExclusive));
-    }
-
-    const crdtStrings: string[] = [];
-    for (let i = 0; i < numberOfTimesSend; i++) {
-      crdtStrings.push(
-        CrdtUtils.crdtArrToString(crdtBatches[i], this.CRDTDelimiter)
-      );
-    }
-
-    // const crdtJSONs: string[] = [];
-    // for (let i = 0; i < numberOfTimesSend; i++) {
-    //   crdtJSONs.push(JSON.stringify(crdtBatches[i]));
-    // }
-
-    for (let i = 0; i < numberOfTimesSend; i++) {
+    for (let i = 0; i < crdtStrings.length; i++) {
       const messageType =
-        i === numberOfTimesSend - 1
+        i === crdtStrings.length - 1
           ? MessageType.OldCRDTsLastBatch
           : MessageType.OldCRDTs;
       const message = new Message(
@@ -582,7 +554,7 @@ export class PeerService {
         this.peer.id,
         this.packageId,
         i,
-        numberOfTimesSend
+        crdtStrings.length
       );
       conn.send(message);
     }
@@ -651,27 +623,9 @@ export class PeerService {
       ? MessageType.RemoteInsert
       : MessageType.RemoteRemove;
 
-    const numberOfTimesSend = Math.ceil(
-      crdts.length / CrdtUtils.MAX_CRDT_PER_SEND
-    );
+    const crdtStrings = CrdtUtils.breakCrdtsIntoCrdtStringBatches(crdts, this.CRDTDelimiter);
 
-    const crdtBatches = CrdtUtils.breakCrdtsIntoBatches(
-      crdts,
-      numberOfTimesSend
-    );
-
-    const crdtStrings: string[] = [];
-    for (let i = 0; i < numberOfTimesSend; i++) {
-      crdtStrings.push(
-        CrdtUtils.crdtArrToString(crdtBatches[i], this.CRDTDelimiter)
-      );
-    }
-    // const crdtJSONs: string[] = [];
-    // for (let i = 0; i < numberOfTimesSend; i++) {
-    //   crdtJSONs.push(JSON.stringify(crdtBatches[i]));
-    // }
-
-    for (let i = 0; i < numberOfTimesSend; i++) {
+    for (let i = 0; i < crdtStrings.length; i++) {
       this.connectionsIAmHolding.forEach((conn) => {
         const messageToSend = new Message(
           crdtStrings[i],
@@ -679,7 +633,7 @@ export class PeerService {
           this.peer.id,
           this.packageId,
           i,
-          numberOfTimesSend
+          crdtStrings.length
         );
         conn.send(messageToSend);
       });
