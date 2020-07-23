@@ -226,31 +226,39 @@ export class PeerService {
         this.broadcastMessageToNewPeers(message, this.connsToBroadcast);
       case MessageType.OldCRDTs:
       case MessageType.OldCRDTsLastBatch:
-        const parsedCrdts: CRDT[] = JSON.parse(message.content); // plain Javascript object
-        const crdts = parsedCrdts.map((crdt) =>
-          CRDT.plainObjectToRealCRDT(crdt)
-        );
+        // const parsedCrdts: CRDT[] = JSON.parse(message.content); // plain Javascript object
+        // const crdts = parsedCrdts.map((crdt) =>
+        //   CRDT.plainObjectToRealCRDT(crdt)
+        // );
 
-        // this.receivedRemoteCrdts = crdts;
-        let packageType = null;
-        if (message.messageType === MessageType.RemoteInsert) {
-          // PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
-          packageType = PackageType.RemoteInsert;
-        } else if (message.messageType === MessageType.RemoteRemove) {
-          // PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
-          packageType = PackageType.RemoteRemove;
-        } else {
-          // PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
-          packageType = PackageType.OldCRDTs;
+        // message.content will be empty when the peer send oldCRDT and there are none
+        if (message.content !== '') {
+          const crdts = CrdtUtils.stringToCRDTArr(
+            message.content,
+            this.CRDTDelimiter
+          );
+
+          // this.receivedRemoteCrdts = crdts;
+          let packageType = null;
+          if (message.messageType === MessageType.RemoteInsert) {
+            // PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
+            packageType = PackageType.RemoteInsert;
+          } else if (message.messageType === MessageType.RemoteRemove) {
+            // PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
+            packageType = PackageType.RemoteRemove;
+          } else {
+            // PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
+            packageType = PackageType.OldCRDTs;
+          }
+          this.crdtPackageService.takeCRDTBatch(
+            crdts,
+            message.fromPeerId,
+            message.packageId,
+            packageType,
+            message.totalCrdtBatches,
+            message.crdtBatchNumber
+          );
         }
-        this.crdtPackageService.takeCRDTBatch(
-          crdts,
-          message.fromPeerId,
-          message.packageId,
-          packageType,
-          message.totalCrdtBatches,
-          message.crdtBatchNumber
-        );
 
         if (message.messageType === MessageType.OldCRDTsLastBatch) {
           this.hasReceivedAllOldCRDTs = true;
@@ -516,7 +524,21 @@ export class PeerService {
   }
 
   private sendOldCRDTs(conn: any) {
-    const previousCRDTs: CRDT[] = this.editorService.getOldCRDTsAsSortedArray();
+    let previousCRDTs: CRDT[] = this.editorService.getOldCRDTsAsSortedArray();
+    previousCRDTs = previousCRDTs.slice(1, previousCRDTs.length - 1); // Don't send "beg" and "end" CRDT
+    if (previousCRDTs.length === 0) {
+      conn.send(
+        new Message(
+          '',
+          MessageType.OldCRDTsLastBatch,
+          this.peer.id,
+          this.packageId,
+          0,
+          1
+        )
+      );
+      this.packageId++;
+    }
 
     const numberOfTimesSend = Math.ceil(
       previousCRDTs.length / CrdtUtils.MAX_CRDT_PER_SEND
@@ -537,15 +559,17 @@ export class PeerService {
       crdtBatches.push(previousCRDTs.slice(startInclusive, endExclusive));
     }
 
-    // const crdtStrings: string[] = [];
-    // for (let i = 0; i < numberOfTimesSend; i++) {
-    //   crdtStrings.push(this.crdtArrToString(crdtBatches[i], this.CRDTDelimiter));
-    // }
-
-    const crdtJSONs: string[] = [];
+    const crdtStrings: string[] = [];
     for (let i = 0; i < numberOfTimesSend; i++) {
-      crdtJSONs.push(JSON.stringify(crdtBatches[i]));
+      crdtStrings.push(
+        CrdtUtils.crdtArrToString(crdtBatches[i], this.CRDTDelimiter)
+      );
     }
+
+    // const crdtJSONs: string[] = [];
+    // for (let i = 0; i < numberOfTimesSend; i++) {
+    //   crdtJSONs.push(JSON.stringify(crdtBatches[i]));
+    // }
 
     for (let i = 0; i < numberOfTimesSend; i++) {
       const messageType =
@@ -553,7 +577,7 @@ export class PeerService {
           ? MessageType.OldCRDTsLastBatch
           : MessageType.OldCRDTs;
       const message = new Message(
-        crdtJSONs[i],
+        crdtStrings[i],
         messageType,
         this.peer.id,
         this.packageId,
@@ -636,19 +660,21 @@ export class PeerService {
       numberOfTimesSend
     );
 
-    // const crdtStrings: string[] = [];
-    // for (let i = 0; i < numberOfTimesSend; i++) {
-    //   crdtStrings.push(this.crdtArrToString(crdtBatches[i], this.CRDTDelimiter));
-    // }
-    const crdtJSONs: string[] = [];
+    const crdtStrings: string[] = [];
     for (let i = 0; i < numberOfTimesSend; i++) {
-      crdtJSONs.push(JSON.stringify(crdtBatches[i]));
+      crdtStrings.push(
+        CrdtUtils.crdtArrToString(crdtBatches[i], this.CRDTDelimiter)
+      );
     }
+    // const crdtJSONs: string[] = [];
+    // for (let i = 0; i < numberOfTimesSend; i++) {
+    //   crdtJSONs.push(JSON.stringify(crdtBatches[i]));
+    // }
 
     for (let i = 0; i < numberOfTimesSend; i++) {
       this.connectionsIAmHolding.forEach((conn) => {
         const messageToSend = new Message(
-          crdtJSONs[i],
+          crdtStrings[i],
           messageType,
           this.peer.id,
           this.packageId,
