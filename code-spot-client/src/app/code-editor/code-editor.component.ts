@@ -261,6 +261,7 @@ export class CodeEditorComponent implements OnInit {
             this.editorForm.patchValue({ language: this.selectedLang });
             break;
           case BroadcastInfo.RemoteInsert:
+          case BroadcastInfo.RemoteAllMessages:
             this.editorService.handleRemoteRangeInsert(
               this.editor,
               this.editorTextModel,
@@ -274,14 +275,6 @@ export class CodeEditorComponent implements OnInit {
               this.editorTextModel,
               this.auxEditorTextModel,
               this.peerService.getReceivedRemoteCrdts()
-            );
-            break;
-          case BroadcastInfo.RemoteAllMessages:
-            this.editorService.handleAllMessages(
-              this.editor,
-              this.editorTextModel,
-              this.auxEditorTextModel,
-              this.peerService.getReceivedRemoteCrdts(),
             );
             break;
           case BroadcastInfo.ReadyToDisplayMonaco:

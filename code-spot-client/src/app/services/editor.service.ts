@@ -85,12 +85,8 @@ export class EditorService {
     editor: any,
     editorTextModel: any,
     auxEditorTextModel: any,
-    crdts: CRDT[],
-    isAllMessages = false
+    crdts: CRDT[]
   ) {
-    if (isAllMessages) {
-      crdts.sort((crdt1, crdt2) => crdt1.compareTo(crdt2)); // Sort by ascending order
-    }
     const insertingIndices = new Array<number>(crdts.length);
 
     for (let i = 0; i < crdts.length; i++) {
@@ -260,21 +256,6 @@ export class EditorService {
 
     // Actually redraw nameTag
     this.cursorService.redrawAllNameTags(editor);
-  }
-
-  handleAllMessages(
-    editor: any,
-    editorTextModel: any,
-    auxEditorTextModel: any,
-    crdts: CRDT[]
-  ): void {
-    this.handleRemoteRangeInsert(
-      editor,
-      editorTextModel,
-      auxEditorTextModel,
-      crdts,
-      true
-    );
   }
 
   getOldCRDTsAsSortedArray(): CRDT[] {

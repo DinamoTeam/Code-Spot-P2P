@@ -14,7 +14,6 @@ import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { NameService } from './name.service';
 import { AlertifyService } from './alertify.service';
 import { NameColor } from '../shared/NameColor';
-import { PackageType, CrdtPackageService } from './crdtPackage.service';
 
 declare const Peer: any;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 5000;
@@ -44,7 +43,6 @@ export class PeerService {
 
   constructor(
     private roomService: RoomService,
-    private crdtPackageService: CrdtPackageService,
     private cursorService: CursorService,
     private editorService: EditorService,
     private nameService: NameService,
@@ -69,11 +67,7 @@ export class PeerService {
       pingInterval: 3000,
       // debug: 3, // Print all logs
     });
-    /*this.peer = new Peer({
-      host: 'localhost',
-      port: 9000,
-      path: '/myapp',
-    });*/
+
     this.connectToPeerServer();
     this.registerConnectToMeEvent();
     this.logErrors();

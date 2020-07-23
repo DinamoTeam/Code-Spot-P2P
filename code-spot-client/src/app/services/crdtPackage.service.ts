@@ -6,6 +6,15 @@ import { BroadcastInfo } from '../shared/BroadcastInfo';
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * The purpose of this class is to receive all CRDT batches before processing them.
+ * We thought this might speed up the program because inserting / deleting 1 million chars
+ * once on Monaco is faster than inserting / deleting 1000 chars 1000 times.
+ *
+ * Turns out, processing each CRDT batch right away is just as fast (maybe even faster),
+ * and the upside is the user can see the program making progress. That why we don't use this class anymore.
+ * (but still keep it for future reference)
+ */
 export class CrdtPackageService {
   crdtsReady: CRDT[];
   requestType: PackageType;
