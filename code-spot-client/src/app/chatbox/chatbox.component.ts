@@ -56,6 +56,19 @@ export class ChatboxComponent implements OnInit {
     );
   }
 
+  uploadImage(event: any) {
+    const file = event.target.files[0];
+    const blob = new Blob(event.target.files, { type: file.type });
+    console.log(blob);
+
+    //conn.send({
+    //  file: blob,
+    //  filename: file.name,
+    //  filetype: file.type
+    //});
+
+  }
+
   subscribeToPeerServerEvents() {
     PeerUtils.broadcast.subscribe((message: BroadcastInfo) => {
       this.ngZone.run(() => {

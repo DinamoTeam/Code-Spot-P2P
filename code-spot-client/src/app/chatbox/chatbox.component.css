@@ -72,3 +72,12 @@ emoji-mart {
 ::-webkit-scrollbar-thumb:hover {
   background: #777;
 }
+
+/* File */
+/*.custom-file-label {
+  width: 18px;
+}
+*/
+.custom-file-input ~ .custom-file-label::after {
+  content: "";
+}

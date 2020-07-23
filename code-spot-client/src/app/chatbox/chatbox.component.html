@@ -50,6 +50,10 @@
       <a class="btn btn-light" (click)="toggleEmojiPicker()">
         <i class="fa fa-smile-o fa-lg"></i>
       </a>
+      <div class="custom-file">
+        <input class="custom-file-input" type="file" id="inputFile" accept="image/*" (change)="uploadImage($event)" />
+        <label class="custom-file-label" for="inputFile">File</label>
+      </div>
       <input
         type="text"
         formControlName="messageToSend"
