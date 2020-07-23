@@ -22,23 +22,17 @@
 }
 
 .hide {
-  opacity: 0%;
+  font-size: 0.1px;
+  opacity: 0;
+  height: 24px;
+  /* visibility: hidden; */
+  /* position: absolute;
+  left: -10000px; */
 }
 
 .nameTagText {
   font-size: 16px;
 }
-
-/* .disappear {
-  opacity: 100%;
-  animation: blur 2s step-end forwards;
-}
-
-@keyframes blur {
-  to {
-    opacity: 0%;
-  }
-} */
 
 /* Hand-picked color from https://hslpicker.com */
 :root {
