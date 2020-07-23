@@ -22,7 +22,7 @@ const BROADCAST_TILL_MILLI_SECONDS_LATER = 5000;
   providedIn: 'root',
 })
 export class PeerService {
-  private packageId = 0;
+  private chatMessageTime = 0;
   private peer: any;
   private roomName: string;
   private connToGetOldMessages: any;
@@ -226,11 +226,6 @@ export class PeerService {
         this.broadcastMessageToNewPeers(message, this.connsToBroadcast);
       case MessageType.OldCRDTs:
       case MessageType.OldCRDTsLastBatch:
-        // const parsedCrdts: CRDT[] = JSON.parse(message.content); // plain Javascript object
-        // const crdts = parsedCrdts.map((crdt) =>
-        //   CRDT.plainObjectToRealCRDT(crdt)
-        // );
-
         // message.content will be empty when the peer send oldCRDT and there are none
         if (message.content !== '') {
           const crdts = CrdtUtils.stringToCRDTArr(
@@ -238,26 +233,14 @@ export class PeerService {
             this.CRDTDelimiter
           );
 
-          // this.receivedRemoteCrdts = crdts;
-          let packageType = null;
+          this.receivedRemoteCrdts = crdts;
           if (message.messageType === MessageType.RemoteInsert) {
-            // PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
-            packageType = PackageType.RemoteInsert;
+            PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
           } else if (message.messageType === MessageType.RemoteRemove) {
-            // PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
-            packageType = PackageType.RemoteRemove;
+            PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
           } else {
-            // PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
-            packageType = PackageType.OldCRDTs;
+            PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
           }
-          this.crdtPackageService.takeCRDTBatch(
-            crdts,
-            message.fromPeerId,
-            message.packageId,
-            packageType,
-            message.totalCrdtBatches,
-            message.crdtBatchNumber
-          );
         }
 
         if (message.messageType === MessageType.OldCRDTsLastBatch) {
@@ -531,13 +514,9 @@ export class PeerService {
         new Message(
           '',
           MessageType.OldCRDTsLastBatch,
-          this.peer.id,
-          this.packageId,
-          0,
-          1
+          this.peer.id
         )
       );
-      this.packageId++;
       return;
     }
 
@@ -551,14 +530,10 @@ export class PeerService {
       const message = new Message(
         crdtStrings[i],
         messageType,
-        this.peer.id,
-        this.packageId++,
-        0,
-        1
+        this.peer.id
       );
       conn.send(message);
     }
-    this.packageId++;
 
     const that = this;
     setTimeout(() => that.sendCursorInfo(conn), 10); // WHY SET TIME OUT WORKS???!!!!@@$!$!$
@@ -630,15 +605,11 @@ export class PeerService {
         const messageToSend = new Message(
           crdtStrings[i],
           messageType,
-          this.peer.id,
-          this.packageId++,
-          0,
-          1
+          this.peer.id
         );
         conn.send(messageToSend);
       });
     }
-    this.packageId++;
   }
 
   private broadcastNewMessagesToConnUntil(
@@ -685,7 +656,7 @@ export class PeerService {
         content,
         MessageType.ChatMessage,
         this.peer.id,
-        this.packageId
+        this.chatMessageTime
       )
     );
 
@@ -694,12 +665,12 @@ export class PeerService {
         content,
         MessageType.ChatMessage,
         this.peer.id,
-        this.packageId
+        this.chatMessageTime
       );
 
       conn.send(messageToSend);
     });
-    this.packageId++;
+    this.chatMessageTime++;
   }
 
   /* Cursor Change + Selection Change*/

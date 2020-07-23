@@ -35,24 +35,12 @@ export class CrdtUtils {
 
   static crdtArrToString(crdts: CRDT[], seperator: string): string {
     const crdtStrings = crdts.map((crdt) => crdt.toString());
-    // console.log('crdtArr: ');
-    // console.log(crdts);
-    // console.log('crdtStrings: ');
-    // console.log(crdtStrings);
-    // console.log('Join: ');
-    // console.log(crdtStrings.join(seperator));
     return crdtStrings.join(seperator);
   }
 
   static stringToCRDTArr(str: string, delimiter: string): CRDT[] {
     const crdtStrings = str.split(delimiter);
     const crdts = crdtStrings.map((crdtStr) => CRDT.parse(crdtStr));
-    // console.log('crdtStrings: ');
-    // console.log(str);
-    // console.log('crdtString splitted: ');
-    // console.log(crdtStrings);
-    // console.log('crdt parsed: ');
-    // console.log(crdts);
     return crdts;
   }
 
@@ -96,7 +84,7 @@ export class PeerUtils {
       for (let i = 0; i < listToBeAddedTo.length; i++) {
         if (
           listToBeAddedTo[i].fromPeerId === message.fromPeerId &&
-          listToBeAddedTo[i].packageId === message.packageId
+          listToBeAddedTo[i].chatMessageTime === message.chatMessageTime
         ) {
           weHadThatMessage = true;
           break;

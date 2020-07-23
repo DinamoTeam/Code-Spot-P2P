@@ -2,23 +2,19 @@ export class Message {
   content: string;
   messageType: MessageType;
   fromPeerId: string;
-  packageId: number;
+  chatMessageTime: number;
   crdtBatchNumber: number;
   totalCrdtBatches: number;
   constructor(
     content: string,
     messageType: MessageType,
     fromPeerId: string,
-    packageId?: number,
-    batchNumber?: number,
-    totalBatches?: number
+    chatMessageTime?: number,
   ) {
     this.content = content;
     this.messageType = messageType;
     this.fromPeerId = fromPeerId;
-    this.packageId = packageId;
-    this.crdtBatchNumber = batchNumber;
-    this.totalCrdtBatches = totalBatches;
+    this.chatMessageTime = chatMessageTime;
   }
 }
 

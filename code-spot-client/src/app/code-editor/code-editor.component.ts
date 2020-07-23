@@ -260,31 +260,29 @@ export class CodeEditorComponent implements OnInit {
             });
             this.editorForm.patchValue({ language: this.selectedLang });
             break;
-          case BroadcastInfo.CrdtPackageReady:
-            const requestType = this.crdtPackageService.requestType;
-            const crdts = this.crdtPackageService.crdtsReady;
-            if (requestType === PackageType.RemoteInsert) {
-              this.editorService.handleRemoteRangeInsert(
-                this.editor,
-                this.editorTextModel,
-                this.auxEditorTextModel,
-                crdts
-              );
-            } else if (requestType === PackageType.RemoteRemove) {
-              this.editorService.handleRemoteRangeRemove(
-                this.editor,
-                this.editorTextModel,
-                this.auxEditorTextModel,
-                crdts
-              );
-            } else {
-              this.editorService.handleAllMessages(
-                this.editor,
-                this.editorTextModel,
-                this.auxEditorTextModel,
-                crdts
-              );
-            }
+          case BroadcastInfo.RemoteInsert:
+            this.editorService.handleRemoteRangeInsert(
+              this.editor,
+              this.editorTextModel,
+              this.auxEditorTextModel,
+              this.peerService.getReceivedRemoteCrdts()
+            );
+            break;
+          case BroadcastInfo.RemoteRemove:
+            this.editorService.handleRemoteRangeRemove(
+              this.editor,
+              this.editorTextModel,
+              this.auxEditorTextModel,
+              this.peerService.getReceivedRemoteCrdts()
+            );
+            break;
+          case BroadcastInfo.RemoteAllMessages:
+            this.editorService.handleAllMessages(
+              this.editor,
+              this.editorTextModel,
+              this.auxEditorTextModel,
+              this.peerService.getReceivedRemoteCrdts(),
+            );
             break;
           case BroadcastInfo.ReadyToDisplayMonaco:
             this.ready = true;
