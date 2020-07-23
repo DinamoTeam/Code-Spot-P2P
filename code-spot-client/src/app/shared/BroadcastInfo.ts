@@ -11,4 +11,5 @@ export const enum BroadcastInfo {
   PeerLeft = 9,
   NewPeerJoining = 10,
   LeftHomePage = 11,
+  CrdtPackageReady = 12,
 }

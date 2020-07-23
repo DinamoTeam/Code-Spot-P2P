@@ -14,6 +14,7 @@ import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { NameService } from './name.service';
 import { AlertifyService } from './alertify.service';
 import { NameColor } from '../shared/NameColor';
+import { PackageType, CrdtPackageService } from './crdtPackage.service';
 
 declare const Peer: any;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 5000;
@@ -43,6 +44,7 @@ export class PeerService {
 
   constructor(
     private roomService: RoomService,
+    private crdtPackageService: CrdtPackageService,
     private cursorService: CursorService,
     private editorService: EditorService,
     private nameService: NameService,
@@ -168,7 +170,9 @@ export class PeerService {
         );
         this.sendOldCRDTs(conn);
         this.sendOldMessages(conn);
-        this.peerIdsToSendOldCrdts = this.peerIdsToSendOldCrdts.filter((id) => id !== conn.peer);
+        this.peerIdsToSendOldCrdts = this.peerIdsToSendOldCrdts.filter(
+          (id) => id !== conn.peer
+        );
         this.sendChangeLanguage(conn);
       }
       // If we chose this peer to give us all messages
@@ -226,31 +230,44 @@ export class PeerService {
         const crdts = parsedCrdts.map((crdt) =>
           CRDT.plainObjectToRealCRDT(crdt)
         );
-        this.receivedRemoteCrdts = crdts;
 
+        // this.receivedRemoteCrdts = crdts;
+        let packageType = null;
         if (message.messageType === MessageType.RemoteInsert) {
-          PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
+          // PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
+          packageType = PackageType.RemoteInsert;
         } else if (message.messageType === MessageType.RemoteRemove) {
-          PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
+          // PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
+          packageType = PackageType.RemoteRemove;
         } else {
-          PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
-          if (message.messageType === MessageType.OldCRDTsLastBatch) {
-            this.hasReceivedAllOldCRDTs = true;
-            PeerUtils.broadcastInfo(BroadcastInfo.ReadyToDisplayMonaco);
-            this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
-            // Tell C# Server I have received AllMessages
-            this.roomService.markPeerReceivedAllMessages(this.peer.id);
-            // Send cursor + selection change info
-            this.sendCursorInfo(fromConn);
-            // Tell that user they can display us just join room now
-            fromConn.send(
-              new Message(
-                null,
-                MessageType.CanDisplayMeJustJoinRoom,
-                this.peer.id
-              )
-            );
-          }
+          // PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
+          packageType = PackageType.OldCRDTs;
+        }
+        this.crdtPackageService.takeCRDTBatch(
+          crdts,
+          message.fromPeerId,
+          message.packageId,
+          packageType,
+          message.totalCrdtBatches,
+          message.crdtBatchNumber
+        );
+
+        if (message.messageType === MessageType.OldCRDTsLastBatch) {
+          this.hasReceivedAllOldCRDTs = true;
+          PeerUtils.broadcastInfo(BroadcastInfo.ReadyToDisplayMonaco);
+          this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
+          // Tell C# Server I have received AllMessages
+          this.roomService.markPeerReceivedAllMessages(this.peer.id);
+          // Send cursor + selection change info
+          this.sendCursorInfo(fromConn);
+          // Tell that user they can display us just join room now
+          fromConn.send(
+            new Message(
+              null,
+              MessageType.CanDisplayMeJustJoinRoom,
+              this.peer.id
+            )
+          );
         }
         break;
       case MessageType.RequestOldCRDTs:
@@ -539,12 +556,13 @@ export class PeerService {
         crdtJSONs[i],
         messageType,
         this.peer.id,
-        this.packageId++,
+        this.packageId,
         i,
         numberOfTimesSend
       );
       conn.send(message);
     }
+    this.packageId++;
 
     const that = this;
     setTimeout(() => that.sendCursorInfo(conn), 10); // WHY SET TIME OUT WORKS???!!!!@@$!$!$
@@ -605,44 +623,42 @@ export class PeerService {
   }
 
   broadcastInsertOrRemove(crdts: CRDT[], isInsert: boolean) {
-    const that = this;
-    setTimeout(() => {
-      const messageType = isInsert
+    const messageType = isInsert
       ? MessageType.RemoteInsert
       : MessageType.RemoteRemove;
 
-      const numberOfTimesSend = Math.ceil(
-        crdts.length / CrdtUtils.MAX_CRDT_PER_SEND
-      );
+    const numberOfTimesSend = Math.ceil(
+      crdts.length / CrdtUtils.MAX_CRDT_PER_SEND
+    );
 
-      const crdtBatches = CrdtUtils.breakCrdtsIntoBatches(
-        crdts,
-        numberOfTimesSend
-      );
+    const crdtBatches = CrdtUtils.breakCrdtsIntoBatches(
+      crdts,
+      numberOfTimesSend
+    );
 
-      // const crdtStrings: string[] = [];
-      // for (let i = 0; i < numberOfTimesSend; i++) {
-      //   crdtStrings.push(this.crdtArrToString(crdtBatches[i], this.CRDTDelimiter));
-      // }
-      const crdtJSONs: string[] = [];
-      for (let i = 0; i < numberOfTimesSend; i++) {
-        crdtJSONs.push(JSON.stringify(crdtBatches[i]));
-      }
+    // const crdtStrings: string[] = [];
+    // for (let i = 0; i < numberOfTimesSend; i++) {
+    //   crdtStrings.push(this.crdtArrToString(crdtBatches[i], this.CRDTDelimiter));
+    // }
+    const crdtJSONs: string[] = [];
+    for (let i = 0; i < numberOfTimesSend; i++) {
+      crdtJSONs.push(JSON.stringify(crdtBatches[i]));
+    }
 
-      for (let i = 0; i < numberOfTimesSend; i++) {
-        that.connectionsIAmHolding.forEach((conn) => {
-          const messageToSend = new Message(
-            crdtJSONs[i],
-            messageType,
-            that.peer.id,
-            that.packageId++,
-            i,
-            numberOfTimesSend
-          );
-          conn.send(messageToSend);
-        });
-      }
-      }, 3000);
+    for (let i = 0; i < numberOfTimesSend; i++) {
+      this.connectionsIAmHolding.forEach((conn) => {
+        const messageToSend = new Message(
+          crdtJSONs[i],
+          messageType,
+          this.peer.id,
+          this.packageId,
+          i,
+          numberOfTimesSend
+        );
+        conn.send(messageToSend);
+      });
+    }
+    this.packageId++;
   }
 
   private broadcastNewMessagesToConnUntil(
@@ -685,7 +701,12 @@ export class PeerService {
     }
 
     this.previousChatMessages.push(
-      new Message(content, MessageType.ChatMessage, this.peer.id, this.packageId)
+      new Message(
+        content,
+        MessageType.ChatMessage,
+        this.peer.id,
+        this.packageId
+      )
     );
 
     this.connectionsIAmHolding.forEach((conn) => {
