@@ -286,30 +286,6 @@ export class CodeEditorComponent implements OnInit {
               );
             }
             break;
-          // case BroadcastInfo.RemoteInsert:
-          //   this.editorService.handleRemoteRangeInsert(
-          //     this.editor,
-          //     this.editorTextModel,
-          //     this.auxEditorTextModel,
-          //     this.peerService.getReceivedRemoteCrdts()
-          //   );
-          //   break;
-          // case BroadcastInfo.RemoteRemove:
-          //   this.editorService.handleRemoteRangeRemove(
-          //     this.editor,
-          //     this.editorTextModel,
-          //     this.auxEditorTextModel,
-          //     this.peerService.getReceivedRemoteCrdts()
-          //   );
-          //   break;
-          // case BroadcastInfo.RemoteAllMessages:
-          //   this.editorService.handleAllMessages(
-          //     this.editor,
-          //     this.editorTextModel,
-          //     this.auxEditorTextModel,
-          //     this.peerService.getReceivedRemoteCrdts()
-          //   );
-          //   break;
           case BroadcastInfo.ReadyToDisplayMonaco:
             this.ready = true;
             break;

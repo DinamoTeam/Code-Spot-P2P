@@ -560,9 +560,9 @@ export class PeerService {
         i,
         numberOfTimesSend
       );
-      this.packageId++;
       conn.send(message);
     }
+    this.packageId++;
 
     const that = this;
     setTimeout(() => that.sendCursorInfo(conn), 10); // WHY SET TIME OUT WORKS???!!!!@@$!$!$
