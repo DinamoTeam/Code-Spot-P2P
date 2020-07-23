@@ -82,19 +82,14 @@ export class CodeEditorComponent implements OnInit {
 
   onLanguageChange(res: string) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);
-    this.editorOptions = Object.assign({}, this.editorOptions, {
-      language: this.selectedLang,
-    });
-
+    monaco.editor.setModelLanguage(this.editorTextModel, this.selectedLang);
     EditorService.language = this.selectedLang;
     this.peerService.broadcastChangeLanguage();
   }
 
   onThemeChange(res: string) {
     this.selectedTheme = res.slice(res.indexOf(':') + 2);
-    this.editorOptions = Object.assign({}, this.editorOptions, {
-      theme: this.selectedTheme,
-    });
+    monaco.editor.setTheme(this.selectedTheme);
   }
 
   toggleNameTag() {
