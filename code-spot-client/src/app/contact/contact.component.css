@@ -1,7 +1,7 @@
 .img-circle {
   width: 15rem;
   margin: 0 auto;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   border-radius: 50%;
 }
 
@@ -40,7 +40,6 @@
 
   .feedback-card {
     margin: 30px auto;
-/*    width: 20rem;*/
   }
 
   form {
