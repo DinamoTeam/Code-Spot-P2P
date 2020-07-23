@@ -11,6 +11,10 @@ import { PeerUtils } from '../shared/Utils';
 import { CursorChangeReason } from '../shared/CursorChangeReason';
 import { AlertifyService } from '../services/alertify.service';
 import { CursorChangeSource } from '../shared/CursorChangeSource';
+import {
+  CrdtPackageService,
+  PackageType,
+} from '../services/crdtPackage.service';
 
 @Component({
   selector: 'app-code-editor',
@@ -53,6 +57,7 @@ export class CodeEditorComponent implements OnInit {
 
   constructor(
     private peerService: PeerService,
+    private crdtPackageService: CrdtPackageService,
     private cursorService: CursorService,
     private alertifyService: AlertifyService,
     public editorService: EditorService,
@@ -255,30 +260,56 @@ export class CodeEditorComponent implements OnInit {
             });
             this.editorForm.patchValue({ language: this.selectedLang });
             break;
-          case BroadcastInfo.RemoteInsert:
-            this.editorService.handleRemoteRangeInsert(
-              this.editor,
-              this.editorTextModel,
-              this.auxEditorTextModel,
-              this.peerService.getReceivedRemoteCrdts()
-            );
+          case BroadcastInfo.CrdtPackageReady:
+            const requestType = this.crdtPackageService.requestType;
+            const crdts = this.crdtPackageService.crdtsReady;
+            if (requestType === PackageType.RemoteInsert) {
+              this.editorService.handleRemoteRangeInsert(
+                this.editor,
+                this.editorTextModel,
+                this.auxEditorTextModel,
+                crdts
+              );
+            } else if (requestType === PackageType.RemoteRemove) {
+              this.editorService.handleRemoteRangeRemove(
+                this.editor,
+                this.editorTextModel,
+                this.auxEditorTextModel,
+                crdts
+              );
+            } else {
+              this.editorService.handleAllMessages(
+                this.editor,
+                this.editorTextModel,
+                this.auxEditorTextModel,
+                crdts
+              );
+            }
             break;
-          case BroadcastInfo.RemoteRemove:
-            this.editorService.handleRemoteRangeRemove(
-              this.editor,
-              this.editorTextModel,
-              this.auxEditorTextModel,
-              this.peerService.getReceivedRemoteCrdts()
-            );
-            break;
-          case BroadcastInfo.RemoteAllMessages:
-            this.editorService.handleAllMessages(
-              this.editor,
-              this.editorTextModel,
-              this.auxEditorTextModel,
-              this.peerService.getReceivedRemoteCrdts()
-            );
-            break;
+          // case BroadcastInfo.RemoteInsert:
+          //   this.editorService.handleRemoteRangeInsert(
+          //     this.editor,
+          //     this.editorTextModel,
+          //     this.auxEditorTextModel,
+          //     this.peerService.getReceivedRemoteCrdts()
+          //   );
+          //   break;
+          // case BroadcastInfo.RemoteRemove:
+          //   this.editorService.handleRemoteRangeRemove(
+          //     this.editor,
+          //     this.editorTextModel,
+          //     this.auxEditorTextModel,
+          //     this.peerService.getReceivedRemoteCrdts()
+          //   );
+          //   break;
+          // case BroadcastInfo.RemoteAllMessages:
+          //   this.editorService.handleAllMessages(
+          //     this.editor,
+          //     this.editorTextModel,
+          //     this.auxEditorTextModel,
+          //     this.peerService.getReceivedRemoteCrdts()
+          //   );
+          //   break;
           case BroadcastInfo.ReadyToDisplayMonaco:
             this.ready = true;
             break;
