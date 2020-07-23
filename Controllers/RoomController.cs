@@ -121,11 +121,14 @@ namespace CodeSpotP2P.Controllers
                                     .Where(p => p.RoomName == roomName)
                                     .Select(p => p.CursorColor)
                                     .ToList();
+
             var rand = new Random();
             int randomColor = (rand.Next() % 25) + 1;
-            while (cursorColorList.Contains(randomColor)) {
+            if (cursorColorList.Count >= 25) // 25 or more people
+                return randomColor;
+            while (cursorColorList.Contains(randomColor))
                 randomColor = (rand.Next() % 25) + 1;
-            }
+                
             return randomColor;
         }
 
