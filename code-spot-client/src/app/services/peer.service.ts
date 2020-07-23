@@ -552,9 +552,9 @@ export class PeerService {
         crdtStrings[i],
         messageType,
         this.peer.id,
-        this.packageId,
-        i,
-        crdtStrings.length
+        this.packageId++,
+        0,
+        1
       );
       conn.send(message);
     }
@@ -631,9 +631,9 @@ export class PeerService {
           crdtStrings[i],
           messageType,
           this.peer.id,
-          this.packageId,
-          i,
-          crdtStrings.length
+          this.packageId++,
+          0,
+          1
         );
         conn.send(messageToSend);
       });
