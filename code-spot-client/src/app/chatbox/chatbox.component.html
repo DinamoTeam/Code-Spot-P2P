@@ -1,6 +1,6 @@
 <div class="dropdown mb-3 d-flex">
   <button
-    class="btn btn-block btn-navy dropdown-toggle font-weight-bold"
+    class="btn btn-block btn-navy btn-dropdown dropdown-toggle font-weight-bold"
     type="button"
     id="dropdownMenuButton"
     data-toggle="dropdown"
@@ -30,12 +30,26 @@
 
   <div>&nbsp;</div>
 
+  <!-- Emoji Picker-->
+  <emoji-mart
+    *ngIf="showEmojiPicker"
+    set="messenger"
+    [showPreview]="false"
+    [emojiSize]="18"
+    [totalFrequentLines]="1"
+    (emojiClick)="addEmoji($event)"
+  ></emoji-mart>
+
+  <!-- Input Box-->
   <form
-    class="ml-3 mr-2 mt-auto"
+    class="ml-2 mr-1 mt-auto"
     [formGroup]="messageForm"
     (ngSubmit)="sendMessage(messageForm.value)"
   >
     <div class="form-group d-flex">
+      <a class="btn btn-light" (click)="toggleEmojiPicker()">
+        <i class="fa fa-smile-o fa-lg"></i>
+      </a>
       <input
         type="text"
         formControlName="messageToSend"

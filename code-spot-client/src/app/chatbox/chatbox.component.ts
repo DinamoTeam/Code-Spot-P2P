@@ -22,6 +22,7 @@ export class ChatboxComponent implements OnInit {
   messageToSend: FormControl;
   messages: Message[] = [];
   namesColors: NameColor[] = [];
+  showEmojiPicker: boolean = false;
   myPeerId: string;
   @ViewChild('messagebox', { static: false }) messagebox?: ElementRef<
     HTMLElement
@@ -43,6 +44,16 @@ export class ChatboxComponent implements OnInit {
     this.messageForm = this.formBuilder.group({
       messageToSend: this.messageToSend,
     });
+  }
+
+  toggleEmojiPicker() {
+    this.showEmojiPicker = !this.showEmojiPicker;
+  }
+
+  addEmoji(event: any) {
+    this.messageToSend.patchValue(
+      this.messageToSend.value + event.emoji.native
+    );
   }
 
   subscribeToPeerServerEvents() {
@@ -68,6 +79,7 @@ export class ChatboxComponent implements OnInit {
     this.messages = this.peerService.getAllMessages();
     this.messageForm.setValue({ messageToSend: '' });
     this.scrollMessageBox();
+    this.showEmojiPicker = false;
   }
 
   scrollMessageBox() {
