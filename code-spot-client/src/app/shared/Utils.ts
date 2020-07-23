@@ -57,20 +57,25 @@ export class CrdtUtils {
   }
 
   // Break huge crdts array into smaller arrays and send each one to avoid connection crash
-  static MAX_CRDT_PER_SEND = 500;
-  static breakCrdtsIntoBatches(crdts: CRDT[], batchCnt: number): CRDT[][] {
-    let crdtBatches: CRDT[][] = [];
-    for (let i = 0; i < batchCnt; i++) {
-      const startInclusive = CrdtUtils.MAX_CRDT_PER_SEND * i;
-      // Taking care of the case: sending the last batch
-      const endExclusive = Math.min(
-        CrdtUtils.MAX_CRDT_PER_SEND * (i + 1),
-        crdts.length
-      );
-      crdtBatches.push(crdts.slice(startInclusive, endExclusive));
+  static MAX_STRING_LENGTH_PER_SEND = 64000; // 64Kb => 65536 bytes => 65536 chars. Leave some chars for JSON
+  static breakCrdtsIntoCrdtStringBatches(crdts: CRDT[], delimiter: string): string[] {
+    const crdtStrings = crdts.map(crdt => crdt.toString());
+    const crdtStringsBatches: string[] = [];
+    let startIndex = 0;
+    let i: number;
+    let curLength = 0;
+    for (i = 0; i < crdtStrings.length; i++) {
+      if (curLength + crdtStrings[i].length >= this.MAX_STRING_LENGTH_PER_SEND) {
+        crdtStringsBatches.push(crdtStrings.slice(startIndex, i).join(delimiter));
+        startIndex = i;
+        curLength = 0;
+        i--;
+      } else {
+        curLength += crdtStrings[i].length + 2; // +2 for delimiter
+      }
     }
-
-    return crdtBatches;
+    crdtStringsBatches.push(crdtStrings.slice(startIndex, i).join(delimiter));
+    return crdtStringsBatches;
   }
 }
 
