@@ -189,7 +189,11 @@ export class PeerService {
 
     // If we need to send this peer old messages
     if (this.peerIdsToSendOldCrdts.findIndex((id) => id === conn.peer) !== -1) {
-      this.broadcastService.broadcastNewMessagesToConnUntil(conn, BROADCAST_TILL_MILLI_SECONDS_LATER, this.connsToBroadcast);
+      this.broadcastService.broadcastNewMessagesToConnUntil(
+        conn,
+        BROADCAST_TILL_MILLI_SECONDS_LATER,
+        this.connsToBroadcast
+      );
       this.broadcastService.sendOldCRDTs(conn);
       this.broadcastService.sendOldMessages(conn, this.previousChatMessages);
       this.peerIdsToSendOldCrdts = this.peerIdsToSendOldCrdts.filter(
@@ -199,8 +203,14 @@ export class PeerService {
     }
     // If we chose this peer to give us all messages
     if (this.connToGetOldMessages === conn) {
-      this.broadcastService.requestOldMessages(conn, MessageType.RequestOldCRDTs);
-      this.broadcastService.requestOldMessages(conn, MessageType.RequestOldChatMessages);
+      this.broadcastService.requestOldMessages(
+        conn,
+        MessageType.RequestOldCRDTs
+      );
+      this.broadcastService.requestOldMessages(
+        conn,
+        MessageType.RequestOldChatMessages
+      );
     }
 
     // If we just join room (this peer is here before us) and are ready (have received all CRDTs)
@@ -216,21 +226,21 @@ export class PeerService {
 
   /**
    * Is called when a peer send us a message
+   * Note: PeerUtils.broadcastInfo() is to notify code-editor.component.ts
    */
   private handleMessageFromPeer(message: Message, fromConn: any) {
     switch (message.messageType) {
-      case MessageType.ChangeLanguage:
-        EditorService.language = message.content;
-        PeerUtils.broadcastInfo(BroadcastInfo.ChangeLanguage);
+      /**
+       * Handle CRDT related requests
+       */
 
-        // Tell our user language has been changed
-        this.alertifyService.message(
-          'Language has been changed to ' + message.content
-        );
-        break;
+      // 4 similar requests: remote insert / remove, oldCRDTs and oldCRDTs last batch
       case MessageType.RemoteInsert:
       case MessageType.RemoteRemove:
-        this.broadcastService.broadcastMessageToNewPeers(message, this.connsToBroadcast);
+        this.broadcastService.broadcastMessageToNewPeers(
+          message,
+          this.connsToBroadcast
+        );
       case MessageType.OldCRDTs:
       case MessageType.OldCRDTsLastBatch:
         // message.content will be empty when the peer send oldCRDT and there are none
@@ -239,7 +249,6 @@ export class PeerService {
             message.content,
             this.CRDTDelimiter
           );
-
           this.receivedRemoteCrdts = crdts;
           if (message.messageType === MessageType.RemoteInsert) {
             PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
@@ -268,6 +277,8 @@ export class PeerService {
           );
         }
         break;
+
+      // Somebody asks us to send them old CRDTs
       case MessageType.RequestOldCRDTs:
         if (!this.hasReceivedAllOldCRDTs) {
           console.log(
@@ -277,34 +288,55 @@ export class PeerService {
             new Message(null, MessageType.CannotSendOldCRDTs, this.peer.id)
           );
         } else {
+          // Only send when connection has opened
           if (
             !PeerUtils.connectionHasOpened(fromConn, this.connectionsIAmHolding)
           ) {
             this.peerIdsToSendOldCrdts.push(fromConn.peer); // Send when opened
           } else {
-            this.broadcastService.broadcastNewMessagesToConnUntil(fromConn, BROADCAST_TILL_MILLI_SECONDS_LATER, this.connsToBroadcast);
+            // Continue to broadcast new messages to let that peer has time to connect to the rest in room
+            this.broadcastService.broadcastNewMessagesToConnUntil(
+              fromConn,
+              BROADCAST_TILL_MILLI_SECONDS_LATER,
+              this.connsToBroadcast
+            );
             this.broadcastService.sendOldCRDTs(fromConn); // Send now
             this.broadcastService.sendChangeLanguage(fromConn);
           }
         }
         break;
+
+      // The peer we asked to send us oldCRDTs don't have them (They're new in room too)
       case MessageType.CannotSendOldCRDTs:
         alert(
           'The peer we picked to send us old messages cannot send. Reloading...'
         );
         window.location.reload(true);
         break;
+
+      /**
+       * Handle Chat messages related requests
+       */
+
+      // Somebody sends us a chat message
       case MessageType.ChatMessage:
-        this.broadcastService.broadcastMessageToNewPeers(message, this.connsToBroadcast);
+        this.broadcastService.broadcastMessageToNewPeers(
+          message,
+          this.connsToBroadcast
+        );
         PeerUtils.addUniqueMessages([message], this.previousChatMessages);
         PeerUtils.broadcastInfo(BroadcastInfo.UpdateChatMessages);
         break;
+
+      // Somebody sends us old chat messages (We just joined room)
       case MessageType.OldChatMessages:
         this.hasReceivedAllChatMessages = true;
         const messages: Message[] = JSON.parse(message.content);
         PeerUtils.addUniqueMessages(messages, this.previousChatMessages);
         PeerUtils.broadcastInfo(BroadcastInfo.UpdateChatMessages);
         break;
+
+      // Somebody asked us to send them old chat messages (They just joined room)
       case MessageType.RequestOldChatMessages:
         if (!this.hasReceivedAllChatMessages) {
           console.log(
@@ -318,15 +350,23 @@ export class PeerService {
             )
           );
         } else {
+          // Only send when connection has opened
           if (
             !PeerUtils.connectionHasOpened(fromConn, this.connectionsIAmHolding)
           ) {
             this.peerIdsToSendOldChatMessages.push(fromConn.peer); // Send when opened
           } else {
-            this.broadcastService.sendOldMessages(fromConn, this.previousChatMessages); // send now
+            this.broadcastService.sendOldMessages(
+              fromConn,
+              this.previousChatMessages
+            ); // send now
           }
         }
         break;
+
+      /**
+       * Change Cursor, Select, Name messages
+       */
       case MessageType.ChangeCursor:
         const cursorEvent = JSON.parse(message.content);
         this.cursorChangeInfo = new CursorChangeInfo(
@@ -351,7 +391,7 @@ export class PeerService {
         const color = Number.parseInt(message.content, 10);
         this.cursorService.setPeerColor(fromConn.peer, color);
         if (this.nameService.getPeerName(fromConn.peer)) {
-          // Have name and color => Add to list
+          // Have both name and color => Add to list
           Utils.addUniqueNameColor(
             new NameColor(
               this.nameService.getPeerName(fromConn.peer),
@@ -366,7 +406,7 @@ export class PeerService {
         const peerName = message.content;
         this.nameService.setPeerName(fromConn.peer, peerName);
         if (this.cursorService.getPeerColor(fromConn.peer)) {
-          // Have name and color => Add to list
+          // Have both name and color => Add to list
           Utils.addUniqueNameColor(
             new NameColor(
               this.nameService.getPeerName(fromConn.peer),
@@ -377,6 +417,12 @@ export class PeerService {
           );
         }
         break;
+
+      /**
+       * Other messages
+       */
+
+      // That peer has received all CRDTs. We can display their name now
       case MessageType.CanDisplayMeJustJoinRoom:
         PeerUtils.broadcastInfo(BroadcastInfo.NewPeerJoining);
         this.alertifyService.success(
@@ -386,6 +432,15 @@ export class PeerService {
       default:
         console.log(message);
         throw new Error('Unhandled messageType');
+
+      // Somebody change monaco's language
+      case MessageType.ChangeLanguage:
+        EditorService.language = message.content;
+        PeerUtils.broadcastInfo(BroadcastInfo.ChangeLanguage);
+        this.alertifyService.message(
+          'Language has been changed to ' + message.content
+        );
+        break;
     }
   }
 
@@ -396,23 +451,23 @@ export class PeerService {
         ' is closed. It will be deleted in the connectionsIAmHolding list!'
     );
 
+    // Delete conn from connectionsIAmHolding
     const index = this.connectionsIAmHolding.findIndex(
       (connection) => connection === conn
     );
     this.connectionsIAmHolding.splice(index, 1);
 
-    // Delete peer's cursor, select,...
-    this.peerIdJustLeft = conn.peer;
-
-    // Delete peer's nameColor
+    // Delete the peer's nameColor
     this.nameColorList = this.nameColorList.filter(
       (x) => x.ofPeerId !== conn.peer
     );
 
-    // IMPORTANT: Must be after delete peer's name color out of the list
+    // IMPORTANT: Must be after delete peer's nameColor out of the list
+    // Delete the peer's cursor, select,...
+    this.peerIdJustLeft = conn.peer;
     PeerUtils.broadcastInfo(BroadcastInfo.PeerLeft);
 
-    // Tell user that peer just left room
+    // Tell user that the peer just left room
     const name = this.nameService.getPeerName(conn.peer);
     this.alertifyService.warning(name + ' just left');
   }
@@ -424,10 +479,11 @@ export class PeerService {
     cursorColors: number[],
     cursorColor: number
   ) {
-    // Set cursor colors
+    // Set peers-in-room's cursor colors
     for (let i = 0; i < peerIds.length; i++) {
       this.cursorService.setPeerColor(peerIds[i], cursorColors[i]);
     }
+
     this.cursorService.setMyCursorColorAndPeerId(this.peer.id, cursorColor);
 
     this.nameService.giveMyselfRandomName(this.peer.id);
@@ -449,6 +505,7 @@ export class PeerService {
       this.hasReceivedAllChatMessages = true;
     } else {
       this.peerIdsInRoomWhenFirstEnter = peerIds;
+      // We join an existing room => Pick a random peer to give us oldCRDTs, old chat messages
       const peerIdPicked = this.pickReadyPeerToGetAllMessages(
         peerIds,
         receivedAllMessages
@@ -459,11 +516,16 @@ export class PeerService {
         );
       } else {
         this.connectToPeer(peerIdPicked, true);
+        // Handle edge case: That peer leaves before finishing sending us oldCRDTs and old chat messages
         this.waitTillGotAllMessagesOrRefreshIfThatPeerLeft(peerIdPicked);
       }
     }
   }
 
+  /**
+   * Take info from C# server to determine which peer has received all CRDTs and chat messages
+   * and which peer hasn't. Then pick a random, 'ready' peer
+   */
   private pickReadyPeerToGetAllMessages(
     peerIds: string[],
     receivedAllMessages: boolean[]
@@ -482,6 +544,10 @@ export class PeerService {
     }
   }
 
+  /**
+   * If the peer hasn's finished sending us oldCRDTs, asking C# server
+   * every 3 seconds to see if that peer has left. Refresh if he has left to rejoin room
+   */
   private waitTillGotAllMessagesOrRefreshIfThatPeerLeft(
     peerIdToGetAllMessages: string
   ) {
@@ -513,7 +579,6 @@ export class PeerService {
       .subscribe((data: EnterRoomInfo) => {
         this.roomName = data.roomName;
         EditorService.setSiteId(data.siteId);
-        // No peerId
         this.handleFirstJoinRoom([], [], [], data.cursorColor);
         PeerUtils.broadcastInfo(BroadcastInfo.RoomName);
         PeerUtils.broadcastInfo(BroadcastInfo.ReadyToDisplayMonaco);
@@ -530,6 +595,7 @@ export class PeerService {
           );
         }
         EditorService.setSiteId(data.siteId);
+        // SQL server doesn't have bool. We have to use 1 and 0. Mapping 1 and 0 back to bool
         const boolArrHasReceivedAllMessages = data.hasReceivedAllMessages.map(
           (num) => (num === 0 ? false : true)
         );
@@ -587,27 +653,48 @@ export class PeerService {
   }
 
   sendMessage(content: string) {
-    this.broadcastService.sendMessage(content, this.connectionsIAmHolding, this.previousChatMessages);
+    this.broadcastService.sendMessage(
+      content,
+      this.connectionsIAmHolding,
+      this.previousChatMessages
+    );
   }
 
   broadcastChangeCursorPos(event: any) {
-    this.broadcastService.broadcastChangeCursorPos(event, this.connectionsIAmHolding);
+    this.broadcastService.broadcastChangeCursorPos(
+      event,
+      this.connectionsIAmHolding
+    );
   }
 
   broadcastChangeSelectionPos(event: any) {
-    this.broadcastService.broadcastChangeSelectionPos(event, this.connectionsIAmHolding);
+    this.broadcastService.broadcastChangeSelectionPos(
+      event,
+      this.connectionsIAmHolding
+    );
   }
 
   broadcastChangeLanguage() {
     this.broadcastService.broadcastChangeLanguage(this.connectionsIAmHolding);
   }
 
+  /**
+   *   Broadcast CRDTs to all peers when local insert / remove
+   */
   private subscribeToEditorServiceEvents() {
     this.editorService.crdtEvent.subscribe((insert: boolean) => {
       if (insert) {
-        this.broadcastService.broadcastInsertOrRemove(this.editorService.getCrdtsToTransfer(), true, this.connectionsIAmHolding);
+        this.broadcastService.broadcastInsertOrRemove(
+          this.editorService.getCrdtsToTransfer(),
+          true,
+          this.connectionsIAmHolding
+        );
       } else {
-        this.broadcastService.broadcastInsertOrRemove(this.editorService.getCrdtsToTransfer(), false, this.connectionsIAmHolding);
+        this.broadcastService.broadcastInsertOrRemove(
+          this.editorService.getCrdtsToTransfer(),
+          false,
+          this.connectionsIAmHolding
+        );
       }
     });
   }

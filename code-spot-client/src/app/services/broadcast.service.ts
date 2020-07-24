@@ -110,7 +110,11 @@ export class BroadcastService {
     });
   }
 
-  sendMessage(content: string, connectionList: any[], previousChatMessages: Message[]) {
+  sendMessage(
+    content: string,
+    connectionList: any[],
+    previousChatMessages: Message[]
+  ) {
     if (content.length === 0) {
       return;
     }
