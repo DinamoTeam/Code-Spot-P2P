@@ -359,3 +359,6 @@ MigrationBackup/
 
 # Package Lock
 package-lock.json
+
+# App Settings
+appsettings.json
