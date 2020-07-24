@@ -62,7 +62,7 @@ export class CursorService {
         range: new monaco.Range(startLine, startCol, endLine, endCol),
         options: {
           className: 'monaco-select-' + color,
-          stickiness: 3
+          stickiness: 3,
         },
       },
     ]);
@@ -99,7 +99,8 @@ export class CursorService {
           this.domNode = document.createElement('div');
           this.domNode.textContent = nameTagOwner;
           this.domNode.style.whiteSpace = 'nowrap';
-          this.domNode.style.background = 'var(--monaco-color-' + nameTagColor + ')';
+          this.domNode.style.background =
+            'var(--monaco-color-' + nameTagColor + ')';
           this.domNode.classList.add('nameTagText');
           if (!showTag) {
             this.domNode.classList.add('hide');
@@ -121,8 +122,8 @@ export class CursorService {
     this.oldNameTags.set(ofPeerId, newNameTagWidget);
 
     const index = editor
-        .getModel()
-        .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
+      .getModel()
+      .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
     if (!isMyNameTag) {
       this.otherPeerNameTagIndices.set(ofPeerId, index);
     } else {
@@ -182,13 +183,13 @@ export class CursorService {
     insertStartIndex: number,
     insertLength: number
   ): void {
+    // Recalculate peers' nameTag indices
     const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
       if (!peerId) {
         console.error('PeerId undefined! What happened?!');
       }
-      const oldIndex = this.otherPeerNameTagIndices.get(peerId);
       const newIndex = this.nameTagIndexAfterInsert(
         this.otherPeerNameTagIndices.get(peerId),
         insertStartIndex,
@@ -196,12 +197,21 @@ export class CursorService {
       );
       this.otherPeerNameTagIndices.set(peerId, newIndex);
     }
+
+    // Recalculate my nameTag index
+    const myNewIndex = this.nameTagIndexAfterInsert(
+      this.myNameTagIndex,
+      insertStartIndex,
+      insertLength
+    );
+    this.myNameTagIndex = myNewIndex;
   }
 
   recalculateAllNameTagIndicesAfterRemove(
     removeStartIndex: number,
     removeLength: number
   ): void {
+    // Recalculate peers' nameTag indices
     const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
@@ -215,6 +225,14 @@ export class CursorService {
       );
       this.otherPeerNameTagIndices.set(peerId, newIndex);
     }
+
+    // Recalculate my nameTag index
+    const myNewIndex = this.nameTagIndexAfterInsert(
+      this.myNameTagIndex,
+      removeStartIndex,
+      removeLength
+    );
+    this.myNameTagIndex = myNewIndex;
   }
 
   redrawPeersNameTags(editor: any): void {
@@ -285,7 +303,6 @@ export class CursorService {
   setMyLastSelectEvent(event: any): void {
     this.myLastSelectEvent = event;
   }
-
 }
 
 /**
