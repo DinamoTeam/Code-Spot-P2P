@@ -1,15 +1,15 @@
 export class Message {
-  content: string;
+  content: any;
   messageType: MessageType;
   fromPeerId: string;
   chatMessageTime: number;
   crdtBatchNumber: number;
   totalCrdtBatches: number;
   constructor(
-    content: string,
+    content: any,
     messageType: MessageType,
     fromPeerId: string,
-    chatMessageTime?: number,
+    chatMessageTime?: number
   ) {
     this.content = content;
     this.messageType = messageType;
@@ -35,5 +35,6 @@ export const enum MessageType {
   ChangeSelect = 13,
   CursorColor = 14,
   Name = 15,
-  CanDisplayMeJustJoinRoom = 16
+  CanDisplayMeJustJoinRoom = 16,
+  ChangeName = 17,
 }

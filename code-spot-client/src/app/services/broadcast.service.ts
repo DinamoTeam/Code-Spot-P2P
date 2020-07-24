@@ -150,6 +150,21 @@ export class BroadcastService {
     conn.send(messageToSend);
   }
 
+  broadcastChangeName(connectionList: any[], newName: string) {
+    connectionList.forEach((conn) => {
+      this.sendChangeName(conn, newName);
+    });
+  }
+
+  sendChangeName(conn: any, newName: string) {
+    const messageToSend = new Message(
+      newName,
+      MessageType.ChangeName,
+      this.peer.id
+    );
+    conn.send(messageToSend);
+  }
+
   /* Cursor Change + Selection Change*/
   broadcastChangeSelectionPos(event: any, connectionList: any[]) {
     connectionList.forEach((conn) => {

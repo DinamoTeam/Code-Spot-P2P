@@ -10,7 +10,7 @@
     People
   </button>
   <div class="dropdown-menu">
-    <a *ngFor="let nameColor of namesColors" class="dropdown-item">
+    <a *ngFor="let nameColor of namesColors" class="dropdown-item" (click)="editName($event)">
       <i class="fa fa-circle fa-fw" [ngClass]="'color-' + nameColor.color"></i>
       {{ nameColor.name }}
     </a>

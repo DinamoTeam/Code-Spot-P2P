@@ -436,9 +436,6 @@ export class PeerService {
           AlertType.Success
         );
         break;
-      default:
-        console.log(message);
-        throw new Error('Unhandled messageType');
 
       // Somebody change monaco's language
       case MessageType.ChangeLanguage:
@@ -449,6 +446,24 @@ export class PeerService {
           AlertType.Message
         );
         break;
+
+      // Somebody change their names
+      case MessageType.ChangeName:
+        const oldName = this.nameService.getPeerName(fromConn.peer);
+        const newName = message.content;
+
+        this.nameService.setPeerName(fromConn.peer, newName);
+        this.updateNameColorList(fromConn.peer, newName);
+
+        PeerUtils.broadcastInfo(BroadcastInfo.ChangeName);
+        Utils.alert(
+          oldName + ' has changed their name to ' + newName,
+          AlertType.Message
+        );
+        break;
+      default:
+        console.log(message);
+        throw new Error('Unhandled messageType');
     }
   }
 
@@ -498,7 +513,7 @@ export class PeerService {
 
     this.nameColorList.push(
       new NameColor(
-        this.nameService.getPeerName(this.peer.id),
+        this.nameService.getPeerName(this.peer.id) + ' (You)',
         this.cursorService.getPeerColor(this.peer.id),
         this.peer.id
       )
@@ -577,6 +592,13 @@ export class PeerService {
         }
       });
     }
+  }
+
+  private updateNameColorList(peerId, newName) {
+    const nameColorIndex = this.nameColorList.findIndex(
+      (elem) => elem.ofPeerId === peerId
+    );
+    this.nameColorList[nameColorIndex].name = newName;
   }
 
   //*************************************************************
@@ -684,6 +706,18 @@ export class PeerService {
 
   broadcastChangeLanguage() {
     this.broadcastService.broadcastChangeLanguage(this.connectionsIAmHolding);
+  }
+
+  broadcastChangeName(newName: string) {
+    this.broadcastService.broadcastChangeName(
+      this.connectionsIAmHolding,
+      newName
+    );
+  }
+
+  changeMyName(newName: string) {
+    this.nameService.setPeerName(this.peer.id, newName);
+    this.updateNameColorList(this.peer.id, newName);
   }
 
   /**

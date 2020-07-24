@@ -56,17 +56,11 @@ export class ChatboxComponent implements OnInit {
     );
   }
 
-  uploadImage(event: any) {
-    const file = event.target.files[0];
-    const blob = new Blob(event.target.files, { type: file.type });
-    console.log(blob);
-
-    //conn.send({
-    //  file: blob,
-    //  filename: file.name,
-    //  filetype: file.type
-    //});
-
+  editName(event: any) {
+    const newName = "abc";
+    this.peerService.changeMyName(newName);
+    this.namesColors = this.peerService.getNameColorList();
+    this.peerService.broadcastChangeName(newName);
   }
 
   subscribeToPeerServerEvents() {
@@ -78,6 +72,7 @@ export class ChatboxComponent implements OnInit {
             this.scrollMessageBox();
             break;
           case BroadcastInfo.NewPeerJoining:
+          case BroadcastInfo.ChangeName:
           case BroadcastInfo.PeerLeft:
             this.namesColors = this.peerService.getNameColorList();
             break;
