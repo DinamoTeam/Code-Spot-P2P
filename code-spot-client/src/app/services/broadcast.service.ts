@@ -4,8 +4,6 @@ import { EditorService } from './editor.service';
 import { CRDT } from '../shared/CRDT';
 import { CrdtUtils } from '../shared/Utils';
 import { CursorService } from './cursor.service';
-import { AlertifyService } from './alertify.service';
-import { AlertType } from '../shared/AlertType';
 
 @Injectable({
   providedIn: 'root',
@@ -15,19 +13,14 @@ export class BroadcastService {
   private chatMessageTime = 0;
   private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
 
-  constructor(
-    private editorService: EditorService,
-    private cursorService: CursorService,
-    private alertifyService: AlertifyService,
-  ) {}
+  constructor(private cursorService: CursorService) {}
 
   requestOldMessages(conn: any, messageType: MessageType) {
     const message = new Message(null, messageType, this.peer.id);
     conn.send(message);
   }
 
-  sendOldCRDTs(conn: any) {
-    let previousCRDTs: CRDT[] = this.editorService.getOldCRDTsAsSortedArray();
+  sendOldCRDTs(conn: any, previousCRDTs: CRDT[]) {
     previousCRDTs = previousCRDTs.slice(1, previousCRDTs.length - 1); // Don't send "beg" and "end" CRDT
     if (previousCRDTs.length === 0) {
       conn.send(new Message('', MessageType.OldCRDTsLastBatch, this.peer.id));
@@ -192,33 +185,20 @@ export class BroadcastService {
     this.sendMyCursorColor(conn, this.cursorService.getMyCursorColor());
 
     const lastCursorEvent = this.cursorService.getMyLastCursorEvent();
-    if (lastCursorEvent !== null) 
+    if (lastCursorEvent !== null)
       this.sendChangeCursorPos(conn, lastCursorEvent);
 
     const lastSelectEvent = this.cursorService.getMyLastSelectEvent();
-    if (lastSelectEvent !== null) 
+    if (lastSelectEvent !== null)
       this.sendChangeSelectionPos(conn, lastSelectEvent);
   }
 
   sendMyName(conn: any, myName: string): void {
-    const message = new Message(
-      myName,
-      MessageType.Name,
-      this.peer.id
-    );
+    const message = new Message(myName, MessageType.Name, this.peer.id);
     conn.send(message);
   }
 
   setPeer(peer: any) {
     this.peer = peer;
-  }
-
-  alert(message: string, alertType: AlertType) {
-    if (alertType === AlertType.Success)
-      this.alertifyService.success(message);
-    else if (alertType === AlertType.Warning)
-      this.alertifyService.warning(message);
-    else if (alertType === AlertType.Message)
-      this.alertifyService.message(message);
   }
 }

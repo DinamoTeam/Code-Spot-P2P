@@ -15,7 +15,6 @@ import { AlertType } from '../shared/AlertType';
 import { NameService } from './name.service';
 import { NameColor } from '../shared/NameColor';
 import { BroadcastService } from './broadcast.service';
-import { AlertifyService } from './alertify.service';
 
 declare const Peer: any;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 5000;
@@ -47,8 +46,7 @@ export class PeerService {
     private cursorService: CursorService,
     private editorService: EditorService,
     private nameService: NameService,
-    private broadcastService: BroadcastService,
-    private alertifyService: AlertifyService
+    private broadcastService: BroadcastService
   ) {}
 
   /**
@@ -195,7 +193,10 @@ export class PeerService {
         BROADCAST_TILL_MILLI_SECONDS_LATER,
         this.connsToBroadcast
       );
-      this.broadcastService.sendOldCRDTs(conn);
+      this.broadcastService.sendOldCRDTs(
+        conn,
+        this.editorService.getOldCRDTsAsSortedArray()
+      );
       this.broadcastService.sendOldMessages(conn, this.previousChatMessages);
       this.peerIdsToSendOldCrdts = this.peerIdsToSendOldCrdts.filter(
         (id) => id !== conn.peer
@@ -301,7 +302,10 @@ export class PeerService {
               BROADCAST_TILL_MILLI_SECONDS_LATER,
               this.connsToBroadcast
             );
-            this.broadcastService.sendOldCRDTs(fromConn); // Send now
+            this.broadcastService.sendOldCRDTs(
+              fromConn,
+              this.editorService.getOldCRDTsAsSortedArray()
+            ); // Send now
             this.broadcastService.sendChangeLanguage(fromConn);
           }
         }
@@ -309,8 +313,9 @@ export class PeerService {
 
       // The peer we asked to send us oldCRDTs don't have them (They're new in room too)
       case MessageType.CannotSendOldCRDTs:
-        alert(
-          'The peer we picked to send us old messages cannot send. Reloading...'
+        Utils.alert(
+          'The peer we picked to send us old messages cannot send. Reloading...',
+          AlertType.Error
         );
         window.location.reload(true);
         break;
@@ -426,8 +431,9 @@ export class PeerService {
       // That peer has received all CRDTs. We can display their name now
       case MessageType.CanDisplayMeJustJoinRoom:
         PeerUtils.broadcastInfo(BroadcastInfo.NewPeerJoining);
-        this.broadcastService.alert(
-          this.nameService.getPeerName(fromConn.peer) + ' just joined room', AlertType.Success
+        Utils.alert(
+          this.nameService.getPeerName(fromConn.peer) + ' just joined room',
+          AlertType.Success
         );
         break;
       default:
@@ -438,8 +444,9 @@ export class PeerService {
       case MessageType.ChangeLanguage:
         EditorService.language = message.content;
         PeerUtils.broadcastInfo(BroadcastInfo.ChangeLanguage);
-        this.alertifyService.message(
-          'Language has been changed to ' + message.content
+        Utils.alert(
+          'Language has been changed to ' + message.content,
+          AlertType.Message
         );
         break;
     }
@@ -470,7 +477,7 @@ export class PeerService {
 
     // Tell user that the peer just left room
     const name = this.nameService.getPeerName(conn.peer);
-    this.broadcastService.alert(name + ' just left', AlertType.Warning);
+    Utils.alert(name + ' just left', AlertType.Warning);
   }
 
   //***************** Handle when join room *******************

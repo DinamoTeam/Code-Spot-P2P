@@ -3,14 +3,14 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
 import { ActivatedRoute } from '@angular/router';
 import { PeerService } from '../services/peer.service';
-import { Location} from '@angular/common';
+import { Location } from '@angular/common';
 import { Languages } from './languages';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorService } from '../services/cursor.service';
-import { PeerUtils } from '../shared/Utils';
+import { PeerUtils, Utils } from '../shared/Utils';
 import { CursorChangeReason } from '../shared/CursorChangeReason';
-import { AlertifyService } from '../services/alertify.service';
 import { CursorChangeSource } from '../shared/CursorChangeSource';
+import { AlertType } from '../shared/AlertType';
 
 @Component({
   selector: 'app-code-editor',
@@ -54,7 +54,6 @@ export class CodeEditorComponent implements OnInit {
   constructor(
     private peerService: PeerService,
     private cursorService: CursorService,
-    private alertifyService: AlertifyService,
     public editorService: EditorService,
     private ngZone: NgZone,
     private actRoute: ActivatedRoute,
@@ -350,7 +349,7 @@ export class CodeEditorComponent implements OnInit {
     selBox.select();
     document.execCommand('copy');
     document.body.removeChild(selBox);
-    this.alertifyService.success('Link copied to clipboard!');
+    Utils.alert('Link copied to clipboard!', AlertType.Success);
   }
 
   printSelect() {

@@ -3,6 +3,8 @@ import { Message } from './Message';
 import { EventEmitter } from '@angular/core';
 import { BroadcastInfo } from './BroadcastInfo';
 import { NameColor } from './NameColor';
+import * as alertify from 'alertifyjs';
+import { AlertType } from './AlertType';
 
 export class CrdtUtils {
   // Prototype: linear search. Future: binary search
@@ -46,15 +48,23 @@ export class CrdtUtils {
 
   // Break huge crdts array into smaller arrays and send each one to avoid connection crash
   static MAX_STRING_LENGTH_PER_SEND = 64000; // 64Kb => 65536 bytes => 65536 chars. Leave some chars for JSON
-  static breakCrdtsIntoCrdtStringBatches(crdts: CRDT[], delimiter: string): string[] {
-    const crdtStrings = crdts.map(crdt => crdt.toString());
+  static breakCrdtsIntoCrdtStringBatches(
+    crdts: CRDT[],
+    delimiter: string
+  ): string[] {
+    const crdtStrings = crdts.map((crdt) => crdt.toString());
     const crdtStringsBatches: string[] = [];
     let startIndex = 0;
     let i: number;
     let curLength = 0;
     for (i = 0; i < crdtStrings.length; i++) {
-      if (curLength + crdtStrings[i].length >= this.MAX_STRING_LENGTH_PER_SEND) {
-        crdtStringsBatches.push(crdtStrings.slice(startIndex, i).join(delimiter));
+      if (
+        curLength + crdtStrings[i].length >=
+        this.MAX_STRING_LENGTH_PER_SEND
+      ) {
+        crdtStringsBatches.push(
+          crdtStrings.slice(startIndex, i).join(delimiter)
+        );
         startIndex = i;
         curLength = 0;
         i--;
@@ -99,7 +109,7 @@ export class PeerUtils {
   static handlePeerError(message: string) {
     let ans = confirm(message);
     if (ans === true) window.location.replace('/');
-    else console.log("WARN USER THAT THIS HAS STOP SYNC");
+    else console.log('WARN USER THAT THIS HAS STOP SYNC');
 
     // TODO: WARN USER THAT THIS HAS STOP SYNC
   }
@@ -123,8 +133,15 @@ export class Utils {
     });
   }
 
-  static addUniqueNameColor(nameColor: NameColor, listToBeAddedTo: NameColor[]) {
-    if (!listToBeAddedTo.find(x => x.name === nameColor.name && x.color === nameColor.color)) {
+  static addUniqueNameColor(
+    nameColor: NameColor,
+    listToBeAddedTo: NameColor[]
+  ) {
+    if (
+      !listToBeAddedTo.find(
+        (x) => x.name === nameColor.name && x.color === nameColor.color
+      )
+    ) {
       listToBeAddedTo.push(nameColor);
     }
   }
@@ -133,5 +150,16 @@ export class Utils {
     Utils.broadcast.emit(infoType);
   }
 
+  static alert(message: string, alertType: AlertType) {
+    if (alertType === AlertType.Success) alertify.success(message);
+    else if (alertType === AlertType.Warning) alertify.warning(message);
+    else if (alertType === AlertType.Error) alertify.error(message);
+    else if (alertType === AlertType.Message) alertify.message(message);
+  }
 
+  confirm(message: string, okCallback: () => any) {
+    alertify.confirm(message, (e: any) => {
+      if (e) okCallback();
+    });
+  }
 }
