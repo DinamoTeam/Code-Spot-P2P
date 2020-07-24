@@ -7,7 +7,7 @@ import { NameService } from './name.service';
 export class CursorService {
   private cursorDecorations: Decoration[] = [];
   private selectionDecorations: Decoration[] = [];
-  // Color: 1 to 25
+  // Color: 1 to 25. peerColors include myColor
   private peerColors: Map<string, number> = new Map<string, number>();
   private oldNameTags: Map<string, any> = new Map<string, any>();
   private otherPeerNameTagIndices = new Map<string, number>();
@@ -54,7 +54,6 @@ export class CursorService {
     endCol: number,
     ofPeerId: string
   ) {
-    const peerName = this.nameService.getPeerName(ofPeerId);
     const color = this.peerColors.get(ofPeerId);
     const deco = this.selectionDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
@@ -86,9 +85,6 @@ export class CursorService {
       editor.removeContentWidget(oldNameTag);
     }
     const nameTagOwner = this.nameService.getPeerName(ofPeerId);
-    if (isMyNameTag) {
-      console.log('draw my nameTag. Name: ' + nameTagOwner);
-    }
     const nameTagColor = this.peerColors.get(ofPeerId);
 
     const contentWidgetId = this.contentWidgetId++ + '';
@@ -152,6 +148,9 @@ export class CursorService {
     this.showNameTag = true;
   }
 
+  /**
+   * Manually calculate where a nameTag should be after an insert
+   */
   nameTagIndexAfterInsert(
     originalIndex: number,
     insertStartIndex: number,
@@ -164,6 +163,9 @@ export class CursorService {
     }
   }
 
+  /**
+   * Manually calculate where a nameTag should be after a remove
+   */
   nameTagIndexAfterRemove(
     originalIndex: number,
     removeStartIndex: number,
@@ -223,7 +225,6 @@ export class CursorService {
   }
 
   redrawMyNameTag(editor: any, myPeerId: string): void {
-    console.log('HERE');
     const pos = editor.getModel().getPositionAt(this.myNameTagIndex);
     this.drawNameTag(editor, myPeerId, pos.lineNumber, pos.column, true);
   }
@@ -235,15 +236,19 @@ export class CursorService {
   removePeer(editor: any, peerId: string): void {
     this.peerColors.delete(peerId);
 
+    // Clean cursor decoration
     const cursorDecoration = this.cursorDecorations
       .filter((d) => d.peerId === peerId)
       .map((d) => d.decoration);
+
+    // Clean select decoration
     const selectDecoration = this.cursorDecorations
       .filter((d) => d.peerId === peerId)
       .map((d) => d.decoration);
     editor.deltaDecorations(cursorDecoration, []);
     editor.deltaDecorations(selectDecoration, []);
 
+    // Clean name tag
     const oldNameTag = this.oldNameTags.get(peerId);
     if (oldNameTag) {
       editor.removeContentWidget(oldNameTag);
@@ -283,6 +288,9 @@ export class CursorService {
 
 }
 
+/**
+ * Wrap Monaco's decoration (add peerId)
+ */
 class Decoration {
   decoration: any;
   peerId: string;
