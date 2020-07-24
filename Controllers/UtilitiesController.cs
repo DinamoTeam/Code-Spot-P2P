@@ -1,5 +1,6 @@
 ﻿using CodeSpot.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;
 
@@ -12,19 +13,26 @@ namespace CodeSpot.Controllers
 		static readonly string smtpAddress = "smtp.gmail.com";
 		static readonly int portNumber = 587;
 		static readonly bool enableSSL = true;
-		static readonly string emailFromAddress = "sender@gmail.com";
-		static readonly string password = "Abc@123$%^";
+		static readonly string emailFromAddress = "DinamoTeam20@gmail.com";
+		private readonly IConfiguration Configuration;
+
+		public UtilitiesController(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
 		// POST: api/Utilities/SendEmail
 		[HttpPost]
-		public void SendEmail([FromBody] ContactForm form)
+		public OkObjectResult SendEmail([FromBody] ContactForm form)
 		{
 			string emailBody = string.Empty;
-			emailBody += "Name: " + form.Name + "\n";
-			emailBody += "Email: " + form.Email + "\n";
-			emailBody += "Subject: " + form.Subject + "\n";
-			emailBody += "Message:" + "\n";
-			emailBody += "\t" + form.Message + "\n";
+			emailBody += "<p>Name: " + form.Name + "</p>";
+			emailBody += "<p>Email: " + form.Email + "</p>";
+			emailBody += "<p>Subject: " + form.Subject + "</p>";
+			emailBody += "<p>Message:" + "</p>";
+			emailBody += "<p>" + form.Message + "</p>";
+
+			string password = Configuration["EmailPassword"];
 
 			using (MailMessage email = new MailMessage())
 			{
@@ -37,11 +45,14 @@ namespace CodeSpot.Controllers
 
 				using (SmtpClient smtp = new SmtpClient(smtpAddress, portNumber))
 				{
+					smtp.UseDefaultCredentials = false;
 					smtp.Credentials = new NetworkCredential(emailFromAddress, password);
 					smtp.EnableSsl = enableSSL;
 					smtp.Send(email);
 				}
 			}
+
+			return Ok("Email sent sucessful!");
 		}
 	}
 }
