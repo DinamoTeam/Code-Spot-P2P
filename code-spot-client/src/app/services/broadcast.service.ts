@@ -5,6 +5,8 @@ import { EditorService } from './editor.service';
 import { CRDT } from '../shared/CRDT';
 import { CrdtUtils } from '../shared/Utils';
 import { CursorService } from './cursor.service';
+import { AlertifyService } from './alertify.service';
+import { AlertType } from '../shared/AlertType';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +19,8 @@ export class BroadcastService {
   constructor(
     private nameService: NameService,
     private editorService: EditorService,
-    private cursorService: CursorService
+    private cursorService: CursorService,
+    private alertifyService: AlertifyService,
   ) {}
 
   requestOldMessages(conn: any, messageType: MessageType) {
@@ -207,5 +210,14 @@ export class BroadcastService {
 
   setPeer(peer: any) {
     this.peer = peer;
+  }
+
+  alert(message: string, alertType: AlertType) {
+    if (alertType === AlertType.Success)
+      this.alertifyService.success(message);
+    else if (alertType === AlertType.Warning)
+      this.alertifyService.warning(message);
+    else if (alertType === AlertType.Message)
+      this.alertifyService.message(message);
   }
 }
