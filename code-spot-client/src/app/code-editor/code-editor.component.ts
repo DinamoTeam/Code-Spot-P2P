@@ -18,10 +18,6 @@ import { AlertType } from '../shared/AlertType';
   styleUrls: ['./code-editor.component.css'],
 })
 export class CodeEditorComponent implements OnInit {
-  // Monaco cursor select
-  selectDecorations = [];
-  cursorDecorations = [];
-
   showNameTags: boolean = true;
   ready = false;
   roomName: string;
@@ -71,7 +67,7 @@ export class CodeEditorComponent implements OnInit {
   editorOptions = {
     theme: 'vs-dark',
     language: EditorService.language,
-    wordWrap: 'on'
+    wordWrap: 'on',
   };
 
   onLanguageChange(res: string) {
@@ -113,18 +109,22 @@ export class CodeEditorComponent implements OnInit {
       });
     });
 
+    // Listen to any content changes (such as insert, remove, undo,...)
     this.editor.onDidChangeModelContent((e: any) =>
       this.onDidChangeModelContentHandler(e)
     );
 
+    // Listen to cursor position change
     this.editor.onDidChangeCursorPosition((e: any) =>
       this.onDidChangeCursorPositionHandler(e)
     );
 
+    // Listen to cursor selection change
     this.editor.onDidChangeCursorSelection((e: any) =>
       this.onDidChangeCursorSelectionHandler(e)
     );
 
+    // Only connect to PeerServer when both Monaco Editors is ready
     this.mainEditorReady = true;
     if (this.auxEditorReady && !this.peerServiceHasConnectedToPeerServer) {
       this.peerService.connectToPeerServerAndInit();
@@ -132,19 +132,29 @@ export class CodeEditorComponent implements OnInit {
     }
   }
 
+  /**
+   * Aux editor will always be '1 step behind' main editor. This is useful because
+   * to correctly sync undo / redo request and cursor / select change request,
+   * we need 'currentState' and 'previousState' of our editor
+   */
   onInitAuxEditorHandler(event: any) {
     this.auxEditor = event;
     this.auxEditorTextModel = this.auxEditor.getModel();
     this.auxEditorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
+    // Only connect to PeerServer when both Monaco Editors is ready
     this.auxEditorReady = true;
-    if (this.auxEditorReady && !this.peerServiceHasConnectedToPeerServer) {
+    if (this.mainEditorReady && !this.peerServiceHasConnectedToPeerServer) {
       this.peerService.connectToPeerServerAndInit();
       this.peerServiceHasConnectedToPeerServer = true;
     }
   }
 
+  /**
+   * Listen to any content changes (such as insert, remove, undo,...)
+   */
   onDidChangeModelContentHandler(event: any): void {
+    // remoteOpLeft is used because remoteInsert / remoteRemove will also trigger this event
     if (EditorService.remoteOpLeft > 0) {
       EditorService.remoteOpLeft--;
       return;
@@ -155,9 +165,9 @@ export class CodeEditorComponent implements OnInit {
     for (let i = 0; i < changes.length; i++) {
       const range = changes[i].range;
 
-      // Calculate new pos for nameTag when local remove
+      // Calculate new pos for nameTag when local remove. Notice we use auxEditor
       let index = this.editorService.posToIndex(
-        this.auxEditor.getModel(),
+        this.auxEditorTextModel,
         range.startLineNumber,
         range.startColumn
       );
@@ -176,9 +186,9 @@ export class CodeEditorComponent implements OnInit {
         changes[i].rangeLength
       );
 
-      // Calculate new pos for nameTag when local insert
+      // Calculate new pos for nameTag when local insert. Notice we use auxEditor
       index = this.editorService.posToIndex(
-        this.auxEditor.getModel(),
+        this.auxEditorTextModel,
         range.startLineNumber,
         range.startColumn
       );
@@ -196,14 +206,17 @@ export class CodeEditorComponent implements OnInit {
       );
     }
 
-    // Actually redraw name tag
+    // Redraw name tag
     this.cursorService.redrawPeersNameTags(this.editor);
   }
 
+  /**
+   * Listen to cursor position change event
+   */
   onDidChangeCursorPositionHandler(event: any): void {
     this.cursorService.setMyLastCursorEvent(event);
 
-    // Draw my name tag
+    // Draw our name tag wherever our cursor goes
     this.cursorService.drawNameTag(
       this.editor,
       this.peerService.getMyPeerId(),
@@ -227,6 +240,9 @@ export class CodeEditorComponent implements OnInit {
     }
   }
 
+  /**
+   * Listen to cursor selection change event
+   */
   onDidChangeCursorSelectionHandler(event: any): void {
     this.cursorService.setMyLastSelectEvent(event);
     if (this.worthSending(event)) {
@@ -238,17 +254,6 @@ export class CodeEditorComponent implements OnInit {
     PeerUtils.broadcast.subscribe((message: any) => {
       this.ngZone.run(() => {
         switch (message) {
-          case BroadcastInfo.RoomName:
-            this.roomName = this.peerService.getRoomName();
-            this.location.replaceState('/editor/' + this.roomName);
-            break;
-          case BroadcastInfo.ChangeLanguage:
-            this.selectedLang = EditorService.language;
-            this.editorOptions = Object.assign({}, this.editorOptions, {
-              language: this.selectedLang,
-            });
-            this.editorForm.patchValue({ language: this.selectedLang });
-            break;
           case BroadcastInfo.RemoteInsert:
           case BroadcastInfo.RemoteAllMessages:
             this.editorService.handleRemoteInsert(
@@ -265,6 +270,15 @@ export class CodeEditorComponent implements OnInit {
               this.auxEditorTextModel,
               this.peerService.getReceivedRemoteCrdts()
             );
+            break;
+          case BroadcastInfo.RoomName:
+            this.roomName = this.peerService.getRoomName();
+            this.location.replaceState('/editor/' + this.roomName);
+            break;
+          case BroadcastInfo.ChangeLanguage:
+            this.selectedLang = EditorService.language;
+            monaco.editor.setModelLanguage(this.editorTextModel, this.selectedLang);
+            this.editorForm.patchValue({ language: this.selectedLang });
             break;
           case BroadcastInfo.ReadyToDisplayMonaco:
             this.ready = true;
@@ -304,7 +318,10 @@ export class CodeEditorComponent implements OnInit {
             this.cursorService.redrawPeersNameTags(this.editor);
             break;
           case BroadcastInfo.ChangeMyName:
-            this.cursorService.redrawMyNameTag(this.editor, this.peerService.getMyPeerId());
+            this.cursorService.redrawMyNameTag(
+              this.editor,
+              this.peerService.getMyPeerId()
+            );
             break;
           default:
             break;
@@ -313,6 +330,11 @@ export class CodeEditorComponent implements OnInit {
     });
   }
 
+  /**
+   * To sync cursor / select change event, we can send every single change that takes place.
+   * BUT this is VERY SLOW. Therefore we only send change event if we have to. We let Monaco's decoration
+   * takes care of the rest.
+   */
   private worthSending(CursorOrSelectChangeEvent: any): boolean {
     if (
       CursorOrSelectChangeEvent.reason === CursorChangeReason.Explicit ||
@@ -357,13 +379,5 @@ export class CodeEditorComponent implements OnInit {
     document.execCommand('copy');
     document.body.removeChild(selBox);
     Utils.alert('Link copied to clipboard!', AlertType.Success);
-  }
-
-  printSelect() {
-    console.log(this.cursorService.getMyLastSelectEvent());
-  }
-
-  printCursor() {
-    console.log(this.cursorService.getMyLastCursorEvent());
   }
 }
