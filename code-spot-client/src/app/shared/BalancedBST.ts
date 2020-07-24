@@ -3,16 +3,22 @@ export interface IsObject {
   toString: () => string;
 }
 
-// NO DUPLICATES in this BST! return -1 if insert duplicate elements
+/**
+ * Order-statistic, balanced BST. This BST allows NO DUPLICATE.
+ * Return -1 if insert duplicate element!
+ */
 export class BalancedBST<T extends IsObject> {
   private root: Node<T>;
   private size: number;
+
   constructor() {
     this.root = null;
     this.size = 0;
   }
 
-  // Return inserted 'index'
+  /**
+   * Return inserted index
+   */
   insert(data: T): number {
     if (this.isEmpty()) {
       this.root = new Node<T>(data, null);
@@ -50,6 +56,9 @@ export class BalancedBST<T extends IsObject> {
     }
   }
 
+  /**
+   * Return removed index
+   */
   remove(data: T): number {
     const nodeToRemove = this.find(data);
     if (!nodeToRemove) {
@@ -128,6 +137,9 @@ export class BalancedBST<T extends IsObject> {
     }
   }
 
+  /**
+   * Find node with the specified data
+   */
   private find(data: T): Node<T> {
     if (this.isEmpty()) {
       return null;
@@ -146,6 +158,9 @@ export class BalancedBST<T extends IsObject> {
     return null;
   }
 
+  /**
+   * Get index of the node with node.data === data
+   */
   getIndex(data: T): number {
     if (this.isEmpty()) {
       return -1;
@@ -170,6 +185,9 @@ export class BalancedBST<T extends IsObject> {
     return -1;
   }
 
+  /**
+   * Get data at index
+   */
   getDataAt(index: number): T {
     if (this.isEmpty() || index >= this.size) {
       return null;
@@ -206,6 +224,9 @@ export class BalancedBST<T extends IsObject> {
     this.toSortedArrayInOrder(resArr, curNode.right);
   }
 
+  /**
+   * AVL Tree
+   */
   goUpRebalanceAndUpdateHeightBFAndSubtreeSize(node: Node<T>): void {
     this.updateHeightBFAndSubtreeSize(node);
 
@@ -329,7 +350,9 @@ export class BalancedBST<T extends IsObject> {
     return true;
   }
 
-  // Note: Slow, for test purposes only. If you need height, simply return this.root.height + 1
+  /**
+   *   Note: Slow, for testing purposes only. If you need height, simply return this.root.height + 1
+   */
   getHeight(): number {
     if (this.isEmpty()) {
       return 0;
@@ -360,6 +383,9 @@ export class BalancedBST<T extends IsObject> {
     return this.size === 0;
   }
 
+  /**
+   * For testing purposes only
+   */
   inorderToString(): string {
     const res: string[] = [];
     this.inorderHelper(this.root, res);
@@ -379,6 +405,9 @@ export class BalancedBST<T extends IsObject> {
     this.inorderHelper(node.right, res);
   }
 
+  /**
+   * For testing purposes only
+   */
   printLevel(): void {
     if (this.isEmpty()) {
       return;
@@ -467,7 +496,9 @@ class Node<T> {
   }
 }
 
-// A naive implementation of Queue
+/**
+ * A naive implementation of Queue. For testing purposes only
+ */
 class Queue<T> {
   private list: T[];
   constructor() {
