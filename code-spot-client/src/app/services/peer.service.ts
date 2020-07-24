@@ -175,7 +175,7 @@ export class PeerService {
    */
   private handleConnectionOpened(conn: any): void {
     // Order is important! Name first and then cursor info!
-    this.broadcastService.sendMyName(conn);
+    this.broadcastService.sendMyName(conn, this.nameService.getMyName());
     this.broadcastService.sendCursorInfo(conn);
 
     // Seems weird but we need it

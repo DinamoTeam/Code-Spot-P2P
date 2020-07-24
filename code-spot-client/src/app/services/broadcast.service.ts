@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Message, MessageType } from '../shared/Message';
-import { NameService } from './name.service';
 import { EditorService } from './editor.service';
 import { CRDT } from '../shared/CRDT';
 import { CrdtUtils } from '../shared/Utils';
@@ -17,7 +16,6 @@ export class BroadcastService {
   private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
 
   constructor(
-    private nameService: NameService,
     private editorService: EditorService,
     private cursorService: CursorService,
     private alertifyService: AlertifyService,
@@ -199,9 +197,9 @@ export class BroadcastService {
     }
   }
 
-  sendMyName(conn: any): void {
+  sendMyName(conn: any, myName: string): void {
     const message = new Message(
-      this.nameService.getMyName(),
+      myName,
       MessageType.Name,
       this.peer.id
     );
