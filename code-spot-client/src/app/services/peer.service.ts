@@ -15,6 +15,7 @@ import { AlertType } from '../shared/AlertType';
 import { NameService } from './name.service';
 import { NameColor } from '../shared/NameColor';
 import { BroadcastService } from './broadcast.service';
+import { AlertifyService } from './alertify.service';
 
 declare const Peer: any;
 const BROADCAST_TILL_MILLI_SECONDS_LATER = 5000;
@@ -45,8 +46,9 @@ export class PeerService {
     private roomService: RoomService,
     private cursorService: CursorService,
     private editorService: EditorService,
-    private nameService: NameService,   
-    private broadcastService: BroadcastService
+    private nameService: NameService,
+    private broadcastService: BroadcastService,
+    private alertifyService: AlertifyService
   ) {}
 
   /**
