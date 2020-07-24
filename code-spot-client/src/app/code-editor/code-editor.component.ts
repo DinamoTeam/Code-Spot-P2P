@@ -1,9 +1,9 @@
-import { Component, OnInit, Input, NgZone, Inject } from '@angular/core';
+import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { EditorService } from '../services/editor.service';
 import { ActivatedRoute } from '@angular/router';
 import { PeerService } from '../services/peer.service';
-import { Location, DOCUMENT } from '@angular/common';
+import { Location} from '@angular/common';
 import { Languages } from './languages';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
 import { CursorService } from '../services/cursor.service';
@@ -11,10 +11,6 @@ import { PeerUtils } from '../shared/Utils';
 import { CursorChangeReason } from '../shared/CursorChangeReason';
 import { AlertifyService } from '../services/alertify.service';
 import { CursorChangeSource } from '../shared/CursorChangeSource';
-import {
-  CrdtPackageService,
-  PackageType,
-} from '../services/crdtPackage.service';
 
 @Component({
   selector: 'app-code-editor',
@@ -57,7 +53,6 @@ export class CodeEditorComponent implements OnInit {
 
   constructor(
     private peerService: PeerService,
-    private crdtPackageService: CrdtPackageService,
     private cursorService: CursorService,
     private alertifyService: AlertifyService,
     public editorService: EditorService,
