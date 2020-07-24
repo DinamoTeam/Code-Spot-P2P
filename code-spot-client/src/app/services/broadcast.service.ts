@@ -186,15 +186,14 @@ export class BroadcastService {
 
   sendCursorInfo(conn: any): void {
     this.sendMyCursorColor(conn, this.cursorService.getMyCursorColor());
-    if (this.cursorService.getMyLastCursorEvent() !== null) {
-      this.sendChangeCursorPos(conn, this.cursorService.getMyLastCursorEvent());
-    }
-    if (this.cursorService.getMyLastSelectEvent() !== null) {
-      this.sendChangeSelectionPos(
-        conn,
-        this.cursorService.getMyLastSelectEvent()
-      );
-    }
+
+    const lastCursorEvent = this.cursorService.getMyLastCursorEvent();
+    if (lastCursorEvent !== null) 
+      this.sendChangeCursorPos(conn, lastCursorEvent);
+
+    const lastSelectEvent = this.cursorService.getMyLastSelectEvent();
+    if (lastSelectEvent !== null) 
+      this.sendChangeSelectionPos(conn, lastSelectEvent);
   }
 
   sendMyName(conn: any, myName: string): void {
