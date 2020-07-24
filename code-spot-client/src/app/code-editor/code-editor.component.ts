@@ -197,7 +197,7 @@ export class CodeEditorComponent implements OnInit {
     }
 
     // Actually redraw name tag
-    this.cursorService.redrawAllNameTags(this.editor);
+    this.cursorService.redrawPeersNameTags(this.editor);
   }
 
   onDidChangeCursorPositionHandler(event: any): void {
@@ -206,7 +206,7 @@ export class CodeEditorComponent implements OnInit {
     // Draw my name tag
     this.cursorService.drawNameTag(
       this.editor,
-      this.peerService.getPeerId(),
+      this.peerService.getMyPeerId(),
       event.position.lineNumber,
       event.position.column,
       true
@@ -300,7 +300,14 @@ export class CodeEditorComponent implements OnInit {
             const peerIdLeft = this.peerService.getPeerIdJustLeft();
             this.cursorService.removePeer(this.editor, peerIdLeft);
             break;
+          case BroadcastInfo.ChangePeerName:
+            this.cursorService.redrawPeersNameTags(this.editor);
+            break;
+          case BroadcastInfo.ChangeMyName:
+            this.cursorService.redrawMyNameTag(this.editor, this.peerService.getMyPeerId());
+            break;
           default:
+            break;
         }
       });
     });

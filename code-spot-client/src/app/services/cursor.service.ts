@@ -11,6 +11,7 @@ export class CursorService {
   private peerColors: Map<string, number> = new Map<string, number>();
   private oldNameTags: Map<string, any> = new Map<string, any>();
   private otherPeerNameTagIndices = new Map<string, number>();
+  private myNameTagIndex: number;
   private myPeerId: string;
   private myLastCursorEvent: any = null;
   private myLastSelectEvent: any = null;
@@ -85,6 +86,9 @@ export class CursorService {
       editor.removeContentWidget(oldNameTag);
     }
     const nameTagOwner = this.nameService.getPeerName(ofPeerId);
+    if (isMyNameTag) {
+      console.log('draw my nameTag. Name: ' + nameTagOwner);
+    }
     const nameTagColor = this.peerColors.get(ofPeerId);
 
     const contentWidgetId = this.contentWidgetId++ + '';
@@ -120,12 +124,13 @@ export class CursorService {
     editor.addContentWidget(newNameTagWidget);
     this.oldNameTags.set(ofPeerId, newNameTagWidget);
 
-    // "My name tag" is updated differently (matching "my cursor")
-    if (!isMyNameTag) {
-      const index = editor
+    const index = editor
         .getModel()
         .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
+    if (!isMyNameTag) {
       this.otherPeerNameTagIndices.set(ofPeerId, index);
+    } else {
+      this.myNameTagIndex = index;
     }
   }
 
@@ -210,11 +215,17 @@ export class CursorService {
     }
   }
 
-  redrawAllNameTags(editor: any): void {
+  redrawPeersNameTags(editor: any): void {
     this.otherPeerNameTagIndices.forEach((index: number, peerId: string) => {
       const pos = editor.getModel().getPositionAt(index);
       this.drawNameTag(editor, peerId, pos.lineNumber, pos.column, false);
     });
+  }
+
+  redrawMyNameTag(editor: any, myPeerId: string): void {
+    console.log('HERE');
+    const pos = editor.getModel().getPositionAt(this.myNameTagIndex);
+    this.drawNameTag(editor, myPeerId, pos.lineNumber, pos.column, true);
   }
 
   setPeerColor(peerId: string, color: number): void {

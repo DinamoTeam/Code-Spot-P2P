@@ -157,7 +157,7 @@ export class EditorService {
     }
 
     // Actually redraw nameTag
-    this.cursorService.redrawAllNameTags(editor);
+    this.cursorService.redrawPeersNameTags(editor);
   }
 
   handleLocalRangeRemove(
@@ -255,7 +255,7 @@ export class EditorService {
     }
 
     // Actually redraw nameTag
-    this.cursorService.redrawAllNameTags(editor);
+    this.cursorService.redrawPeersNameTags(editor);
   }
 
   getOldCRDTsAsSortedArray(): CRDT[] {

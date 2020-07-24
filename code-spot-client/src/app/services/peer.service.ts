@@ -175,7 +175,10 @@ export class PeerService {
    */
   private handleConnectionOpened(conn: any): void {
     // Order is important! Name first and then cursor info!
-    this.broadcastService.sendMyName(conn, this.nameService.getMyName());
+    this.broadcastService.sendMyName(
+      conn,
+      this.nameService.getPeerName(this.peer.id)
+    );
     this.broadcastService.sendCursorInfo(conn);
 
     // Seems weird but we need it
@@ -437,8 +440,12 @@ export class PeerService {
         );
         break;
 
-      // Somebody change monaco's language
+      // That peer changed monaco's language
       case MessageType.ChangeLanguage:
+        this.broadcastService.broadcastMessageToNewPeers(
+          message,
+          this.connsToBroadcast
+        );
         EditorService.language = message.content;
         PeerUtils.broadcastInfo(BroadcastInfo.ChangeLanguage);
         Utils.alert(
@@ -447,19 +454,25 @@ export class PeerService {
         );
         break;
 
-      // Somebody change their names
+      // That peer changed his name
       case MessageType.ChangeName:
-        const oldName = this.nameService.getPeerName(fromConn.peer);
-        const newName = message.content;
-
-        this.nameService.setPeerName(fromConn.peer, newName);
-        this.updateNameColorList(fromConn.peer, newName);
-
-        PeerUtils.broadcastInfo(BroadcastInfo.ChangeName);
-        Utils.alert(
-          oldName + ' has changed their name to ' + newName,
-          AlertType.Message
+        this.broadcastService.broadcastMessageToNewPeers(
+          message,
+          this.connsToBroadcast
         );
+        const fromPeerId = message.fromPeerId;
+        const oldName = this.nameService.getPeerName(fromPeerId);
+        const newName = message.content;
+        if (oldName !== newName) {
+          this.nameService.setPeerName(fromPeerId, newName);
+          this.updateNameColorList(fromPeerId, newName);
+
+          PeerUtils.broadcastInfo(BroadcastInfo.ChangePeerName);
+          Utils.alert(
+            oldName + ' has changed their name to ' + newName,
+            AlertType.Message
+          );
+        }
         break;
       default:
         console.log(message);
@@ -662,7 +675,7 @@ export class PeerService {
     return this.receivedRemoteCrdts;
   }
 
-  getPeerId(): string {
+  getMyPeerId(): string {
     return this.peer.id;
   }
 
@@ -718,6 +731,7 @@ export class PeerService {
   changeMyName(newName: string) {
     this.nameService.setPeerName(this.peer.id, newName);
     this.updateNameColorList(this.peer.id, newName);
+    PeerUtils.broadcastInfo(BroadcastInfo.ChangeMyName);
   }
 
   /**

@@ -34,7 +34,7 @@ export class ChatboxComponent implements OnInit {
     private formBuilder: FormBuilder
   ) {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
-      if (successful) this.myPeerId = this.peerService.getPeerId();
+      if (successful) this.myPeerId = this.peerService.getMyPeerId();
     });
   }
 
@@ -72,7 +72,7 @@ export class ChatboxComponent implements OnInit {
             this.scrollMessageBox();
             break;
           case BroadcastInfo.NewPeerJoining:
-          case BroadcastInfo.ChangeName:
+          case BroadcastInfo.ChangePeerName:
           case BroadcastInfo.PeerLeft:
             this.namesColors = this.peerService.getNameColorList();
             break;

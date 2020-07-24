@@ -17,7 +17,7 @@ export class MessageBubbleComponent implements OnInit {
   constructor(private peerService: PeerService, public nameService: NameService) { }
 
   ngOnInit() {
-    this.myPeerId = this.peerService.getPeerId();
+    this.myPeerId = this.peerService.getMyPeerId();
     this.displayName = this.nameService.getPeerName(this.senderName);
   }
 }
