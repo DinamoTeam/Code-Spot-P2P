@@ -15,11 +15,17 @@ export class BroadcastService {
 
   constructor(private cursorService: CursorService) {}
 
+  /**
+   * Use when first join room to ask a peer to send us oldCRDTs, old chat messages
+   */
   requestOldMessages(conn: any, messageType: MessageType) {
     const message = new Message(null, messageType, this.peer.id);
     conn.send(message);
   }
 
+  /**
+   * Send oldCRDTs to new peer
+   */
   sendOldCRDTs(conn: any, previousCRDTs: CRDT[]) {
     previousCRDTs = previousCRDTs.slice(1, previousCRDTs.length - 1); // Don't send "beg" and "end" CRDT
     if (previousCRDTs.length === 0) {
@@ -27,6 +33,8 @@ export class BroadcastService {
       return;
     }
 
+    // WebRTC has max message size (different for each browser), ranging from 16Kb to 256Kb.
+    // Our CRDTs can be large. Therefore we need to break them in small batches
     const crdtStrings = CrdtUtils.breakCrdtsIntoCrdtStringBatches(
       previousCRDTs,
       this.CRDTDelimiter
@@ -38,13 +46,17 @@ export class BroadcastService {
           ? MessageType.OldCRDTsLastBatch
           : MessageType.OldCRDTs;
       const message = new Message(crdtStrings[i], messageType, this.peer.id);
-      conn.send(message);
+      conn.send(message); // Send each batch
     }
 
+    // Without setTimeout, cursor isn't update. Why?!
     const that = this;
-    setTimeout(() => that.sendCursorInfo(conn), 10); // WHY SET TIME OUT MAKE IT WORK???!!!!@@$!$!$
+    setTimeout(() => that.sendCursorInfo(conn), 10);
   }
 
+  /**
+   * Send old chat messages to new peer
+   */
   sendOldMessages(conn: any, previousChatMessages: Message[]) {
     const message = new Message(
       JSON.stringify(previousChatMessages),
@@ -58,6 +70,11 @@ export class BroadcastService {
     conn.send(new Message(myColor + '', MessageType.CursorColor, this.peer.id));
   }
 
+  /**
+   * Is called when our user insert / remove something. These changes will be
+   * converted to corresponding CRDT objects and broadcasted to the rest in room
+   * See editor.service.ts - handle local insert / remove for more details.
+   */
   broadcastInsertOrRemove(
     crdts: CRDT[],
     isInsert: boolean,
@@ -84,27 +101,16 @@ export class BroadcastService {
     }
   }
 
-  broadcastNewMessagesToConnUntil(
-    conn: any,
-    milliSecondsLater: number,
-    connsToBroadcast: any[]
-  ) {
-    connsToBroadcast.push(conn);
-    const that = this;
-    setTimeout(function () {
-      connsToBroadcast = connsToBroadcast.filter(
-        (connection) => connection.peer !== conn.peer
-      );
-    }, milliSecondsLater);
-  }
-
   broadcastMessageToNewPeers(message: Message, conns: any[]) {
     conns.forEach((connection) => {
       connection.send(message);
     });
   }
 
-  sendMessage(
+  /**
+   * Broadcast Chat Messages
+   */
+  broadcastChatMessage(
     content: string,
     connectionList: any[],
     previousChatMessages: Message[]
@@ -132,6 +138,9 @@ export class BroadcastService {
 
       conn.send(messageToSend);
     });
+
+    // A chat message is uniquely identified by fromPeerId and chatMessageTime.
+    // We use this to avoid duplicate chat messages
     this.chatMessageTime++;
   }
 
@@ -165,7 +174,6 @@ export class BroadcastService {
     conn.send(messageToSend);
   }
 
-  /* Cursor Change + Selection Change*/
   broadcastChangeSelectionPos(event: any, connectionList: any[]) {
     connectionList.forEach((conn) => {
       this.sendChangeSelectionPos(conn, event);
@@ -196,16 +204,21 @@ export class BroadcastService {
     conn.send(message);
   }
 
+  /**
+   * Send our cursor color, cursor pos and selection pos
+   */
   sendCursorInfo(conn: any): void {
     this.sendMyCursorColor(conn, this.cursorService.getMyCursorColor());
 
     const lastCursorEvent = this.cursorService.getMyLastCursorEvent();
-    if (lastCursorEvent !== null)
+    if (lastCursorEvent !== null) {
       this.sendChangeCursorPos(conn, lastCursorEvent);
+    }
 
     const lastSelectEvent = this.cursorService.getMyLastSelectEvent();
-    if (lastSelectEvent !== null)
+    if (lastSelectEvent !== null) {
       this.sendChangeSelectionPos(conn, lastSelectEvent);
+    }
   }
 
   sendMyName(conn: any, myName: string): void {
@@ -213,6 +226,9 @@ export class BroadcastService {
     conn.send(message);
   }
 
+  /**
+   * Get our peer object from peerService
+   */
   setPeer(peer: any) {
     this.peer = peer;
   }

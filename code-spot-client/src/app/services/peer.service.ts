@@ -17,7 +17,7 @@ import { NameColor } from '../shared/NameColor';
 import { BroadcastService } from './broadcast.service';
 
 declare const Peer: any;
-const BROADCAST_TILL_MILLI_SECONDS_LATER = 5000;
+const STOP_BROADCAST_AFTER_MILLI_SECONDS = 5000;
 @Injectable({
   providedIn: 'root',
 })
@@ -191,11 +191,10 @@ export class PeerService {
 
     // If we need to send this peer old messages
     if (this.peerIdsToSendOldCrdts.findIndex((id) => id === conn.peer) !== -1) {
-      this.broadcastService.broadcastNewMessagesToConnUntil(
-        conn,
-        BROADCAST_TILL_MILLI_SECONDS_LATER,
-        this.connsToBroadcast
-      );
+      // Broadcast new CRDTs, new chat messages to this new peer until we are sure he
+      // has received all oldCRDTs and has connected to the rest in room
+      this.connsToBroadcast.push(conn);
+
       this.broadcastService.sendOldCRDTs(
         conn,
         this.editorService.getOldCRDTsAsSortedArray()
@@ -299,12 +298,10 @@ export class PeerService {
           ) {
             this.peerIdsToSendOldCrdts.push(fromConn.peer); // Send when opened
           } else {
-            // Continue to broadcast new messages to let that peer has time to connect to the rest in room
-            this.broadcastService.broadcastNewMessagesToConnUntil(
-              fromConn,
-              BROADCAST_TILL_MILLI_SECONDS_LATER,
-              this.connsToBroadcast
-            );
+            // Broadcast new CRDTs, new chat messages to this new peer until we are sure he
+            // has received all oldCRDTs and has connected to the rest in room
+            this.connsToBroadcast.push(fromConn);
+
             this.broadcastService.sendOldCRDTs(
               fromConn,
               this.editorService.getOldCRDTsAsSortedArray()
@@ -433,6 +430,13 @@ export class PeerService {
 
       // That peer has received all CRDTs. We can display their name now
       case MessageType.CanDisplayMeJustJoinRoom:
+        // We will soon no longer need to broadcast that peer messages from other peers.
+        // We give that peer a few seconds to connect to the rest in room
+        this.stopBroadcastingAfter(
+          fromConn,
+          STOP_BROADCAST_AFTER_MILLI_SECONDS
+        );
+
         PeerUtils.broadcastInfo(BroadcastInfo.NewPeerJoining);
         Utils.alert(
           this.nameService.getPeerName(fromConn.peer) + ' just joined room',
@@ -486,6 +490,9 @@ export class PeerService {
         conn.peer +
         ' is closed. It will be deleted in the connectionsIAmHolding list!'
     );
+
+    // Stop broadcasting him messages (if we are)
+    this.stopBroadcastingAfter(conn, 0);
 
     // Delete conn from connectionsIAmHolding
     const index = this.connectionsIAmHolding.findIndex(
@@ -696,7 +703,7 @@ export class PeerService {
   }
 
   sendMessage(content: string) {
-    this.broadcastService.sendMessage(
+    this.broadcastService.broadcastChatMessage(
       content,
       this.connectionsIAmHolding,
       this.previousChatMessages
@@ -726,6 +733,25 @@ export class PeerService {
       this.connectionsIAmHolding,
       newName
     );
+  }
+
+  /**
+   * When a peer just join room and ask us to send OldCRDTs, he is not yet connected to
+   * the rest in room. If any peer in room send a message, he will not receive it.
+   * To fix this problem, we broadcast any new messages to him.
+   *
+   * This function is called when that new peer is almost 'ready'. He has received oldCRDTs
+   * and are connecting to the rest in room. We allow him a few seconds before we stop broadcasting.
+   *
+   * Note: Of course we still broadcast message from us to him.
+   */
+  stopBroadcastingAfter(conn: any, milliSecondsLater: number) {
+    const that = this;
+    setTimeout(function () {
+      this.connsToBroadcast = this.connsToBroadcast.filter(
+        (connection) => connection.peer !== conn.peer
+      );
+    }, milliSecondsLater);
   }
 
   changeMyName(newName: string) {
