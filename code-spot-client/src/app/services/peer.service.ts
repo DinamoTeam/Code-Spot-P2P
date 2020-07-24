@@ -756,7 +756,7 @@ export class PeerService {
 
   changeMyName(newName: string) {
     this.nameService.setPeerName(this.peer.id, newName);
-    this.updateNameColorList(this.peer.id, newName);
+    this.updateNameColorList(this.peer.id, newName + ' (You)');
     PeerUtils.broadcastInfo(BroadcastInfo.ChangeMyName);
   }
 

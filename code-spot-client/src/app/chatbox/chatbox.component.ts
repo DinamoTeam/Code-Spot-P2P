@@ -8,9 +8,10 @@ import {
 import { PeerService } from '../services/peer.service';
 import { FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
-import { PeerUtils } from '../shared/Utils';
+import { PeerUtils, Utils } from '../shared/Utils';
 import { NameColor } from '../shared/NameColor';
 import { Message } from '../shared/Message';
+import { AlertType } from '../shared/AlertType';
 
 @Component({
   selector: 'app-chatbox',
@@ -24,6 +25,7 @@ export class ChatboxComponent implements OnInit {
   namesColors: NameColor[] = [];
   showEmojiPicker: boolean = false;
   myPeerId: string;
+  newUsername: string;
   @ViewChild('messagebox', { static: false }) messagebox?: ElementRef<
     HTMLElement
   >;
@@ -56,11 +58,12 @@ export class ChatboxComponent implements OnInit {
     );
   }
 
-  editName(event: any) {
-    const newName = "abc";
+  editName() {
+    const newName = this.newUsername;
     this.peerService.changeMyName(newName);
     this.namesColors = this.peerService.getNameColorList();
     this.peerService.broadcastChangeName(newName);
+    Utils.alert('Your name has been changed to ' + newName, AlertType.Success);
   }
 
   subscribeToPeerServerEvents() {
