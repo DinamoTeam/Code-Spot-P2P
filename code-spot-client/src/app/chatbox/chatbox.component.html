@@ -1,16 +1,22 @@
 <div class="dropdown mb-3 d-flex">
-  <button
-    class="btn btn-block btn-navy btn-dropdown dropdown-toggle font-weight-bold"
-    type="button"
-    id="dropdownMenuButton"
-    data-toggle="dropdown"
-    aria-haspopup="true"
-    aria-expanded="false"
-  >
+  <button class="btn btn-block btn-navy btn-dropdown dropdown-toggle font-weight-bold"
+          type="button"
+          id="dropdownMenuButton"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false">
     People
   </button>
+  <!-- Change Name button -->
+  <button type="button" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Change your name">
+    <span type="button" data-toggle="modal" data-target="#changeNameModal">
+      <i class="fa fa-pencil fa-fw" style="margin-right: 0px"></i>
+    </span>
+  </button>
+
+  <!-- Drop down list of ppl-->
   <div class="dropdown-menu">
-    <a *ngFor="let nameColor of namesColors" class="dropdown-item" (click)="editName($event)">
+    <a *ngFor="let nameColor of namesColors" class="dropdown-item">
       <i class="fa fa-circle fa-fw" [ngClass]="'color-' + nameColor.color"></i>
       {{ nameColor.name }}
     </a>
@@ -20,10 +26,8 @@
 <div #messagebox class="chatBox card shadow-sm p-3 mb-5 bg-white rounded">
   <div class="mt-2">
     <div *ngFor="let mess of messages">
-      <app-message-bubble
-        [senderName]="mess.fromPeerId"
-        [content]="mess.content"
-      >
+      <app-message-bubble [senderName]="mess.fromPeerId"
+                          [content]="mess.content">
       </app-message-bubble>
     </div>
   </div>
@@ -31,21 +35,17 @@
   <div>&nbsp;</div>
 
   <!-- Emoji Picker-->
-  <emoji-mart
-    *ngIf="showEmojiPicker"
-    set="messenger"
-    [showPreview]="false"
-    [emojiSize]="18"
-    [perLine]="7"
-    [totalFrequentLines]="1"
-    (emojiClick)="addEmoji($event)"
-  ></emoji-mart>
+  <emoji-mart *ngIf="showEmojiPicker"
+              set="messenger"
+              [showPreview]="false"
+              [emojiSize]="18"
+              [perLine]="7"
+              [totalFrequentLines]="1"
+              (emojiClick)="addEmoji($event)"></emoji-mart>
 
-  <form
-    class="ml-2 mr-1 mt-auto"
-    [formGroup]="messageForm"
-    (ngSubmit)="sendMessage(messageForm.value)"
-  >
+  <form class="ml-2 mr-1 mt-auto"
+        [formGroup]="messageForm"
+        (ngSubmit)="sendMessage(messageForm.value)">
     <div class="form-group d-flex">
       <!-- Input Box-->
       <input type="text"
@@ -63,4 +63,25 @@
       </button>
     </div>
   </form>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="changeNameModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Name</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input [(ngModel)]="newUsername" type="text" class="form-control" placeholder="New name" aria-label="New Username">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-navy" (click)="editName()" data-dismiss="modal">Save changes</button>
+      </div>
+    </div>
+  </div>
 </div>
