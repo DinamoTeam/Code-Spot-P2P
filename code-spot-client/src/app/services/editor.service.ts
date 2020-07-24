@@ -113,7 +113,10 @@ export class EditorService {
       // Find continuous ranges of text
       startIndexMonaco = actuallyInsertingIndices[i];
       let j = i + 1;
-      while (j < actuallyInsertingIndices.length && actuallyInsertingIndices[j] === actuallyInsertingIndices[j - 1] + 1) {
+      while (
+        j < actuallyInsertingIndices.length &&
+        actuallyInsertingIndices[j] === actuallyInsertingIndices[j - 1] + 1
+      ) {
         j++;
       }
       endIndexMonaco = actuallyInsertingIndices[j - 1];
@@ -146,7 +149,10 @@ export class EditorService {
       );
 
       // Calculate new pos for nameTag after remote insert
-      this.cursorService.recalculateAllNameTagIndicesAfterInsert(startIndexMonaco, textToInsert.length);
+      this.cursorService.recalculateAllNameTagIndicesAfterInsert(
+        startIndexMonaco,
+        textToInsert.length
+      );
 
       // aux Editor
       this.writeRangeOfTextToScreenAtIndex(
@@ -223,10 +229,12 @@ export class EditorService {
     let startIndexMonaco = -1;
     let endIndexMonaco = -1;
     while (i >= 0) {
-
       endIndexMonaco = actuallyDeletingIndices[i];
       let j = i - 1;
-      while (j >= 0 && actuallyDeletingIndices[j] + 1 === actuallyDeletingIndices[j + 1]) {
+      while (
+        j >= 0 &&
+        actuallyDeletingIndices[j] + 1 === actuallyDeletingIndices[j + 1]
+      ) {
         j--;
       }
       startIndexMonaco = actuallyDeletingIndices[j + 1];
@@ -244,7 +252,10 @@ export class EditorService {
 
       // Calculate new pos for nameTag after remote remove
       const deleteLength = endIndexMonaco - startIndexMonaco + 1;
-      this.cursorService.recalculateAllNameTagIndicesAfterRemove(startIndexMonaco, deleteLength);
+      this.cursorService.recalculateAllNameTagIndicesAfterRemove(
+        startIndexMonaco,
+        deleteLength
+      );
 
       // aux Editor
       this.deleteTextInRangeIndex(
@@ -339,7 +350,7 @@ export class EditorService {
         {
           range: range,
           text: text,
-          forceMoveMarkers: true
+          forceMoveMarkers: true,
         },
       ]
     );

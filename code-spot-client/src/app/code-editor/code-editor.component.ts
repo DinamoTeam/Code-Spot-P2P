@@ -71,7 +71,7 @@ export class CodeEditorComponent implements OnInit {
   editorOptions = {
     theme: 'vs-dark',
     language: EditorService.language,
-    stickiness: 1,
+    wordWrap: 'on'
   };
 
   onLanguageChange(res: string) {
