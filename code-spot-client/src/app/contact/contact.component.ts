@@ -25,7 +25,6 @@ export class ContactComponent implements OnInit {
   }
 
   onSubmit(form) {
-    console.log(form);
     this.contactForm.reset();
 
     if (form['message'] != '') {

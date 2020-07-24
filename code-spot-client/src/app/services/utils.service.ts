@@ -18,9 +18,12 @@ export class UtilsService {
   constructor(private http: HttpClient) { }
 
   sendEmail(email) {
-    return this.http.post(this.apiURL + 'SendEmail', JSON.stringify(email), this.HTTP_OPTIONS).pipe(
+    console.log(email);
+    const ans = this.http.post<string>(this.apiURL + 'SendEmail', JSON.stringify(email), this.HTTP_OPTIONS).pipe(
       retry(1),
       catchError(this.handleError))
+    console.log(ans);
+    return ans;
   }
 
   // Error handling
