@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Message, MessageType } from '../shared/Message';
-import { NameService } from './name.service';
 import { EditorService } from './editor.service';
 import { CRDT } from '../shared/CRDT';
 import { CrdtUtils } from '../shared/Utils';
 import { CursorService } from './cursor.service';
+import { AlertifyService } from './alertify.service';
+import { AlertType } from '../shared/AlertType';
 
 @Injectable({
   providedIn: 'root',
@@ -15,9 +16,9 @@ export class BroadcastService {
   private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
 
   constructor(
-    private nameService: NameService,
     private editorService: EditorService,
-    private cursorService: CursorService
+    private cursorService: CursorService,
+    private alertifyService: AlertifyService,
   ) {}
 
   requestOldMessages(conn: any, messageType: MessageType) {
@@ -189,20 +190,19 @@ export class BroadcastService {
 
   sendCursorInfo(conn: any): void {
     this.sendMyCursorColor(conn, this.cursorService.getMyCursorColor());
-    if (this.cursorService.getMyLastCursorEvent() !== null) {
-      this.sendChangeCursorPos(conn, this.cursorService.getMyLastCursorEvent());
-    }
-    if (this.cursorService.getMyLastSelectEvent() !== null) {
-      this.sendChangeSelectionPos(
-        conn,
-        this.cursorService.getMyLastSelectEvent()
-      );
-    }
+
+    const lastCursorEvent = this.cursorService.getMyLastCursorEvent();
+    if (lastCursorEvent !== null) 
+      this.sendChangeCursorPos(conn, lastCursorEvent);
+
+    const lastSelectEvent = this.cursorService.getMyLastSelectEvent();
+    if (lastSelectEvent !== null) 
+      this.sendChangeSelectionPos(conn, lastSelectEvent);
   }
 
-  sendMyName(conn: any): void {
+  sendMyName(conn: any, myName: string): void {
     const message = new Message(
-      this.nameService.getMyName(),
+      myName,
       MessageType.Name,
       this.peer.id
     );
@@ -211,5 +211,14 @@ export class BroadcastService {
 
   setPeer(peer: any) {
     this.peer = peer;
+  }
+
+  alert(message: string, alertType: AlertType) {
+    if (alertType === AlertType.Success)
+      this.alertifyService.success(message);
+    else if (alertType === AlertType.Warning)
+      this.alertifyService.warning(message);
+    else if (alertType === AlertType.Message)
+      this.alertifyService.message(message);
   }
 }

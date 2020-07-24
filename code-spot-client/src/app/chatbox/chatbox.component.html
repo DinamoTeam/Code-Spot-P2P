@@ -36,36 +36,29 @@
     set="messenger"
     [showPreview]="false"
     [emojiSize]="18"
+    [perLine]="7"
     [totalFrequentLines]="1"
     (emojiClick)="addEmoji($event)"
   ></emoji-mart>
 
-  <!-- Input Box-->
   <form
     class="ml-2 mr-1 mt-auto"
     [formGroup]="messageForm"
     (ngSubmit)="sendMessage(messageForm.value)"
   >
     <div class="form-group d-flex">
+      <!-- Input Box-->
+      <input type="text"
+             formControlName="messageToSend"
+             class="form-control"
+             placeholder="Aa"
+             autofocus />
       <a class="btn btn-light" (click)="toggleEmojiPicker()">
         <i class="fa fa-smile-o fa-lg"></i>
       </a>
-      <div class="custom-file">
-        <input class="custom-file-input" type="file" id="inputFile" accept="image/*" (change)="uploadImage($event)" />
-        <label class="custom-file-label" for="inputFile">File</label>
-      </div>
-      <input
-        type="text"
-        formControlName="messageToSend"
-        class="form-control"
-        placeholder="Aa"
-        autofocus
-      />
-      <button
-        *ngIf="messageToSend.value != ''"
-        class="invisibleBtn"
-        type="submit"
-      >
+      <button *ngIf="messageToSend.value != ''"
+              class="invisibleBtn"
+              type="submit">
         <img class="ml-1" src="../../assets/send-mail.svg" />
       </button>
     </div>

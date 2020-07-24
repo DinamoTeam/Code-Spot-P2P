@@ -132,4 +132,6 @@ export class Utils {
   static broadcastInfo(infoType: BroadcastInfo): void {
     Utils.broadcast.emit(infoType);
   }
+
+
 }

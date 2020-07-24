@@ -1,21 +1,19 @@
-<div
-  *ngIf="!ready"
-  class="d-flex ml-3 mr-2 justify-content-center align-items-center loading"
-  id="waiting-screen"
->
-  <div class="text-center">
+<div *ngIf="!ready"
+     class="d-flex mr-2 justify-content-around align-items-center loading"
+     id="waiting-screen">
+  <div class="text-center ml-5">
     <div
       class="spinner-grow mb-3"
-      style="width: 3rem; height: 3rem;"
       role="status"
     ></div>
     <br />
     <h2>Loading...</h2>
     <p>This will only take a second.</p>
   </div>
+  <img id="loading-img" src="../../assets/loading.svg" alt="loading" />
 </div>
 
-<div class="d-flex ml-3 mr-2 flex-md-row flex-column mt-4">
+<div #mainContainer class="d-flex ml-3 mr-2 flex-md-row flex-column mt-4">
   <form class="form-horizontal col-md-9 col-xs-12" [formGroup]="editorForm">
     <div *ngIf="ready" class="d-flex form-row">
       <!--Select Language-->
@@ -51,10 +49,10 @@
     </div>
     <!-- Aux Editor-->
     <ngx-monaco-editor
+      id="aux-editor"
       class="solution-code-editor"
       [options]="editorOptions"
       (onInit)="onInitAuxEditorHandler($event)"
-      style="display: none;"
     >
     </ngx-monaco-editor>
 

@@ -11,8 +11,8 @@ import { CursorService } from './cursor.service';
 import { PeerServerConnection } from '../shared/PeerServerConnection';
 import { PeersConnection } from '../shared/PeersConnection';
 import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { AlertType } from '../shared/AlertType';
 import { NameService } from './name.service';
-import { AlertifyService } from './alertify.service';
 import { NameColor } from '../shared/NameColor';
 import { BroadcastService } from './broadcast.service';
 
@@ -45,8 +45,7 @@ export class PeerService {
     private roomService: RoomService,
     private cursorService: CursorService,
     private editorService: EditorService,
-    private nameService: NameService,
-    private alertifyService: AlertifyService,
+    private nameService: NameService,   
     private broadcastService: BroadcastService
   ) {}
 
@@ -176,7 +175,7 @@ export class PeerService {
    */
   private handleConnectionOpened(conn: any): void {
     // Order is important! Name first and then cursor info!
-    this.broadcastService.sendMyName(conn);
+    this.broadcastService.sendMyName(conn, this.nameService.getMyName());
     this.broadcastService.sendCursorInfo(conn);
 
     // Seems weird but we need it
@@ -425,8 +424,8 @@ export class PeerService {
       // That peer has received all CRDTs. We can display their name now
       case MessageType.CanDisplayMeJustJoinRoom:
         PeerUtils.broadcastInfo(BroadcastInfo.NewPeerJoining);
-        this.alertifyService.success(
-          this.nameService.getPeerName(fromConn.peer) + ' just joined room'
+        this.broadcastService.alert(
+          this.nameService.getPeerName(fromConn.peer) + ' just joined room', AlertType.Success
         );
         break;
       default:
@@ -469,7 +468,7 @@ export class PeerService {
 
     // Tell user that the peer just left room
     const name = this.nameService.getPeerName(conn.peer);
-    this.alertifyService.warning(name + ' just left');
+    this.broadcastService.alert(name + ' just left', AlertType.Warning);
   }
 
   //***************** Handle when join room *******************
