@@ -188,7 +188,7 @@ export class CodeEditorComponent implements OnInit {
       );
 
       // Handle local insert (if any)
-      this.editorService.handleLocalRangeInsert(
+      this.editorService.handleLocalInsert(
         this.auxEditorTextModel,
         changes[i].text,
         range.startLineNumber,
@@ -251,7 +251,7 @@ export class CodeEditorComponent implements OnInit {
             break;
           case BroadcastInfo.RemoteInsert:
           case BroadcastInfo.RemoteAllMessages:
-            this.editorService.handleRemoteRangeInsert(
+            this.editorService.handleRemoteInsert(
               this.editor,
               this.editorTextModel,
               this.auxEditorTextModel,
