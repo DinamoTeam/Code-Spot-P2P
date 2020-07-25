@@ -19,6 +19,7 @@ import { AlertType } from '../shared/AlertType';
 })
 export class CodeEditorComponent implements OnInit {
   showNameTags: boolean = true;
+  showErrorBanner: boolean = false;
   ready = false;
   roomName: string;
   editor: any;
@@ -277,7 +278,10 @@ export class CodeEditorComponent implements OnInit {
             break;
           case BroadcastInfo.ChangeLanguage:
             this.selectedLang = EditorService.language;
-            monaco.editor.setModelLanguage(this.editorTextModel, this.selectedLang);
+            monaco.editor.setModelLanguage(
+              this.editorTextModel,
+              this.selectedLang
+            );
             this.editorForm.patchValue({ language: this.selectedLang });
             break;
           case BroadcastInfo.ReadyToDisplayMonaco:
@@ -323,6 +327,8 @@ export class CodeEditorComponent implements OnInit {
               this.peerService.getMyPeerId()
             );
             break;
+          case BroadcastInfo.UnhandledError:
+            this.showErrorBanner = true;
           default:
             break;
         }
