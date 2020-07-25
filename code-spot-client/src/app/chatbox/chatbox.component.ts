@@ -25,6 +25,7 @@ export class ChatboxComponent implements OnInit {
   namesColors: NameColor[] = [];
   showEmojiPicker: boolean = false;
   myUsername: string = '';
+  private readonly MAX_USERNAME_LEN = 15;
   @ViewChild('messagebox', { static: false }) messagebox?: ElementRef<
     HTMLElement
   >;
@@ -54,6 +55,16 @@ export class ChatboxComponent implements OnInit {
   }
 
   editName() {
+    if (this.myUsername === '') {
+      Utils.alert('Blank name is not allowed!', AlertType.Error);
+      return;
+    }
+    else if (this.myUsername.length > this.MAX_USERNAME_LEN) {
+      Utils.alert('Username\'s length must be smaller than ' + this.MAX_USERNAME_LEN + '!', AlertType.Error);
+      return;
+    }
+
+
     const newName = this.myUsername;
     this.peerService.changeMyName(newName);
     this.namesColors = this.peerService.getNameColorList();
