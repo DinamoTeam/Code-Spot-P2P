@@ -109,7 +109,7 @@ export class PeerUtils {
   static handlePeerError(message: string) {
     let ans = confirm(message);
     if (ans === true) window.location.replace('/');
-    else console.log('WARN USER THAT THIS HAS STOP SYNC');
+    else PeerUtils.broadcastInfo(BroadcastInfo.UnhandledError);
 
     // TODO: WARN USER THAT THIS HAS STOP SYNC
   }

@@ -1,16 +1,43 @@
-<div *ngIf="!ready"
-     class="d-flex mr-2 justify-content-around align-items-center loading"
-     id="waiting-screen">
+<!-- Loading screen -->
+<div
+  *ngIf="!ready"
+  class="d-flex mr-2 justify-content-around align-items-center loading"
+  id="waiting-screen"
+>
   <div class="text-center ml-5">
-    <div
-      class="spinner-grow mb-3"
-      role="status"
-    ></div>
+    <div class="spinner-grow mb-3" role="status"></div>
     <br />
     <h2>Loading...</h2>
     <p>This will only take a second.</p>
   </div>
   <img id="loading-img" src="../../assets/loading.svg" alt="loading" />
+</div>
+
+<!-- Warning banner -->
+<div
+  *ngIf="ready"
+  class="alert alert-warning alert-dismissible fade show text-center"
+  role="alert"
+>
+  <strong>Welcome to Code Spot! </strong>We are grateful to see you! Remember to
+  <strong>
+    save your data before leaving.
+  </strong>
+  Once everyone leave the room, the data will be erased forever.
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<!-- Error banner -->
+<div
+  *ngIf="showErrorBanner"
+  class="alert alert-danger alert-dismissible fade show text-center"
+  role="alert"
+>
+  <strong
+    >Your session has been disconnected! Anything you type will no longer sync. </strong
+  >Please refresh this page or create a new room!
 </div>
 
 <div #mainContainer class="d-flex ml-3 mr-2 flex-md-row flex-column mt-4">
@@ -19,11 +46,15 @@
       <!--Select Language-->
       <div class="form-group">
         <div class="col-sm-2 pl-0">
-          <select class="form-control"
-                  formControlName="language"
-                  (change)="onLanguageChange($event.target.value)">
-            <option *ngFor="let language of languages"
-                    [ngValue]="language.value">
+          <select
+            class="form-control"
+            formControlName="language"
+            (change)="onLanguageChange($event.target.value)"
+          >
+            <option
+              *ngFor="let language of languages"
+              [ngValue]="language.value"
+            >
               {{ language.name }}
             </option>
           </select>
@@ -32,9 +63,11 @@
       <!--Select Theme-->
       <div class="form-group">
         <div class="col-sm-2 pl-0">
-          <select class="form-control"
-                  formControlName="theme"
-                  (change)="onThemeChange($event.target.value)">
+          <select
+            class="form-control"
+            formControlName="theme"
+            (change)="onThemeChange($event.target.value)"
+          >
             <option *ngFor="let theme of themes" [ngValue]="theme.value">
               {{ theme.name }}
             </option>
@@ -42,9 +75,20 @@
         </div>
       </div>
       <!--Toggle Name Tag-->
-      <div class="custom-control custom-switch form-group d-flex align-items-center">
-        <input type="checkbox" class="custom-control-input" id="tagNameSwitch" [(ngModel)]="showNameTags" (change)="toggleNameTag()" [ngModelOptions]="{standalone: true}">
-        <label class="custom-control-label" for="tagNameSwitch">Show name tags</label>
+      <div
+        class="custom-control custom-switch form-group d-flex align-items-center"
+      >
+        <input
+          type="checkbox"
+          class="custom-control-input"
+          id="tagNameSwitch"
+          [(ngModel)]="showNameTags"
+          (change)="toggleNameTag()"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        <label class="custom-control-label" for="tagNameSwitch"
+          >Show name tags</label
+        >
       </div>
     </div>
     <!-- Aux Editor-->
@@ -64,7 +108,10 @@
         [options]="editorOptions"
         (onInit)="onInitEditorHandler($event)"
       ></ngx-monaco-editor>
-      <div class="btn-container d-flex" [style.visibility]="ready ? 'visible' : 'hidden'">
+      <div
+        class="btn-container d-flex"
+        [style.visibility]="ready ? 'visible' : 'hidden'"
+      >
         <button
           class="btn btn-md btn-navy mt-3 mb-4 font-weight-bold"
           (click)="copyLink()"

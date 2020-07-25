@@ -52,7 +52,7 @@ namespace CodeSpot.Controllers
 				}
 			}
 
-			return Ok("Email sent sucessful!");
+			return Ok(new {response = "Email sent sucessful!"});
 		}
 	}
 }

@@ -13,5 +13,6 @@ export const enum BroadcastInfo {
   LeftHomePage = 11,
   CrdtPackageReady = 12,
   ChangePeerName = 13,
-  ChangeMyName = 14
+  ChangeMyName = 14,
+  UnhandledError = 15,
 }
