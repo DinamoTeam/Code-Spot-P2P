@@ -30,17 +30,17 @@ export class PeerService {
   private peerIdsInRoomWhenFirstEnter: any[] = [];
   private connectionsIAmHolding: any[] = [];
   private hasReceivedAllOldCRDTs = false;
+  private hasReceivedAllChatMessages: boolean = false;
   private connsToBroadcast: any[] = [];
   private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
-  connectionEstablished = new EventEmitter<boolean>();
   private receivedRemoteCrdts: CRDT[];
   private cursorChangeInfo: CursorChangeInfo;
   private selectionChangeInfo: SelectionChangeInfo;
   private previousChatMessages: Message[] = [];
-  private hasReceivedAllChatMessages: boolean = false;
   private peerIdJustLeft: string;
   private nameColorList: NameColor[] = [];
   private hasNotShowInternetDisconnect = true;
+  connectionEstablished = new EventEmitter<boolean>();
 
   constructor(
     private roomService: RoomService,
@@ -195,7 +195,7 @@ export class PeerService {
     Utils.addUniqueConnections([conn], this.connectionsIAmHolding);
 
     // If we need to send this peer old messages
-    if (this.peerIdsToSendOldCrdts.findIndex((id) => id === conn.peer) !== -1) {
+    if (Utils.inArray(conn.peer, this.peerIdsToSendOldCrdts)) {
       // Broadcast new CRDTs, new chat messages to this new peer until we are sure he
       // has received all oldCRDTs and has connected to the rest in room
       this.connsToBroadcast.push(conn);

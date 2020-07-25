@@ -133,6 +133,10 @@ export class Utils {
     else if (alertType === AlertType.Message) alertify.message(message);
   }
 
+  static inArray(item: any, array: any[]) {
+    return array.findIndex(elem => elem === item) !== -1;
+  }
+
   confirm(message: string, okCallback: () => any) {
     alertify.confirm(message, (e: any) => {
       if (e) okCallback();
