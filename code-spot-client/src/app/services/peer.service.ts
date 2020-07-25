@@ -758,6 +758,13 @@ export class PeerService {
     }, milliSecondsLater);
   }
 
+  getMyName(): string {
+    console.log("!!!!!!");
+    console.log(this.nameService.getPeerName(this.peer.id));
+    console.log("!!!!!!");
+    return this.nameService.getPeerName(this.peer.id);
+  }
+
   changeMyName(newName: string) {
     this.nameService.setPeerName(this.peer.id, newName);
     this.updateNameColorList(this.peer.id, newName + ' (You)');

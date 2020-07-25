@@ -4,7 +4,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class NameService {
-  private myName: string;
   private peersNames = new Map<string, string>();
   private animalNames = [
     'Bird',

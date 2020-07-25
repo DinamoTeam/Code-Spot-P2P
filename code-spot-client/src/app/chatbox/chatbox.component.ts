@@ -24,8 +24,7 @@ export class ChatboxComponent implements OnInit {
   messages: Message[] = [];
   namesColors: NameColor[] = [];
   showEmojiPicker: boolean = false;
-  myPeerId: string;
-  newUsername: string;
+  myUsername: string = '';
   @ViewChild('messagebox', { static: false }) messagebox?: ElementRef<
     HTMLElement
   >;
@@ -36,7 +35,9 @@ export class ChatboxComponent implements OnInit {
     private formBuilder: FormBuilder
   ) {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
-      if (successful) this.myPeerId = this.peerService.getMyPeerId();
+      if (successful) {
+        this.myUsername = this.peerService.getMyName();
+      }
     });
   }
 
@@ -59,7 +60,7 @@ export class ChatboxComponent implements OnInit {
   }
 
   editName() {
-    const newName = this.newUsername;
+    const newName = this.myUsername;
     this.peerService.changeMyName(newName);
     this.namesColors = this.peerService.getNameColorList();
     this.peerService.broadcastChangeName(newName);
