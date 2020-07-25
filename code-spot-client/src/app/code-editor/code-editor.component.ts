@@ -366,7 +366,7 @@ export class CodeEditorComponent implements OnInit {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
       if (successful) {
         this.roomName = this.actRoute.snapshot.params['roomName'];
-        if (this.roomName === 'NONE') this.peerService.createNewRoom();
+        if (this.roomName === 'new') this.peerService.createNewRoom();
         else this.peerService.joinExistingRoom(this.roomName);
       }
     });

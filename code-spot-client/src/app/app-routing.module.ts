@@ -7,7 +7,7 @@ import { ContactComponent } from './contact/contact.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'editor', redirectTo: 'editor/NONE', pathMatch: 'full' },
+  { path: 'editor', redirectTo: 'editor/new', pathMatch: 'full' },
   { path: 'editor/:roomName', component: CodeEditorComponent},
   { path: 'About', component: AboutComponent },
   { path: 'Contact', component: ContactComponent},
