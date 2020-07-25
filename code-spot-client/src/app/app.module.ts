@@ -24,16 +24,16 @@ const monacoConfig: NgxMonacoEditorConfig = {
     showUnused: true,
     tabCompletion: 'onlySnippets',
 
-    // Trying to disable deleting white spaces
-    autoClosingOvertype: 'never',
-    autoClosingBrackets: 'never',
-    autoClosingQuotes: 'never',
-    autoIndent: 'none',
-    autoSurround: 'never',
-    folding: false,
-    renderIndentGuides: false,
-    wrappingIndent: 'none',
-    disableMonospaceOptimizations: true,
+    // // Trying to disable deleting white spaces
+    // autoClosingOvertype: 'never',
+    // autoClosingBrackets: 'never',
+    // autoClosingQuotes: 'never',
+    // autoIndent: 'none',
+    // autoSurround: 'never',
+    // folding: false,
+    // renderIndentGuides: false,
+    // wrappingIndent: 'none',
+    // disableMonospaceOptimizations: true,
   },
   onMonacoLoad,
 };

@@ -65,21 +65,22 @@ export class CodeEditorComponent implements OnInit {
     this.selectedTheme = 'vs-dark';
   }
 
+  // tslint:disable-next-line: member-ordering
   editorOptions = {
     theme: 'vs-dark',
     language: EditorService.language,
     wordWrap: 'on',
 
-    // Trying to disable deleting white spaces
-    autoClosingOvertype: 'never',
-    autoClosingBrackets: 'never',
-    autoClosingQuotes: 'never',
-    autoIndent: 'none',
-    autoSurround: 'never',
-    folding: false,
-    renderIndentGuides: false,
-    wrappingIndent: 'none',
-    disableMonospaceOptimizations: true
+    // // Trying to disable deleting white spaces
+    // autoClosingOvertype: 'never',
+    // autoClosingBrackets: 'never',
+    // autoClosingQuotes: 'never',
+    // autoIndent: 'none',
+    // autoSurround: 'never',
+    // folding: false,
+    // renderIndentGuides: false,
+    // wrappingIndent: 'none',
+    // disableMonospaceOptimizations: true
   };
 
   onLanguageChange(res: string) {
