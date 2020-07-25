@@ -21,6 +21,8 @@ export class EditorService {
   }
 
   constructor(private cursorService: CursorService) {
+    // Init BST and add 'begin' and 'end' CRDTs.
+    // All CRDTs from now on will be in between these 2 limits
     this.bst = new BalancedBST<CRDT>();
     this.bst.insert(
       new CRDT('_beg', new CRDTId([new Identifier(1, 0)], this.curClock++))
@@ -33,31 +35,37 @@ export class EditorService {
     );
   }
 
-  handleLocalRangeInsert(
+  /**
+   * Is called when our user inserts some text. This function will generate CRDT objects
+   * correspond to each new char, add them to BST and then broadcast these new CRDT objects
+   */
+  handleLocalInsert(
     auxEditorTextModel: any,
-    newText: string,
+    textToInsert: string,
     startLineNumber: number,
     startColumn: number
   ): void {
     if (EditorService.siteId === -1)
       throw new Error('Error: call handleLocalInsert before setting siteId');
 
-    if (newText === '') return;
+    if (textToInsert === '') return;
 
-    // IMPORTANT: Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
-    const startIndex =
-      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have __beg limit
-    this.writeRangeOfTextToScreenAtPos(
+    // IMPORTANT: Update auxiliary editor ONLY AFTER getting the CORRECT insertAtIndex
+    const insertAtIndex =
+      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have _beg limit
+    // Update aux editor
+    this.writeTextToMonacoAtPos(
       auxEditorTextModel,
-      newText,
+      textToInsert,
       startLineNumber,
       startColumn
     );
 
-    const chArr = newText.split('');
+    const chArr = textToInsert.split('');
 
-    const crdtIdBefore = this.bst.getDataAt(startIndex - 1).id;
-    const crdtIdAfter = this.bst.getDataAt(startIndex).id;
+    // Generate N CrdtIds correspond to N chars in textToInsert
+    const crdtIdBefore = this.bst.getDataAt(insertAtIndex - 1).id;
+    const crdtIdAfter = this.bst.getDataAt(insertAtIndex).id;
     const listCrdtIdsBetween = CRDTId.generateNPositionsBetween(
       crdtIdBefore,
       crdtIdAfter,
@@ -68,37 +76,49 @@ export class EditorService {
 
     this.curClock += chArr.length; // Generate N new CRDTIds therefore increment curClock by N
 
+    // Combine CrdtId and char to make CRDT object
     let chArrIndex = 0;
     const listCRDTBetween = listCrdtIdsBetween.map(
       (crdtId) => new CRDT(chArr[chArrIndex++], crdtId)
     );
 
+    // Insert to our BST
     for (let i = 0; i < listCRDTBetween.length; i++) {
       this.bst.insert(listCRDTBetween[i]);
     }
 
+    // Tell peerService to broadcast these new CRDTs
+    // PeerService listens to this event at subscribeToEditorServiceEvents()
     this.crdtsToTransfer = listCRDTBetween;
     this.crdtEvent.emit(true);
   }
 
-  handleRemoteRangeInsert(
+  /**
+   * Is called when a peer sends us a remote insert request. This function will take
+   * these new CRDT objects, insert them to BST to compute their indices and then write them
+   * to their correct positions on Monaco Editor
+   */
+  handleRemoteInsert(
     editor: any,
     editorTextModel: any,
     auxEditorTextModel: any,
-    crdts: CRDT[]
+    newCRDTs: CRDT[]
   ) {
-    const insertingIndices = new Array<number>(crdts.length);
+    const insertingIndices = new Array<number>(newCRDTs.length);
 
-    for (let i = 0; i < crdts.length; i++) {
-      const insertingIndex = this.bst.insert(crdts[i]);
+    // Note: Indices from BST and from Monaco Editor are in sync. Getting the correct indices
+    // from BST means that we have computed the correct indices to write to Monaco
+    for (let i = 0; i < newCRDTs.length; i++) {
+      const insertingIndex = this.bst.insert(newCRDTs[i]);
       if (insertingIndex === -1) insertingIndices[i] = -1;
-      else insertingIndices[i] = insertingIndex - 1; // Because of __beg limit
+      else insertingIndices[i] = insertingIndex - 1; // '-1' because __beg limit in BST increase index by 1
     }
 
+    // Rule out -1 indices (-1 indices mean we have inserted these CRDTs before)
     const actuallyInsertingChars: string[] = [];
-    for (let i = 0; i < crdts.length; i++) {
+    for (let i = 0; i < newCRDTs.length; i++) {
       if (insertingIndices[i] !== -1) {
-        actuallyInsertingChars.push(crdts[i].ch);
+        actuallyInsertingChars.push(newCRDTs[i].ch);
       }
     }
     const actuallyInsertingIndices = insertingIndices.filter(
@@ -113,7 +133,10 @@ export class EditorService {
       // Find continuous ranges of text
       startIndexMonaco = actuallyInsertingIndices[i];
       let j = i + 1;
-      while (j < actuallyInsertingIndices.length && actuallyInsertingIndices[j] === actuallyInsertingIndices[j - 1] + 1) {
+      while (
+        j < actuallyInsertingIndices.length &&
+        actuallyInsertingIndices[j] === actuallyInsertingIndices[j - 1] + 1
+      ) {
         j++;
       }
       endIndexMonaco = actuallyInsertingIndices[j - 1];
@@ -135,31 +158,37 @@ export class EditorService {
         editorTextModel.pushStackElement();
       }
 
-      // Insert to the screen
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
 
-      // main Editor
-      this.writeRangeOfTextToScreenAtIndex(
+      // Write text to main Monaco Editor
+      this.writeTextToMonacoAtIndex(
         editorTextModel,
         textToInsert,
         startIndexMonaco
       );
 
       // Calculate new pos for nameTag after remote insert
-      this.cursorService.recalculateAllNameTagIndicesAfterInsert(startIndexMonaco, textToInsert.length);
+      this.cursorService.recalculateAllNameTagIndicesAfterInsert(
+        startIndexMonaco,
+        textToInsert.length
+      );
 
-      // aux Editor
-      this.writeRangeOfTextToScreenAtIndex(
+      // Write text to aux Editor
+      this.writeTextToMonacoAtIndex(
         auxEditorTextModel,
         textToInsert,
         startIndexMonaco
       );
     }
 
-    // Actually redraw nameTag
+    // Redraw nameTags
     this.cursorService.redrawPeersNameTags(editor);
   }
 
+  /**
+   * Is called when our user removes some text. This function will remove corresponding
+   * CRDT objects from BST and broadcast these removed CRDTs to the rest in room
+   */
   handleLocalRangeRemove(
     auxEditorTextModel: any,
     startLineNumber: number,
@@ -175,8 +204,8 @@ export class EditorService {
 
     // IMPORTANT: Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
     const startIndex =
-      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have __beg limit
-    this.deleteTextInRangePos(
+      this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // // '+1' because __beg limit in BST increase index by 1
+    this.deleteTextFromMonacoByPos(
       auxEditorTextModel,
       startLineNumber,
       startColumn,
@@ -184,6 +213,8 @@ export class EditorService {
       endColumn
     );
 
+    // Note: Indices from BST and from Monaco Editor are in sync.
+    // Ex: CRDT at index 5 from BST will correspond to char at index 5 from Monaco
     const removedCRDTs: CRDT[] = [];
     for (let i = 0; i < length; i++) {
       const crdtToBeRemoved = this.bst.getDataAt(startIndex);
@@ -191,42 +222,51 @@ export class EditorService {
       this.bst.remove(crdtToBeRemoved);
     }
 
+    // Tell peerService to broadcast these removed CRDTs
+    // PeerService listens to this event at subscribeToEditorServiceEvents()
     this.crdtsToTransfer = removedCRDTs;
     this.crdtEvent.emit(false);
   }
 
+  /**
+   * Is called when a peer sends us a remote remove request. This function will take
+   * these to-be-removed CRDT objects, remove them from BST and get their indices,
+   * then delete chars with the same indices in Monaco
+   */
   handleRemoteRangeRemove(
     editor: any,
     editorTextModel: any,
     auxEditorTextModel: any,
-    crdts: CRDT[]
+    toBeRemovedCRDTs: CRDT[]
   ): void {
-    const deletingIndices = new Array<number>(crdts.length);
+    const deletingIndices = new Array<number>(toBeRemovedCRDTs.length);
     let offSet = 0; // offSet to add back to index because deleting 1 element will decrease the indices of all elements after it
-    for (let i = 0; i < crdts.length; i++) {
-      const deletingIndex = this.bst.remove(crdts[i]);
+    for (let i = 0; i < toBeRemovedCRDTs.length; i++) {
+      const deletingIndex = this.bst.remove(toBeRemovedCRDTs[i]);
       if (deletingIndex === -1) deletingIndices[i] = -1;
       else {
-        deletingIndices[i] = deletingIndex - 1 + offSet; // -1 Because of __beg limit
+        deletingIndices[i] = deletingIndex - 1 + offSet; // '-1' because __beg limit in BST increase index by 1
         offSet++;
       }
     }
 
+    // Rule out -1 indices (-1 means our BST doesn't have that CRDT. Probably either us or other peer has deleted it
+    // before this request comes)
     const actuallyDeletingIndices = deletingIndices.filter(
       (index) => index !== -1
     );
 
-    console.log(actuallyDeletingIndices);
-
     // Delete continuous ranges of text from the screen
-    let i = actuallyDeletingIndices.length - 1; // Delete backwards
+    let i = actuallyDeletingIndices.length - 1; // Delete backwards to avoid messing up indices
     let startIndexMonaco = -1;
     let endIndexMonaco = -1;
     while (i >= 0) {
-
       endIndexMonaco = actuallyDeletingIndices[i];
       let j = i - 1;
-      while (j >= 0 && actuallyDeletingIndices[j] + 1 === actuallyDeletingIndices[j + 1]) {
+      while (
+        j >= 0 &&
+        actuallyDeletingIndices[j] + 1 === actuallyDeletingIndices[j + 1]
+      ) {
         j--;
       }
       startIndexMonaco = actuallyDeletingIndices[j + 1];
@@ -236,7 +276,7 @@ export class EditorService {
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
 
       // main Editor
-      this.deleteTextInRangeIndex(
+      this.deleteTextFromMonacoByIndices(
         editorTextModel,
         startIndexMonaco,
         endIndexMonaco + 1
@@ -244,10 +284,13 @@ export class EditorService {
 
       // Calculate new pos for nameTag after remote remove
       const deleteLength = endIndexMonaco - startIndexMonaco + 1;
-      this.cursorService.recalculateAllNameTagIndicesAfterRemove(startIndexMonaco, deleteLength);
+      this.cursorService.recalculateAllNameTagIndicesAfterRemove(
+        startIndexMonaco,
+        deleteLength
+      );
 
       // aux Editor
-      this.deleteTextInRangeIndex(
+      this.deleteTextFromMonacoByIndices(
         auxEditorTextModel,
         startIndexMonaco,
         endIndexMonaco + 1
@@ -266,13 +309,13 @@ export class EditorService {
     return this.crdtsToTransfer;
   }
 
-  private writeRangeOfTextToScreenAtIndex(
+  private writeTextToMonacoAtIndex(
     editorTextModel: any,
     text: string,
-    index: number
+    startIndex: number
   ): void {
-    const pos = this.indexToPos(editorTextModel, index);
-    this.writeRangeOfTextToScreenAtPos(
+    const pos = this.indexToPos(editorTextModel, startIndex);
+    this.writeTextToMonacoAtPos(
       editorTextModel,
       text,
       pos.lineNumber,
@@ -280,14 +323,14 @@ export class EditorService {
     );
   }
 
-  private deleteTextInRangeIndex(
+  private deleteTextFromMonacoByIndices(
     editorTextModel: any,
     startIndex: number,
     endIndex: number
   ): void {
     const startPos = this.indexToPos(editorTextModel, startIndex);
     const endPos = this.indexToPos(editorTextModel, endIndex);
-    this.deleteTextInRangePos(
+    this.deleteTextFromMonacoByPos(
       editorTextModel,
       startPos.lineNumber,
       startPos.column,
@@ -296,7 +339,7 @@ export class EditorService {
     );
   }
 
-  private deleteTextInRangePos(
+  private deleteTextFromMonacoByPos(
     editorTextModel: any,
     startLineNumber: number,
     startColumn: number,
@@ -320,7 +363,7 @@ export class EditorService {
     );
   }
 
-  private writeRangeOfTextToScreenAtPos(
+  private writeTextToMonacoAtPos(
     editorTextModel: any,
     text: string,
     startLineNumber: number,
@@ -339,20 +382,14 @@ export class EditorService {
         {
           range: range,
           text: text,
-          forceMoveMarkers: true
+          forceMoveMarkers: true,
         },
       ]
     );
   }
 
-  posToIndex(
-    editorTextModel: any,
-    endLineNumber: number,
-    endColumn: number
-  ): number {
-    return editorTextModel.getOffsetAt(
-      new monaco.Position(endLineNumber, endColumn)
-    );
+  posToIndex(editorTextModel: any, lineNumber: number, column: number): number {
+    return editorTextModel.getOffsetAt(new monaco.Position(lineNumber, column));
   }
 
   indexToPos(editorTextModel: any, index: number): any {

@@ -7,7 +7,7 @@ import { NameService } from './name.service';
 export class CursorService {
   private cursorDecorations: Decoration[] = [];
   private selectionDecorations: Decoration[] = [];
-  // Color: 1 to 25
+  // Color: 1 to 25. peerColors include myColor
   private peerColors: Map<string, number> = new Map<string, number>();
   private oldNameTags: Map<string, any> = new Map<string, any>();
   private otherPeerNameTagIndices = new Map<string, number>();
@@ -54,7 +54,6 @@ export class CursorService {
     endCol: number,
     ofPeerId: string
   ) {
-    const peerName = this.nameService.getPeerName(ofPeerId);
     const color = this.peerColors.get(ofPeerId);
     const deco = this.selectionDecorations.filter((d) => d.peerId === ofPeerId);
     const oldDecoration = deco.map((d) => d.decoration);
@@ -63,7 +62,7 @@ export class CursorService {
         range: new monaco.Range(startLine, startCol, endLine, endCol),
         options: {
           className: 'monaco-select-' + color,
-          stickiness: 3
+          stickiness: 3,
         },
       },
     ]);
@@ -86,9 +85,6 @@ export class CursorService {
       editor.removeContentWidget(oldNameTag);
     }
     const nameTagOwner = this.nameService.getPeerName(ofPeerId);
-    if (isMyNameTag) {
-      console.log('draw my nameTag. Name: ' + nameTagOwner);
-    }
     const nameTagColor = this.peerColors.get(ofPeerId);
 
     const contentWidgetId = this.contentWidgetId++ + '';
@@ -103,7 +99,8 @@ export class CursorService {
           this.domNode = document.createElement('div');
           this.domNode.textContent = nameTagOwner;
           this.domNode.style.whiteSpace = 'nowrap';
-          this.domNode.style.background = 'var(--monaco-color-' + nameTagColor + ')';
+          this.domNode.style.background =
+            'var(--monaco-color-' + nameTagColor + ')';
           this.domNode.classList.add('nameTagText');
           if (!showTag) {
             this.domNode.classList.add('hide');
@@ -125,8 +122,8 @@ export class CursorService {
     this.oldNameTags.set(ofPeerId, newNameTagWidget);
 
     const index = editor
-        .getModel()
-        .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
+      .getModel()
+      .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
     if (!isMyNameTag) {
       this.otherPeerNameTagIndices.set(ofPeerId, index);
     } else {
@@ -152,6 +149,9 @@ export class CursorService {
     this.showNameTag = true;
   }
 
+  /**
+   * Manually calculate where a nameTag should be after an insert
+   */
   nameTagIndexAfterInsert(
     originalIndex: number,
     insertStartIndex: number,
@@ -164,6 +164,9 @@ export class CursorService {
     }
   }
 
+  /**
+   * Manually calculate where a nameTag should be after a remove
+   */
   nameTagIndexAfterRemove(
     originalIndex: number,
     removeStartIndex: number,
@@ -180,13 +183,13 @@ export class CursorService {
     insertStartIndex: number,
     insertLength: number
   ): void {
+    // Recalculate peers' nameTag indices
     const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
       if (!peerId) {
         console.error('PeerId undefined! What happened?!');
       }
-      const oldIndex = this.otherPeerNameTagIndices.get(peerId);
       const newIndex = this.nameTagIndexAfterInsert(
         this.otherPeerNameTagIndices.get(peerId),
         insertStartIndex,
@@ -194,12 +197,21 @@ export class CursorService {
       );
       this.otherPeerNameTagIndices.set(peerId, newIndex);
     }
+
+    // Recalculate my nameTag index
+    const myNewIndex = this.nameTagIndexAfterInsert(
+      this.myNameTagIndex,
+      insertStartIndex,
+      insertLength
+    );
+    this.myNameTagIndex = myNewIndex;
   }
 
   recalculateAllNameTagIndicesAfterRemove(
     removeStartIndex: number,
     removeLength: number
   ): void {
+    // Recalculate peers' nameTag indices
     const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
@@ -213,6 +225,14 @@ export class CursorService {
       );
       this.otherPeerNameTagIndices.set(peerId, newIndex);
     }
+
+    // Recalculate my nameTag index
+    const myNewIndex = this.nameTagIndexAfterInsert(
+      this.myNameTagIndex,
+      removeStartIndex,
+      removeLength
+    );
+    this.myNameTagIndex = myNewIndex;
   }
 
   redrawPeersNameTags(editor: any): void {
@@ -223,7 +243,6 @@ export class CursorService {
   }
 
   redrawMyNameTag(editor: any, myPeerId: string): void {
-    console.log('HERE');
     const pos = editor.getModel().getPositionAt(this.myNameTagIndex);
     this.drawNameTag(editor, myPeerId, pos.lineNumber, pos.column, true);
   }
@@ -235,15 +254,19 @@ export class CursorService {
   removePeer(editor: any, peerId: string): void {
     this.peerColors.delete(peerId);
 
+    // Clean cursor decoration
     const cursorDecoration = this.cursorDecorations
       .filter((d) => d.peerId === peerId)
       .map((d) => d.decoration);
+
+    // Clean select decoration
     const selectDecoration = this.cursorDecorations
       .filter((d) => d.peerId === peerId)
       .map((d) => d.decoration);
     editor.deltaDecorations(cursorDecoration, []);
     editor.deltaDecorations(selectDecoration, []);
 
+    // Clean name tag
     const oldNameTag = this.oldNameTags.get(peerId);
     if (oldNameTag) {
       editor.removeContentWidget(oldNameTag);
@@ -280,9 +303,11 @@ export class CursorService {
   setMyLastSelectEvent(event: any): void {
     this.myLastSelectEvent = event;
   }
-
 }
 
+/**
+ * Wrap Monaco's decoration (add peerId)
+ */
 class Decoration {
   decoration: any;
   peerId: string;
