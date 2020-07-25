@@ -52,11 +52,5 @@
 }
 
 .feedback-card {
-/*  width: 40rem;*/
   margin: 11px 10px;
-}
-
-.send-btn {
-  color: white;
-  background-color: #DF691A;
 }

@@ -6,11 +6,6 @@
   height: 75vh;
 }
 
-.btn-navy {
-  color: white;
-  background-color: #df691a;
-}
-
 .loading {
   height: 80vh;
 }
@@ -25,17 +20,7 @@
   }
 }
 
-.custom-control-input:checked ~ .custom-control-label::before {
-  border-color: initial;
-  background-color: #df691a;
-}
-
-.custom-control-input:focus ~ .custom-control-label::before {
-  box-shadow: none;
-}
-
 .spinner-grow {
-  background-color: #df691a;
   width: 4rem;
   height: 4rem;
 }

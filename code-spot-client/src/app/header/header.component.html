@@ -31,9 +31,6 @@
               >Home</a
             >
           </li>
-          <!--<li class="nav-item" [routerLinkActive]='["link-active"]' [routerLinkActiveOptions]='{ exact: true }'>
-            <a class="nav-link text-dark" role="button"  (click)="onBtnAboutClick()">ABOUT</a>
-          </li>-->
           <li
             class="nav-item"
             [routerLinkActive]="['link-active']"
@@ -47,12 +44,12 @@
             >
           </li>
           <li *ngIf="showCreateNewRoomBtn" class="nav-item">
-            <a
-              class="btn btn-lg btn-navy"
+            <button
+              class="btn btn-lg btn-primary"
               role="button"
               (click)="onBtnCreateNewRoomClick()"
-              >Create New Room &raquo;</a
-            >
+              >Create New Room &raquo;
+            </button>
           </li>
         </ul>
       </div>

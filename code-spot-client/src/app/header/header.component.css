@@ -21,12 +21,10 @@ html {
   cursor: pointer;
 }
 
-.btn-navy {
+.btn-primary {
   margin-left: 5px;
   font-size: 18px;
   font-weight: bold;
-  color: white;
-  background-color: #df691a;
 }
 
 @media (max-width: 768px) {
