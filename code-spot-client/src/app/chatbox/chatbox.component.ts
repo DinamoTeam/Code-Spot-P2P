@@ -33,13 +33,7 @@ export class ChatboxComponent implements OnInit {
     private peerService: PeerService,
     private ngZone: NgZone,
     private formBuilder: FormBuilder
-  ) {
-    this.peerService.connectionEstablished.subscribe((successful: boolean) => {
-      if (successful) {
-        this.myUsername = this.peerService.getMyName();
-      }
-    });
-  }
+  ) {  }
 
   ngOnInit() {
     this.subscribeToPeerServerEvents();
@@ -76,6 +70,7 @@ export class ChatboxComponent implements OnInit {
             this.scrollMessageBox();
             break;
           case AnnounceType.NewPeerJoining:
+            this.myUsername = this.peerService.getMyName();
           case AnnounceType.ChangePeerName:
           case AnnounceType.PeerLeft:
             this.namesColors = this.peerService.getNameColorList();

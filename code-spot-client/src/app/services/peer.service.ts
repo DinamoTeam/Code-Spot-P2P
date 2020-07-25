@@ -759,9 +759,6 @@ export class PeerService {
   }
 
   getMyName(): string {
-    console.log("!!!!!!");
-    console.log(this.nameService.getPeerName(this.peer.id));
-    console.log("!!!!!!");
     return this.nameService.getPeerName(this.peer.id);
   }
 
