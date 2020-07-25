@@ -69,6 +69,14 @@ export class CodeEditorComponent implements OnInit {
     theme: 'vs-dark',
     language: EditorService.language,
     wordWrap: 'on',
+    autoClosingOvertype: 'never',
+    autoClosingBrackets: 'never',
+    autoClosingQuotes: 'never',
+    autoIndent: 'none',
+    autoSurround: 'never',
+    folding: false,
+    renderIndentGuides: false,
+    wrappingIndent: 'none'
   };
 
   onLanguageChange(res: string) {
@@ -155,6 +163,7 @@ export class CodeEditorComponent implements OnInit {
    * Listen to any content changes (such as insert, remove, undo,...)
    */
   onDidChangeModelContentHandler(event: any): void {
+    console.log(event);
     // remoteOpLeft is used because remoteInsert / remoteRemove will also trigger this event
     if (EditorService.remoteOpLeft > 0) {
       EditorService.remoteOpLeft--;
