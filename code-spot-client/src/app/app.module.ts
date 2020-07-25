@@ -23,13 +23,23 @@ const monacoConfig: NgxMonacoEditorConfig = {
     wordWrap: 'on',
     showUnused: true,
     tabCompletion: 'onlySnippets',
-    // dragAndDrop: false,
+
+    // Trying to disable deleting white spaces
+    autoClosingOvertype: 'never',
+    autoClosingBrackets: 'never',
+    autoClosingQuotes: 'never',
+    autoIndent: 'none',
+    autoSurround: 'never',
+    folding: false,
+    renderIndentGuides: false,
+    wrappingIndent: 'none',
+    disableMonospaceOptimizations: true,
   },
-  onMonacoLoad
+  onMonacoLoad,
 };
 
 export function onMonacoLoad() {
-    /* Change Config here */
+  /* Change Config here */
 }
 
 @NgModule({
@@ -52,7 +62,7 @@ export function onMonacoLoad() {
     FormsModule,
     ReactiveFormsModule,
     MonacoEditorModule.forRoot(monacoConfig),
-    PickerModule
+    PickerModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

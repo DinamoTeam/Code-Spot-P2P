@@ -69,6 +69,8 @@ export class CodeEditorComponent implements OnInit {
     theme: 'vs-dark',
     language: EditorService.language,
     wordWrap: 'on',
+
+    // Trying to disable deleting white spaces
     autoClosingOvertype: 'never',
     autoClosingBrackets: 'never',
     autoClosingQuotes: 'never',
@@ -76,7 +78,8 @@ export class CodeEditorComponent implements OnInit {
     autoSurround: 'never',
     folding: false,
     renderIndentGuides: false,
-    wrappingIndent: 'none'
+    wrappingIndent: 'none',
+    disableMonospaceOptimizations: true
   };
 
   onLanguageChange(res: string) {
