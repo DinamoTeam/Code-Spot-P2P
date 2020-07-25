@@ -1,5 +1,8 @@
 import { CRDT } from './CRDT';
 
+/**
+ * Attempt to replace Monaco undo stack. Unfinished.
+ */
 export class EditStack {
   private arr: Array<Edit>;
   constructor() {
