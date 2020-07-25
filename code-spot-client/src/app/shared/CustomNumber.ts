@@ -1,16 +1,23 @@
 import { Identifier } from './CRDT';
 
+/**
+ * Number in base BASE with addition, subtraction and a few other functionalities
+ */
 export class CustomNumber {
   // Don't use BASE too large (less than 2^50).
-  // Reason: Number.MAX_SAFE_INTEGER = 2^53 - 1. This class will have some adding. I don't want overflow
-  static readonly BASE = Math.pow(2, 25); // 'constant'
+  // Reason: Number.MAX_SAFE_INTEGER == 2^53 - 1. This class will have some adding. We don't want number to exceed MAX_SAFE_INTEGER
+  // Also: Don't use BASE too small (has to be bigger than 100)
+  // Reason: In function generateLessThan, we hard-coded the value 100
+  static readonly BASE = Math.pow(2, 25);
   arr: number[];
 
   constructor(list: number[]) {
     this.arr = Object.assign([], CustomNumber.trimLeadingZeros(list)); // Deep copy
   }
 
-  // Normal subtract function in base BASE with the assumption that n1 >= n2
+  /**
+   * Normal subtract function in base BASE with the assumption that n1 >= n2
+   */
   static subtractGreaterThan(n1: CustomNumber, n2: CustomNumber): CustomNumber {
     if (n1.compareTo(n2) < 0) {
       throw new Error('n1 < n2 in when substracting greater than');
@@ -54,7 +61,9 @@ export class CustomNumber {
     return new CustomNumber(resArr);
   }
 
-  // Nomal add function in base BASE
+  /**
+   * Normal add function in base BASE
+   */
   static add(n1: CustomNumber, n2: CustomNumber): CustomNumber {
     const length1 = n1.arr.length;
     const length2 = n2.arr.length;
@@ -102,7 +111,9 @@ export class CustomNumber {
     return new CustomNumber(resArr);
   }
 
-  // Convert to base 10, do integer division and then convert back
+  /**
+   * Convert to base 10, do integer division and then convert back
+   */
   static naiveFloorDivide(n1: CustomNumber, n2: CustomNumber): CustomNumber {
     const decimal1 = CustomNumber.customNumberToDecimal(n1);
     const decimal2 = CustomNumber.customNumberToDecimal(n2);
@@ -140,7 +151,9 @@ export class CustomNumber {
     return new CustomNumber(arr.reverse());
   }
 
-  // Return a CustomNumber object from an IdentifierArray by taking digits only
+  /**
+   * Return a CustomNumber object from an IdentifierArray by taking digits only
+   */
   static customNumberFromIdentifierArray(
     identifiers: Identifier[]
   ): CustomNumber {
@@ -148,13 +161,16 @@ export class CustomNumber {
     return new CustomNumber(digitArr);
   }
 
-  // Decrease some digits to generate a number less than n
+  /**
+   * Decrease some digits to generate a number less than n
+   */
   static generateLessThan(n: CustomNumber): CustomNumber {
-    // If n is bigger than 100: just return something from 1 to 100 inclusive
+    // Optimization: If n is bigger than 100: just return something from 1 to 100 inclusive
     if (n.compareTo(new CustomNumber([100])) > 0) {
       const randomDigit = Math.floor(Math.random() * 100) + 1;
       return new CustomNumber([randomDigit]);
     }
+
     // If only 1 digit
     if (n.arr.length === 1) {
       const newDigit = Math.floor(Math.random() * (n.arr[0] - 1)) + 1; // newDigit = 1->oldDigit-1. Never 0
@@ -173,6 +189,7 @@ export class CustomNumber {
       );
       newArr = Object.assign([], newNumber.arr);
     }
+
     // Decrease 1->numDigitsNonZero-1 times, prioritize more significant digits
     const toBeDecreased =
       Math.floor(Math.random() * (numDigitsNonZero - 1)) + 1;
@@ -191,7 +208,9 @@ export class CustomNumber {
     return result; // If result is not 0, return result
   }
 
-  // Trim leading zeros, but left 1 zero if the remaining array is [0]
+  /**
+   * Trim leading zeros, but left 1 zero if the remaining array is [0]
+   */
   static trimLeadingZeros(arr: number[]): number[] {
     const firstNonZeroIndex = arr.findIndex((x) => x !== 0);
     if (firstNonZeroIndex === -1) {
@@ -201,10 +220,12 @@ export class CustomNumber {
     return arr.slice(firstNonZeroIndex, arr.length);
   }
 
-  // Normal compare in base BASE
+  /**
+   * Normal compare in base BASE
+   */
   compareTo(other: CustomNumber): number {
     if (this.arr.length !== other.arr.length) {
-      return this.arr.length - other.arr.length; // If length's not equal, trivial. Just compare length
+      return this.arr.length - other.arr.length;
     }
 
     for (let i = 0; i < this.arr.length; i++) {
@@ -217,7 +238,6 @@ export class CustomNumber {
 
   toString(): string {
     let description = '';
-    // tslint:disable-next-line: prefer-const
     let currentBase = CustomNumber.BASE;
     if (currentBase === 10) {
       for (let i = 0; i < this.arr.length; i++) {

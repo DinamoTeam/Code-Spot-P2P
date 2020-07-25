@@ -40,6 +40,7 @@ export class PeerService {
   private hasReceivedAllChatMessages: boolean = false;
   private peerIdJustLeft: string;
   private nameColorList: NameColor[] = [];
+  private hasNotShowInternetDisconnect = true;
 
   constructor(
     private roomService: RoomService,
@@ -113,9 +114,13 @@ export class PeerService {
    */
   private listenToBrowserOffline() {
     window.addEventListener('offline', (e) => {
-      PeerUtils.handlePeerError(
-        'Please check your Internet connection. Going back to Home page?'
-      );
+      if (this.hasNotShowInternetDisconnect) {
+        this.hasNotShowInternetDisconnect = false;
+        this.peer.destroy();
+        PeerUtils.handlePeerError(
+          'Please check your Internet connection. Going back to Home page?'
+        );
+      }
     });
   }
 
