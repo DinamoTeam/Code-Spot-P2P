@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CRDT } from '../shared/CRDT';
 import { PeerUtils } from '../shared/Utils';
-import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { AnnounceType } from '../shared/AnnounceType';
 
 @Injectable({
   providedIn: 'root',
@@ -47,7 +47,7 @@ export class CrdtPackageService {
       this.crdtsReady = this.crdtPackages[index].toCRDTArray();
       console.log('CRDT package complete: ');
       this.requestType = this.crdtPackages[index].packageType;
-      PeerUtils.broadcastInfo(BroadcastInfo.CrdtPackageReady);
+      PeerUtils.announceInfo(AnnounceType.CrdtPackageReady);
       this.crdtPackages.splice(index, 1);
     }
   }

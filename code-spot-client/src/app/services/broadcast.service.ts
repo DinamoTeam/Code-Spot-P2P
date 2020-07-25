@@ -11,7 +11,7 @@ import { CursorService } from './cursor.service';
 export class BroadcastService {
   private peer: any;
   private chatMessageTime = 0;
-  private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
+  static readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
 
   constructor(private cursorService: CursorService) {}
 
@@ -37,7 +37,7 @@ export class BroadcastService {
     // Our CRDTs can be large. Therefore we need to break them in small batches
     const crdtStrings = CrdtUtils.breakCrdtsIntoCrdtStringBatches(
       previousCRDTs,
-      this.CRDTDelimiter
+      BroadcastService.CRDTDelimiter
     );
 
     for (let i = 0; i < crdtStrings.length; i++) {
@@ -86,7 +86,7 @@ export class BroadcastService {
 
     const crdtStrings = CrdtUtils.breakCrdtsIntoCrdtStringBatches(
       crdts,
-      this.CRDTDelimiter
+      BroadcastService.CRDTDelimiter
     );
 
     for (let i = 0; i < crdtStrings.length; i++) {

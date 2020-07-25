@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { PeerService } from '../services/peer.service';
 import { Location } from '@angular/common';
 import { Languages } from './languages';
-import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { AnnounceType } from '../shared/AnnounceType';
 import { CursorService } from '../services/cursor.service';
 import { PeerUtils, Utils } from '../shared/Utils';
 import { CursorChangeReason } from '../shared/CursorChangeReason';
@@ -252,11 +252,11 @@ export class CodeEditorComponent implements OnInit {
   }
 
   subscribeToPeerServiceEvents(): void {
-    PeerUtils.broadcast.subscribe((message: any) => {
+    PeerUtils.announce.subscribe((message: any) => {
       this.ngZone.run(() => {
         switch (message) {
-          case BroadcastInfo.RemoteInsert:
-          case BroadcastInfo.RemoteAllMessages:
+          case AnnounceType.RemoteInsert:
+          case AnnounceType.RemoteAllMessages:
             this.editorService.handleRemoteInsert(
               this.editor,
               this.editorTextModel,
@@ -264,7 +264,7 @@ export class CodeEditorComponent implements OnInit {
               this.peerService.getReceivedRemoteCrdts()
             );
             break;
-          case BroadcastInfo.RemoteRemove:
+          case AnnounceType.RemoteRemove:
             this.editorService.handleRemoteRangeRemove(
               this.editor,
               this.editorTextModel,
@@ -272,11 +272,11 @@ export class CodeEditorComponent implements OnInit {
               this.peerService.getReceivedRemoteCrdts()
             );
             break;
-          case BroadcastInfo.RoomName:
+          case AnnounceType.RoomName:
             this.roomName = this.peerService.getRoomName();
             this.location.replaceState('/editor/' + this.roomName);
             break;
-          case BroadcastInfo.ChangeLanguage:
+          case AnnounceType.ChangeLanguage:
             this.selectedLang = EditorService.language;
             monaco.editor.setModelLanguage(
               this.editorTextModel,
@@ -284,10 +284,10 @@ export class CodeEditorComponent implements OnInit {
             );
             this.editorForm.patchValue({ language: this.selectedLang });
             break;
-          case BroadcastInfo.ReadyToDisplayMonaco:
+          case AnnounceType.ReadyToDisplayMonaco:
             this.ready = true;
             break;
-          case BroadcastInfo.CursorChange:
+          case AnnounceType.CursorChange:
             const cursorChange = this.peerService.getCursorChangeInfo();
             this.cursorService.drawCursor(
               this.editor,
@@ -303,7 +303,7 @@ export class CodeEditorComponent implements OnInit {
               false
             );
             break;
-          case BroadcastInfo.SelectionChange:
+          case AnnounceType.SelectionChange:
             const selectionChange = this.peerService.getSelectionChangeInfo();
             this.cursorService.drawSelection(
               this.editor,
@@ -314,20 +314,20 @@ export class CodeEditorComponent implements OnInit {
               selectionChange.peerId
             );
             break;
-          case BroadcastInfo.PeerLeft:
+          case AnnounceType.PeerLeft:
             const peerIdLeft = this.peerService.getPeerIdJustLeft();
             this.cursorService.removePeer(this.editor, peerIdLeft);
             break;
-          case BroadcastInfo.ChangePeerName:
+          case AnnounceType.ChangePeerName:
             this.cursorService.redrawPeersNameTags(this.editor);
             break;
-          case BroadcastInfo.ChangeMyName:
+          case AnnounceType.ChangeMyName:
             this.cursorService.redrawMyNameTag(
               this.editor,
               this.peerService.getMyPeerId()
             );
             break;
-          case BroadcastInfo.UnhandledError:
+          case AnnounceType.UnhandledError:
             this.showErrorBanner = true;
           default:
             break;

@@ -10,7 +10,7 @@ import { SelectionChangeInfo } from '../shared/SelectionChangeInfo';
 import { CursorService } from './cursor.service';
 import { PeerServerConnection } from '../shared/PeerServerConnection';
 import { PeersConnection } from '../shared/PeersConnection';
-import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { AnnounceType } from '../shared/AnnounceType';
 import { AlertType } from '../shared/AlertType';
 import { NameService } from './name.service';
 import { NameColor } from '../shared/NameColor';
@@ -32,7 +32,6 @@ export class PeerService {
   private hasReceivedAllOldCRDTs = false;
   private hasReceivedAllChatMessages: boolean = false;
   private connsToBroadcast: any[] = [];
-  private readonly CRDTDelimiter = '#$'; // Has to be at least 2 unique chars
   private receivedRemoteCrdts: CRDT[];
   private cursorChangeInfo: CursorChangeInfo;
   private selectionChangeInfo: SelectionChangeInfo;
@@ -235,7 +234,7 @@ export class PeerService {
 
   /**
    * Is called when a peer send us a message
-   * Note: PeerUtils.broadcastInfo() is to notify code-editor.component.ts
+   * Note: PeerUtils.announceInfo() is to notify code-editor.component.ts
    */
   private handleMessageFromPeer(message: Message, fromConn: any) {
     switch (message.messageType) {
@@ -256,21 +255,21 @@ export class PeerService {
         if (message.content !== '') {
           const crdts = CrdtUtils.stringToCRDTArr(
             message.content,
-            this.CRDTDelimiter
+            BroadcastService.CRDTDelimiter
           );
           this.receivedRemoteCrdts = crdts;
           if (message.messageType === MessageType.RemoteInsert) {
-            PeerUtils.broadcastInfo(BroadcastInfo.RemoteInsert);
+            PeerUtils.announceInfo(AnnounceType.RemoteInsert);
           } else if (message.messageType === MessageType.RemoteRemove) {
-            PeerUtils.broadcastInfo(BroadcastInfo.RemoteRemove);
+            PeerUtils.announceInfo(AnnounceType.RemoteRemove);
           } else {
-            PeerUtils.broadcastInfo(BroadcastInfo.RemoteAllMessages);
+            PeerUtils.announceInfo(AnnounceType.RemoteAllMessages);
           }
         }
 
         if (message.messageType === MessageType.OldCRDTsLastBatch) {
           this.hasReceivedAllOldCRDTs = true;
-          PeerUtils.broadcastInfo(BroadcastInfo.ReadyToDisplayMonaco);
+          PeerUtils.announceInfo(AnnounceType.ReadyToDisplayMonaco);
           this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
           // Tell C# Server I have received AllMessages
           this.roomService.markPeerReceivedAllMessages(this.peer.id);
@@ -336,7 +335,7 @@ export class PeerService {
           this.connsToBroadcast
         );
         PeerUtils.addUniqueMessages([message], this.previousChatMessages);
-        PeerUtils.broadcastInfo(BroadcastInfo.UpdateChatMessages);
+        PeerUtils.announceInfo(AnnounceType.UpdateChatMessages);
         break;
 
       // Somebody sends us old chat messages (We just joined room)
@@ -344,7 +343,7 @@ export class PeerService {
         this.hasReceivedAllChatMessages = true;
         const messages: Message[] = JSON.parse(message.content);
         PeerUtils.addUniqueMessages(messages, this.previousChatMessages);
-        PeerUtils.broadcastInfo(BroadcastInfo.UpdateChatMessages);
+        PeerUtils.announceInfo(AnnounceType.UpdateChatMessages);
         break;
 
       // Somebody asked us to send them old chat messages (They just joined room)
@@ -385,7 +384,7 @@ export class PeerService {
           cursorEvent.position.column,
           fromConn.peer
         );
-        PeerUtils.broadcastInfo(BroadcastInfo.CursorChange);
+        PeerUtils.announceInfo(AnnounceType.CursorChange);
         break;
       case MessageType.ChangeSelect:
         const selectEvent = JSON.parse(message.content);
@@ -396,7 +395,7 @@ export class PeerService {
           selectEvent.selection.endColumn,
           fromConn.peer
         );
-        PeerUtils.broadcastInfo(BroadcastInfo.SelectionChange);
+        PeerUtils.announceInfo(AnnounceType.SelectionChange);
         break;
       case MessageType.CursorColor:
         const color = Number.parseInt(message.content, 10);
@@ -442,7 +441,7 @@ export class PeerService {
           STOP_BROADCAST_AFTER_MILLI_SECONDS
         );
 
-        PeerUtils.broadcastInfo(BroadcastInfo.NewPeerJoining);
+        PeerUtils.announceInfo(AnnounceType.NewPeerJoining);
         Utils.alert(
           this.nameService.getPeerName(fromConn.peer) + ' just joined room',
           AlertType.Success
@@ -456,7 +455,7 @@ export class PeerService {
           this.connsToBroadcast
         );
         EditorService.language = message.content;
-        PeerUtils.broadcastInfo(BroadcastInfo.ChangeLanguage);
+        PeerUtils.announceInfo(AnnounceType.ChangeLanguage);
         Utils.alert(
           'Language has been changed to ' + message.content,
           AlertType.Message
@@ -476,7 +475,7 @@ export class PeerService {
           this.nameService.setPeerName(fromPeerId, newName);
           this.updateNameColorList(fromPeerId, newName);
 
-          PeerUtils.broadcastInfo(BroadcastInfo.ChangePeerName);
+          PeerUtils.announceInfo(AnnounceType.ChangePeerName);
           Utils.alert(
             oldName + ' has changed their name to ' + newName,
             AlertType.Message
@@ -513,7 +512,7 @@ export class PeerService {
     // IMPORTANT: Must be after delete peer's nameColor out of the list
     // Delete the peer's cursor, select,...
     this.peerIdJustLeft = conn.peer;
-    PeerUtils.broadcastInfo(BroadcastInfo.PeerLeft);
+    PeerUtils.announceInfo(AnnounceType.PeerLeft);
 
     // Tell user that the peer just left room
     const name = this.nameService.getPeerName(conn.peer);
@@ -544,7 +543,7 @@ export class PeerService {
       )
     );
 
-    PeerUtils.broadcastInfo(BroadcastInfo.NewPeerJoining);
+    PeerUtils.announceInfo(AnnounceType.NewPeerJoining);
 
     if (peerIds.length === 0) {
       // DO NOTHING
@@ -635,8 +634,8 @@ export class PeerService {
         this.roomName = data.roomName;
         EditorService.setSiteId(data.siteId);
         this.handleFirstJoinRoom([], [], [], data.cursorColor);
-        PeerUtils.broadcastInfo(BroadcastInfo.RoomName);
-        PeerUtils.broadcastInfo(BroadcastInfo.ReadyToDisplayMonaco);
+        PeerUtils.announceInfo(AnnounceType.RoomName);
+        PeerUtils.announceInfo(AnnounceType.ReadyToDisplayMonaco);
       });
   }
 
@@ -762,7 +761,7 @@ export class PeerService {
   changeMyName(newName: string) {
     this.nameService.setPeerName(this.peer.id, newName);
     this.updateNameColorList(this.peer.id, newName + ' (You)');
-    PeerUtils.broadcastInfo(BroadcastInfo.ChangeMyName);
+    PeerUtils.announceInfo(AnnounceType.ChangeMyName);
   }
 
   /**

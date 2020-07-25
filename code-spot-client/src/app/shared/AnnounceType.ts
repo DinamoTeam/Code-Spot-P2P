@@ -1,4 +1,4 @@
-export const enum BroadcastInfo {
+export const enum AnnounceType {
   UpdateChatMessages = 0,
   RoomName = 1,
   RemoteInsert = 2,

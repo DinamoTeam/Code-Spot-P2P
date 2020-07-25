@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Utils } from '../shared/Utils';
-import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { AnnounceType } from '../shared/AnnounceType';
 
 @Component({
   selector: 'app-home',
@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit {
   ngOnInit() {}
 
   goToEditor() {
-    Utils.broadcastInfo(BroadcastInfo.LeftHomePage);
+    Utils.broadcastInfo(AnnounceType.LeftHomePage);
     this.router.navigate(['editor']);
   }
 }

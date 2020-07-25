@@ -1,6 +1,6 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { Utils } from '../shared/Utils';
-import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { AnnounceType } from '../shared/AnnounceType';
 import { Router } from '@angular/router';
 
 @Component({
@@ -51,10 +51,10 @@ export class HeaderComponent implements OnInit {
   }
 
   subscribeToUtilsEvents() {
-    Utils.broadcast.subscribe((message: BroadcastInfo) => {
+    Utils.broadcast.subscribe((message: AnnounceType) => {
       this.ngZone.run(() => {
         switch (message) {
-          case BroadcastInfo.LeftHomePage:
+          case AnnounceType.LeftHomePage:
             this.showCreateNewRoomBtn = false;
             break;
           default:

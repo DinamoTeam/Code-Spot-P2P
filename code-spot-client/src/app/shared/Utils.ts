@@ -1,7 +1,7 @@
 import { CRDT } from './CRDT';
 import { Message } from './Message';
 import { EventEmitter } from '@angular/core';
-import { BroadcastInfo } from './BroadcastInfo';
+import { AnnounceType } from './AnnounceType';
 import { NameColor } from './NameColor';
 import * as alertify from 'alertifyjs';
 import { AlertType } from './AlertType';
@@ -54,14 +54,14 @@ export class CrdtUtils {
 }
 
 export class PeerUtils {
-  static broadcast = new EventEmitter<BroadcastInfo>();
+  static announce = new EventEmitter<AnnounceType>();
 
   static connectionHasOpened(con: any, connections: any[]): boolean {
     return connections.findIndex((x) => x.peer === con.peer) !== -1;
   }
 
-  static broadcastInfo(infoType: BroadcastInfo): void {
-    PeerUtils.broadcast.emit(infoType);
+  static announceInfo(announceType: AnnounceType): void {
+    PeerUtils.announce.emit(announceType);
   }
 
   static addUniqueMessages(list: Message[], listToBeAddedTo: Message[]) {
@@ -85,14 +85,14 @@ export class PeerUtils {
   static handlePeerError(message: string) {
     let ans = confirm(message);
     if (ans === true) window.location.replace('/');
-    else PeerUtils.broadcastInfo(BroadcastInfo.UnhandledError);
+    else PeerUtils.announceInfo(AnnounceType.UnhandledError);
 
     // TODO: WARN USER THAT THIS HAS STOP SYNC
   }
 }
 
 export class Utils {
-  static broadcast = new EventEmitter<BroadcastInfo>();
+  static broadcast = new EventEmitter<AnnounceType>();
 
   static addUniqueConnections(list: any[], listToBeAddedTo: any[]) {
     list.forEach((obj) => {
@@ -122,8 +122,8 @@ export class Utils {
     }
   }
 
-  static broadcastInfo(infoType: BroadcastInfo): void {
-    Utils.broadcast.emit(infoType);
+  static broadcastInfo(announceType: AnnounceType): void {
+    Utils.broadcast.emit(announceType);
   }
 
   static alert(message: string, alertType: AlertType) {

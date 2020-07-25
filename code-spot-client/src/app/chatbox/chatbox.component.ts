@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { PeerService } from '../services/peer.service';
 import { FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
-import { BroadcastInfo } from '../shared/BroadcastInfo';
+import { AnnounceType } from '../shared/AnnounceType';
 import { PeerUtils, Utils } from '../shared/Utils';
 import { NameColor } from '../shared/NameColor';
 import { Message } from '../shared/Message';
@@ -67,16 +67,16 @@ export class ChatboxComponent implements OnInit {
   }
 
   subscribeToPeerServerEvents() {
-    PeerUtils.broadcast.subscribe((message: BroadcastInfo) => {
+    PeerUtils.announce.subscribe((message: AnnounceType) => {
       this.ngZone.run(() => {
         switch (message) {
-          case BroadcastInfo.UpdateChatMessages:
+          case AnnounceType.UpdateChatMessages:
             this.messages = this.peerService.getAllMessages();
             this.scrollMessageBox();
             break;
-          case BroadcastInfo.NewPeerJoining:
-          case BroadcastInfo.ChangePeerName:
-          case BroadcastInfo.PeerLeft:
+          case AnnounceType.NewPeerJoining:
+          case AnnounceType.ChangePeerName:
+          case AnnounceType.PeerLeft:
             this.namesColors = this.peerService.getNameColorList();
             break;
           default:
