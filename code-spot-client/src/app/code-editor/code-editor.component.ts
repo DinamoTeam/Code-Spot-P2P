@@ -227,6 +227,7 @@ export class CodeEditorComponent implements OnInit {
     );
 
     if (
+      true ||
       this.worthSending(event) ||
       this.cursorService.peerIdsNeverSendCursorTo.size > 0 ||
       this.cursorService.justJoinRoom
@@ -339,7 +340,7 @@ export class CodeEditorComponent implements OnInit {
   /**
    * To sync cursor / select change event, we can send every single change that takes place.
    * BUT this is VERY SLOW. Therefore we only send change event if we have to. We let Monaco's decoration
-   * takes care of the rest.
+   * and our function: recalculateAllNameTagIndicesAfterInsert/Remove takes care of the rest.
    */
   private worthSending(CursorOrSelectChangeEvent: any): boolean {
     if (
