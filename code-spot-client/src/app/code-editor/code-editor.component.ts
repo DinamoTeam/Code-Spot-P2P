@@ -65,10 +65,22 @@ export class CodeEditorComponent implements OnInit {
     this.selectedTheme = 'vs-dark';
   }
 
+  // tslint:disable-next-line: member-ordering
   editorOptions = {
     theme: 'vs-dark',
     language: EditorService.language,
     wordWrap: 'on',
+
+    // // Trying to disable deleting white spaces
+    // autoClosingOvertype: 'never',
+    // autoClosingBrackets: 'never',
+    // autoClosingQuotes: 'never',
+    // autoIndent: 'none',
+    // autoSurround: 'never',
+    // folding: false,
+    // renderIndentGuides: false,
+    // wrappingIndent: 'none',
+    // disableMonospaceOptimizations: true
   };
 
   onLanguageChange(res: string) {
@@ -155,6 +167,7 @@ export class CodeEditorComponent implements OnInit {
    * Listen to any content changes (such as insert, remove, undo,...)
    */
   onDidChangeModelContentHandler(event: any): void {
+    console.log(event);
     // remoteOpLeft is used because remoteInsert / remoteRemove will also trigger this event
     if (EditorService.remoteOpLeft > 0) {
       EditorService.remoteOpLeft--;
