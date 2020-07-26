@@ -155,6 +155,27 @@ export class CodeEditorComponent implements OnInit {
     this.auxEditorTextModel = this.auxEditor.getModel();
     this.auxEditorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
+    // Disable Ctrl-D (tricky to sync cursor + select)
+    this.auxEditor.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_D,
+      function () {}
+    );
+
+    // Add "padding" to the top
+    let viewZoneId;
+    this.auxEditor.changeViewZones((changeAccessor) => {
+      var domNode = document.createElement('div');
+      viewZoneId = changeAccessor.addZone({
+        afterLineNumber: 0,
+        heightInLines: 1.5,
+        domNode: domNode,
+      });
+    });
+
+    this.auxEditor.onDidChangeModelContent((e: any) =>
+      console.log(e)
+    );
+
     // Only connect to PeerServer when both Monaco Editors is ready
     this.auxEditorReady = true;
     if (this.mainEditorReady && !this.peerServiceHasConnectedToPeerServer) {
@@ -168,13 +189,28 @@ export class CodeEditorComponent implements OnInit {
    */
   onDidChangeModelContentHandler(event: any): void {
     console.log(event);
+    const changes = event.changes;
+
     // remoteOpLeft is used because remoteInsert / remoteRemove will also trigger this event
     if (EditorService.remoteOpLeft > 0) {
       EditorService.remoteOpLeft--;
+
+      // If Monaco trims white spaces
+      if (changes.length > 1) {
+        for (let i = 1; i < changes.length; i++) {
+          const range = changes[i].range;
+          this.editorService.handleLocalRemove(
+            this.auxEditorTextModel,
+            range.startLineNumber,
+            range.startColumn,
+            range.endLineNumber,
+            range.endColumn,
+            changes[i].rangeLength
+          );
+        }
+      }
       return;
     }
-
-    const changes = event.changes;
 
     for (let i = 0; i < changes.length; i++) {
       const range = changes[i].range;
@@ -399,5 +435,9 @@ export class CodeEditorComponent implements OnInit {
     document.execCommand('copy');
     document.body.removeChild(selBox);
     Utils.alert('Link copied to clipboard!', AlertType.Success);
+  }
+
+  printBST() {
+    console.log(this.editorService.bst.inorderToString());
   }
 }

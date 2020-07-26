@@ -391,7 +391,7 @@ export class BalancedBST<T extends IsObject> {
     this.inorderHelper(this.root, res);
     let stringRes = '';
     for (let i = 0; i < res.length; i++) {
-      stringRes = stringRes + res[i];
+      stringRes = stringRes + res[i] + '\n';
     }
     return stringRes;
   }

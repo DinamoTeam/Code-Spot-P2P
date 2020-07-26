@@ -1,3 +1,5 @@
+<button (click)="printBST()">Print BST</button>
+
 <!-- Loading screen -->
 <div
   *ngIf="!ready"
@@ -91,15 +93,6 @@
         >
       </div>
     </div>
-    <!-- Aux Editor-->
-    <ngx-monaco-editor
-      id="aux-editor"
-      class="solution-code-editor"
-      [options]="editorOptions"
-      (onInit)="onInitAuxEditorHandler($event)"
-    >
-    </ngx-monaco-editor>
-
     <!-- Main Editor-->
     <div>
       <ngx-monaco-editor
@@ -120,6 +113,14 @@
         </button>
       </div>
     </div>
+    <!-- Aux Editor-->
+    <ngx-monaco-editor
+      id="aux-editor"
+      class="solution-code-editor"
+      [options]="editorOptions"
+      (onInit)="onInitAuxEditorHandler($event)"
+    >
+    </ngx-monaco-editor>
   </form>
 
   <!--Chat Box -->
