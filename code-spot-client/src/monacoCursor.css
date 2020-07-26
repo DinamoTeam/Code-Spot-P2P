@@ -22,9 +22,10 @@
 }
 
 .hide {
-  font-size: 0.1px;
+  font-size: 0.1px !important;
   opacity: 0;
   height: 24px;
+  padding: 0px !important;
 }
 
 .nameTagText {
