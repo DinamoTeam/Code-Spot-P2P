@@ -160,12 +160,23 @@ export class EditorService {
 
       EditorService.remoteOpLeft++; // Avoid triggering monaco change event
 
+      console.log('Inserting to aux editor: ' + textToInsert + ' at index ' + startIndexMonaco);
+      // Write text to aux Editor
+      this.writeTextToMonacoAtIndex(
+        auxEditorTextModel,
+        textToInsert,
+        startIndexMonaco
+      );
+      console.log('Done aux');
+
+      console.log('Inserting to main editor: ' + textToInsert + ' at index ' + startIndexMonaco);
       // Write text to main Monaco Editor
       this.writeTextToMonacoAtIndex(
         editorTextModel,
         textToInsert,
         startIndexMonaco
       );
+      console.log('Done main');
 
       // Calculate new pos for nameTag after remote insert
       this.cursorService.recalculateAllNameTagIndicesAfterInsert(
@@ -173,12 +184,7 @@ export class EditorService {
         textToInsert.length
       );
 
-      // Write text to aux Editor
-      this.writeTextToMonacoAtIndex(
-        auxEditorTextModel,
-        textToInsert,
-        startIndexMonaco
-      );
+
     }
 
     // Redraw nameTags
@@ -189,7 +195,7 @@ export class EditorService {
    * Is called when our user removes some text. This function will remove corresponding
    * CRDT objects from BST and broadcast these removed CRDTs to the rest in room
    */
-  handleLocalRangeRemove(
+  handleLocalRemove(
     auxEditorTextModel: any,
     startLineNumber: number,
     startColumn: number,
@@ -228,12 +234,38 @@ export class EditorService {
     this.crdtEvent.emit(false);
   }
 
+  handleLocalMonacoRemove(
+    editorTextModel,
+    startLineNumber: number,
+    startColumn: number,
+    length: number
+  ) {
+    const startIndex =
+      this.posToIndex(editorTextModel, startLineNumber, startColumn) + 1; // '+1' because __beg limit in BST increase index by 1
+
+
+
+    // Note: Indices from BST and from Monaco Editor are in sync.
+    // Ex: CRDT at index 5 from BST will correspond to char at index 5 from Monaco
+    const removedCRDTs: CRDT[] = [];
+    for (let i = 0; i < length; i++) {
+      const crdtToBeRemoved = this.bst.getDataAt(startIndex);
+      removedCRDTs.push(crdtToBeRemoved);
+      this.bst.remove(crdtToBeRemoved);
+    }
+
+    // Tell peerService to broadcast these removed CRDTs
+    // PeerService listens to this event at subscribeToEditorServiceEvents()
+    this.crdtsToTransfer = removedCRDTs;
+    this.crdtEvent.emit(false);
+  }
+
   /**
    * Is called when a peer sends us a remote remove request. This function will take
    * these to-be-removed CRDT objects, remove them from BST and get their indices,
    * then delete chars with the same indices in Monaco
    */
-  handleRemoteRangeRemove(
+  handleRemoteRemove(
     editor: any,
     editorTextModel: any,
     auxEditorTextModel: any,
@@ -300,6 +332,7 @@ export class EditorService {
     // Actually redraw nameTag
     this.cursorService.redrawPeersNameTags(editor);
   }
+
 
   getOldCRDTsAsSortedArray(): CRDT[] {
     return this.bst.toSortedArray();
