@@ -189,7 +189,7 @@ export class EditorService {
    * Is called when our user removes some text. This function will remove corresponding
    * CRDT objects from BST and broadcast these removed CRDTs to the rest in room
    */
-  handleLocalRangeRemove(
+  handleLocalRemove(
     auxEditorTextModel: any,
     startLineNumber: number,
     startColumn: number,
@@ -233,7 +233,7 @@ export class EditorService {
    * these to-be-removed CRDT objects, remove them from BST and get their indices,
    * then delete chars with the same indices in Monaco
    */
-  handleRemoteRangeRemove(
+  handleRemoteRemove(
     editor: any,
     editorTextModel: any,
     auxEditorTextModel: any,
@@ -300,6 +300,7 @@ export class EditorService {
     // Actually redraw nameTag
     this.cursorService.redrawPeersNameTags(editor);
   }
+
 
   getOldCRDTsAsSortedArray(): CRDT[] {
     return this.bst.toSortedArray();

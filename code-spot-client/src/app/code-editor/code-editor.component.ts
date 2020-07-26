@@ -191,7 +191,7 @@ export class CodeEditorComponent implements OnInit {
       );
 
       // Handle local remove (if any)
-      this.editorService.handleLocalRangeRemove(
+      this.editorService.handleLocalRemove(
         this.auxEditorTextModel,
         range.startLineNumber,
         range.startColumn,
@@ -279,7 +279,7 @@ export class CodeEditorComponent implements OnInit {
             );
             break;
           case AnnounceType.RemoteRemove:
-            this.editorService.handleRemoteRangeRemove(
+            this.editorService.handleRemoteRemove(
               this.editor,
               this.editorTextModel,
               this.auxEditorTextModel,
