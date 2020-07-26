@@ -2,7 +2,9 @@
 
 ## A sync code editor
 
-![](./images/Welcome.png)
+![](./images/HomeScreen.png)
+![](./images/EditorScreen.png)
+![](./images/ChangeName.png)
 
 ## **Development setup**
 
