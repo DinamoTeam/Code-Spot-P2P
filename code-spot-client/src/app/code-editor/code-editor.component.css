@@ -30,6 +30,10 @@
   #spinner-container {
       margin-left: 0px;
   }
+
+  .alert {
+      font-size: 13px;
+  }
 }
 
 .spinner-grow {
