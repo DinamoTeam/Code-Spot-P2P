@@ -25,12 +25,11 @@ export class PeerService {
   private peer: any;
   private roomName: string;
   private connToGetOldMessages: any;
-  private peerIdsToSendOldCrdts: string[] = [];
-  private peerIdsToSendOldChatMessages: string[] = [];
+  private peerIdsToSendOldCrdtsAndOldChatMessages: string[] = [];
   private peerIdsInRoomWhenFirstEnter: any[] = [];
   private connectionsIAmHolding: any[] = [];
   private hasReceivedAllOldCRDTs = false;
-  private hasReceivedAllChatMessages: boolean = false;
+  private hasReceivedOldChatMessages = false;
   private connsToBroadcast: any[] = [];
   private receivedRemoteCrdts: CRDT[];
   private cursorChangeInfo: CursorChangeInfo;
@@ -193,9 +192,11 @@ export class PeerService {
     // Only add this connection to our list when it has been opened!
     Utils.addUniqueConnections([conn], this.connectionsIAmHolding);
 
-    // If we need to send this peer old messages
-    if (Utils.inArray(conn.peer, this.peerIdsToSendOldCrdts)) {
-      // Broadcast new CRDTs, new chat messages to this new peer until we are sure he
+    // If we need to send this peer old CRDTs and chat messages
+    if (
+      Utils.inArray(conn.peer, this.peerIdsToSendOldCrdtsAndOldChatMessages)
+    ) {
+      // Broadcast new CRDTs, new chat messages and other changes to this new peer until we are sure he
       // has received all oldCRDTs and has connected to the rest in room
       this.connsToBroadcast.push(conn);
 
@@ -204,27 +205,24 @@ export class PeerService {
         this.editorService.getOldCRDTsAsSortedArray()
       );
       this.broadcastService.sendOldMessages(conn, this.previousChatMessages);
-      this.peerIdsToSendOldCrdts = this.peerIdsToSendOldCrdts.filter(
+
+      this.peerIdsToSendOldCrdtsAndOldChatMessages = this.peerIdsToSendOldCrdtsAndOldChatMessages.filter(
         (id) => id !== conn.peer
       );
       this.broadcastService.sendChangeLanguage(conn);
     }
-    // If we chose this peer to give us all messages
+    // If we chose this peer to give us all CRDTs and chat messages
     if (this.connToGetOldMessages === conn) {
       this.broadcastService.requestOldMessages(
         conn,
-        MessageType.RequestOldCRDTs
-      );
-      this.broadcastService.requestOldMessages(
-        conn,
-        MessageType.RequestOldChatMessages
+        MessageType.RequestOldCRDTsAndChatMessages
       );
     }
 
-    // If we just join room (this peer is here before us) and are ready (have received all CRDTs)
+    // If we just join room (this peer is here before us) and are ready (have received all CRDTs and Chat Messages)
     if (
       this.peerIdsInRoomWhenFirstEnter.find((id) => id === conn.peer) &&
-      this.hasReceivedAllOldCRDTs
+      this.hasReceivedAllOldCRDTs && this.hasReceivedOldChatMessages
     ) {
       conn.send(
         new Message(null, MessageType.CanDisplayMeJustJoinRoom, this.peer.id)
@@ -271,7 +269,7 @@ export class PeerService {
           this.hasReceivedAllOldCRDTs = true;
           PeerUtils.announceInfo(AnnounceType.ReadyToDisplayMonaco);
           this.connectToTheRestInRoom(this.connToGetOldMessages.peer);
-          // Tell C# Server I have received AllMessages
+          // Tell C# Server I have received all CRDTs
           this.roomService.markPeerReceivedAllMessages(this.peer.id);
           // Send cursor + selection change info
           this.broadcastService.sendCursorInfo(fromConn);
@@ -286,21 +284,25 @@ export class PeerService {
         }
         break;
 
-      // Somebody asks us to send them old CRDTs
-      case MessageType.RequestOldCRDTs:
-        if (!this.hasReceivedAllOldCRDTs) {
+      // Somebody asks us to send them old CRDTs and Chat Messages
+      case MessageType.RequestOldCRDTsAndChatMessages:
+        if (!this.hasReceivedAllOldCRDTs || !this.hasReceivedOldChatMessages) {
           console.log(
             "I haven't received allMessages yet. Can't send to that peer"
           );
           fromConn.send(
-            new Message(null, MessageType.CannotSendOldCRDTs, this.peer.id)
+            new Message(
+              null,
+              MessageType.CannotSendOldCRDTsOrOldChatMessages,
+              this.peer.id
+            )
           );
         } else {
           // Only send when connection has opened
           if (
             !PeerUtils.connectionHasOpened(fromConn, this.connectionsIAmHolding)
           ) {
-            this.peerIdsToSendOldCrdts.push(fromConn.peer); // Send when opened
+            this.peerIdsToSendOldCrdtsAndOldChatMessages.push(fromConn.peer); // Send when opened
           } else {
             // Broadcast new CRDTs, new chat messages to this new peer until we are sure he
             // has received all oldCRDTs and has connected to the rest in room
@@ -310,13 +312,18 @@ export class PeerService {
               fromConn,
               this.editorService.getOldCRDTsAsSortedArray()
             ); // Send now
+            this.broadcastService.sendOldMessages(
+              fromConn,
+              this.previousChatMessages
+            ); // Send now
+
             this.broadcastService.sendChangeLanguage(fromConn);
           }
         }
         break;
 
       // The peer we asked to send us oldCRDTs don't have them (They're new in room too)
-      case MessageType.CannotSendOldCRDTs:
+      case MessageType.CannotSendOldCRDTsOrOldChatMessages:
         Utils.alert(
           'The peer we picked to send us old messages cannot send. Reloading...',
           AlertType.Error
@@ -340,38 +347,10 @@ export class PeerService {
 
       // Somebody sends us old chat messages (We just joined room)
       case MessageType.OldChatMessages:
-        this.hasReceivedAllChatMessages = true;
+        this.hasReceivedOldChatMessages = true;
         const messages: Message[] = JSON.parse(message.content);
         PeerUtils.addUniqueMessages(messages, this.previousChatMessages);
         PeerUtils.announceInfo(AnnounceType.UpdateChatMessages);
-        break;
-
-      // Somebody asked us to send them old chat messages (They just joined room)
-      case MessageType.RequestOldChatMessages:
-        if (!this.hasReceivedAllChatMessages) {
-          console.log(
-            "I haven't received all chat messages yet. Can't send to that peer"
-          );
-          fromConn.send(
-            new Message(
-              null,
-              MessageType.CannotSendOldChatMessages,
-              this.peer.id
-            )
-          );
-        } else {
-          // Only send when connection has opened
-          if (
-            !PeerUtils.connectionHasOpened(fromConn, this.connectionsIAmHolding)
-          ) {
-            this.peerIdsToSendOldChatMessages.push(fromConn.peer); // Send when opened
-          } else {
-            this.broadcastService.sendOldMessages(
-              fromConn,
-              this.previousChatMessages
-            ); // send now
-          }
-        }
         break;
 
       /**
@@ -549,7 +528,7 @@ export class PeerService {
       // DO NOTHING
       console.log('I am the first one in this room');
       this.hasReceivedAllOldCRDTs = true;
-      this.hasReceivedAllChatMessages = true;
+      this.hasReceivedOldChatMessages = true;
     } else {
       this.peerIdsInRoomWhenFirstEnter = peerIds;
       // We join an existing room => Pick a random peer to give us oldCRDTs, old chat messages
