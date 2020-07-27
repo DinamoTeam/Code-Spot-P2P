@@ -30,9 +30,8 @@
             ],
             "styles": [
               "src/styles.css",
-
               "src/assets/bootstrap.min.css",
-              "node_modules/@ctrl/ngx-emoji-mart/picker.css"
+              "src/assets/emojiPicker.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
