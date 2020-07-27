@@ -252,7 +252,7 @@ export class CodeEditorComponent implements OnInit {
    */
   onDidChangeCursorSelectionHandler(event: any): void {
     this.cursorService.setMyLastSelectEvent(event);
-    if (this.worthSending(event)) {
+    if (true || this.worthSending(event)) {
       this.peerService.broadcastChangeSelectionPos(event);
     }
   }
