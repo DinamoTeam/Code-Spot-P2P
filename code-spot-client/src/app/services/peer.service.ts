@@ -436,7 +436,7 @@ export class PeerService {
         EditorService.language = message.content;
         PeerUtils.announceInfo(AnnounceType.ChangeLanguage);
         Utils.alert(
-          'Language has been changed to ' + message.content,
+          'Language has been changed to ' + Utils.getLanguageName(message.content),
           AlertType.Message
         );
         break;

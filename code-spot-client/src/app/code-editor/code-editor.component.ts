@@ -4,7 +4,7 @@ import { EditorService } from '../services/editor.service';
 import { ActivatedRoute } from '@angular/router';
 import { PeerService } from '../services/peer.service';
 import { Location } from '@angular/common';
-import { Languages } from './languages';
+import { Languages } from '../shared/Languages';
 import { AnnounceType } from '../shared/AnnounceType';
 import { CursorService } from '../services/cursor.service';
 import { PeerUtils, Utils } from '../shared/Utils';
@@ -77,6 +77,10 @@ export class CodeEditorComponent implements OnInit {
     monaco.editor.setModelLanguage(this.editorTextModel, this.selectedLang);
     EditorService.language = this.selectedLang;
     this.peerService.broadcastChangeLanguage();
+    Utils.alert(
+      'Language has been changed to ' + Utils.getLanguageName(EditorService.language),
+      AlertType.Message
+    );
   }
 
   onThemeChange(res: string) {

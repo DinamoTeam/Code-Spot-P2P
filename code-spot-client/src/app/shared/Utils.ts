@@ -5,6 +5,7 @@ import { AnnounceType } from './AnnounceType';
 import { NameColor } from './NameColor';
 import * as alertify from 'alertifyjs';
 import { AlertType } from './AlertType';
+import { Languages } from './Languages';
 
 export class CrdtUtils {
 
@@ -141,5 +142,9 @@ export class Utils {
     alertify.confirm(message, (e: any) => {
       if (e) okCallback();
     });
+  }
+
+  static getLanguageName(lang: string) {
+    return Languages.find(elem => elem.value === lang).name;
   }
 }
