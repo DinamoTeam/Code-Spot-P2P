@@ -22,10 +22,6 @@ export class HeaderComponent implements OnInit {
     this.isExpanded = false;
   }
 
-  toggle() {
-    this.isExpanded = !this.isExpanded;
-  }
-
   goHome() {
     this.isExpanded = false;
     window.location.replace('/');
