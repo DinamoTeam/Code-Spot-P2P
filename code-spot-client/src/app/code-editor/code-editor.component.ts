@@ -65,22 +65,11 @@ export class CodeEditorComponent implements OnInit {
     this.selectedTheme = 'vs-dark';
   }
 
-  // tslint:disable-next-line: member-ordering
   editorOptions = {
     theme: 'vs-dark',
     language: EditorService.language,
     wordWrap: 'on',
-
-    // // Trying to disable deleting white spaces
-    // autoClosingOvertype: 'never',
-    // autoClosingBrackets: 'never',
-    // autoClosingQuotes: 'never',
-    // autoIndent: 'none',
-    // autoSurround: 'never',
-    // folding: false,
-    // renderIndentGuides: false,
-    // wrappingIndent: 'none',
-    // disableMonospaceOptimizations: true
+    trimAutoWhitespace: false
   };
 
   onLanguageChange(res: string) {
@@ -155,23 +144,6 @@ export class CodeEditorComponent implements OnInit {
     this.auxEditorTextModel = this.auxEditor.getModel();
     this.auxEditorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
-    // Disable Ctrl-D (tricky to sync cursor + select)
-    this.auxEditor.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_D,
-      function () {}
-    );
-
-    // Add "padding" to the top
-    let viewZoneId;
-    this.auxEditor.changeViewZones((changeAccessor) => {
-      var domNode = document.createElement('div');
-      viewZoneId = changeAccessor.addZone({
-        afterLineNumber: 0,
-        heightInLines: 1.5,
-        domNode: domNode,
-      });
-    });
-
     this.auxEditor.onDidChangeModelContent((e: any) =>
       console.log(e)
     );
@@ -188,29 +160,13 @@ export class CodeEditorComponent implements OnInit {
    * Listen to any content changes (such as insert, remove, undo,...)
    */
   onDidChangeModelContentHandler(event: any): void {
-    console.log(event);
-    const changes = event.changes;
 
     // remoteOpLeft is used because remoteInsert / remoteRemove will also trigger this event
     if (EditorService.remoteOpLeft > 0) {
       EditorService.remoteOpLeft--;
-
-      // If Monaco trims white spaces
-      if (changes.length > 1) {
-        for (let i = 1; i < changes.length; i++) {
-          const range = changes[i].range;
-          this.editorService.handleLocalRemove(
-            this.auxEditorTextModel,
-            range.startLineNumber,
-            range.startColumn,
-            range.endLineNumber,
-            range.endColumn,
-            changes[i].rangeLength
-          );
-        }
-      }
       return;
     }
+    const changes = event.changes;
 
     for (let i = 0; i < changes.length; i++) {
       const range = changes[i].range;
