@@ -10,6 +10,10 @@
   height: 80vh;
 }
 
+#spinner-container {
+  margin-left: 50px;
+}
+
 @media (max-width: 768px) {
   .form-row {
     justify-content: center;
@@ -17,6 +21,14 @@
 
   .btn-container {
     justify-content: center;
+  }
+
+  #loading-img {
+      display: none;
+  }
+
+  #spinner-container {
+      margin-left: 0px;
   }
 }
 
@@ -44,3 +56,6 @@
   width: 100%;
   height: 90%;
 }
+
+
+
