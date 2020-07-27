@@ -25,7 +25,7 @@ export class ChatboxComponent implements OnInit {
   namesColors: NameColor[] = [];
   showEmojiPicker: boolean = false;
   myUsername: string = '';
-  private readonly MAX_USERNAME_LEN = 15;
+  private readonly MAX_USERNAME_LEN = 20;
   @ViewChild('messagebox', { static: false }) messagebox?: ElementRef<
     HTMLElement
   >;
