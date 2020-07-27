@@ -1,3 +1,7 @@
+.container {
+  min-height: 84vh;
+}
+
 .img-circle {
   width: 15rem;
   margin: 0 auto;
