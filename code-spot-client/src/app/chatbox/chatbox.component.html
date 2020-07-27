@@ -23,7 +23,7 @@
   </div>
 </div>
 
-<div #messagebox class="chatBox card shadow-sm p-3 mb-5 bg-white rounded">
+<div class="chatBox card shadow-sm p-3 mb-5 bg-white rounded">
   <div class="mt-2">
     <div *ngFor="let mess of messages">
       <app-message-bubble [senderName]="mess.fromPeerId"
@@ -41,6 +41,7 @@
               [emojiSize]="18"
               [perLine]="7"
               [totalFrequentLines]="1"
+              height ="150px"
               (emojiClick)="addEmoji($event)"></emoji-mart>
 
   <form class="ml-2 mr-1 mt-auto"

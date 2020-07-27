@@ -78,7 +78,6 @@ export class ChatboxComponent implements OnInit {
         switch (message) {
           case AnnounceType.UpdateChatMessages:
             this.messages = this.peerService.getAllMessages();
-            this.scrollMessageBox();
             break;
           case AnnounceType.NewPeerJoining:
             this.myUsername = this.peerService.getMyName();
@@ -96,12 +95,6 @@ export class ChatboxComponent implements OnInit {
     this.peerService.sendMessage(this.messageToSend.value);
     this.messages = this.peerService.getAllMessages();
     this.messageForm.setValue({ messageToSend: '' });
-    this.scrollMessageBox();
     this.showEmojiPicker = false;
-  }
-
-  scrollMessageBox() {
-    // Wait 10 milli sec for message to be updated
-    setTimeout(() => this.messagebox.nativeElement.scrollTo(0, 10000000), 10);
   }
 }
