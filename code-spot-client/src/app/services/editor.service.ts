@@ -3,6 +3,8 @@ import { CRDT, CRDTId, Identifier } from '../shared/CRDT';
 import { CustomNumber } from '../shared/CustomNumber';
 import { BalancedBST } from '../shared/BalancedBST';
 import { CursorService } from './cursor.service';
+import { CursorChangeReason } from '../shared/CursorChangeReason';
+import { CursorChangeSource } from '../shared/CursorChangeSource';
 
 @Injectable({
   providedIn: 'root',
@@ -179,8 +181,6 @@ export class EditorService {
         startIndexMonaco,
         textToInsert.length
       );
-
-
     }
 
     // Redraw nameTags
@@ -303,15 +303,6 @@ export class EditorService {
     this.cursorService.redrawPeersNameTags(editor);
   }
 
-
-  getOldCRDTsAsSortedArray(): CRDT[] {
-    return this.bst.toSortedArray();
-  }
-
-  getCrdtsToTransfer() {
-    return this.crdtsToTransfer;
-  }
-
   private writeTextToMonacoAtIndex(
     editorTextModel: any,
     text: string,
@@ -391,11 +382,40 @@ export class EditorService {
     );
   }
 
+  private indexToPos(editorTextModel: any, index: number): any {
+    return editorTextModel.getPositionAt(index);
+  }
+
   posToIndex(editorTextModel: any, lineNumber: number, column: number): number {
     return editorTextModel.getOffsetAt(new monaco.Position(lineNumber, column));
   }
 
-  indexToPos(editorTextModel: any, index: number): any {
-    return editorTextModel.getPositionAt(index);
+  getOldCRDTsAsSortedArray(): CRDT[] {
+    return this.bst.toSortedArray();
+  }
+
+  getCrdtsToTransfer() {
+    return this.crdtsToTransfer;
+  }
+
+  /**
+   * To sync cursor / select change event, we can send every single change that takes place.
+   * BUT this is VERY SLOW. Therefore we only send change event if we have to. We let Monaco's decoration
+   * and our function: recalculateAllNameTagIndicesAfterInsert/Remove takes care of the rest.
+   */
+  static isEventWorthBroadcast(event: any): boolean {
+    if (
+      event.reason === CursorChangeReason.Explicit ||
+      event.reason === CursorChangeReason.Redo ||
+      event.reason === CursorChangeReason.Undo ||
+      (event.source === CursorChangeSource.MOUSE_EVENT &&
+        event.reason === CursorChangeReason.NotSet) ||
+      event.source === CursorChangeSource.DRAG_AND_DROP_EVENT ||
+      event.source === CursorChangeSource.CTRL_SHIFT_K_EVENT ||
+      event.source === CursorChangeSource.CTRL_ENTER_EVENT ||
+      event.source === CursorChangeSource.CTRL_SHIFT_ENTER_EVENT
+    ) {
+      return true;
+    }
   }
 }

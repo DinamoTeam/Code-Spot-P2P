@@ -8,8 +8,6 @@ import { Languages } from '../shared/Languages';
 import { AnnounceType } from '../shared/AnnounceType';
 import { CursorService } from '../services/cursor.service';
 import { PeerUtils, Utils } from '../shared/Utils';
-import { CursorChangeReason } from '../shared/CursorChangeReason';
-import { CursorChangeSource } from '../shared/CursorChangeSource';
 import { AlertType } from '../shared/AlertType';
 
 @Component({
@@ -69,7 +67,7 @@ export class CodeEditorComponent implements OnInit {
     theme: 'vs-dark',
     language: EditorService.language,
     wordWrap: 'on',
-    trimAutoWhitespace: false
+    trimAutoWhitespace: false,
   };
 
   onLanguageChange(res: string) {
@@ -78,7 +76,8 @@ export class CodeEditorComponent implements OnInit {
     EditorService.language = this.selectedLang;
     this.peerService.broadcastChangeLanguage();
     Utils.alert(
-      'Language has been changed to ' + Utils.getLanguageName(EditorService.language),
+      'Language has been changed to ' +
+        Utils.getLanguageName(EditorService.language),
       AlertType.Message
     );
   }
@@ -148,9 +147,7 @@ export class CodeEditorComponent implements OnInit {
     this.auxEditorTextModel = this.auxEditor.getModel();
     this.auxEditorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
-    this.auxEditor.onDidChangeModelContent((e: any) =>
-      console.log(e)
-    );
+    this.auxEditor.onDidChangeModelContent((e: any) => console.log(e));
 
     // Only connect to PeerServer when both Monaco Editors is ready
     this.auxEditorReady = true;
@@ -164,7 +161,6 @@ export class CodeEditorComponent implements OnInit {
    * Listen to any content changes (such as insert, remove, undo,...)
    */
   onDidChangeModelContentHandler(event: any): void {
-
     // remoteOpLeft is used because remoteInsert / remoteRemove will also trigger this event
     if (EditorService.remoteOpLeft > 0) {
       EditorService.remoteOpLeft--;
@@ -237,7 +233,7 @@ export class CodeEditorComponent implements OnInit {
 
     if (
       true ||
-      this.worthSending(event) ||
+      EditorService.isEventWorthBroadcast(event) ||
       this.cursorService.peerIdsNeverSendCursorTo.size > 0 ||
       this.cursorService.justJoinRoom
     ) {
@@ -256,7 +252,7 @@ export class CodeEditorComponent implements OnInit {
    */
   onDidChangeCursorSelectionHandler(event: any): void {
     this.cursorService.setMyLastSelectEvent(event);
-    if (true || this.worthSending(event)) {
+    if (true || EditorService.isEventWorthBroadcast(event)) {
       this.peerService.broadcastChangeSelectionPos(event);
     }
   }
@@ -346,31 +342,6 @@ export class CodeEditorComponent implements OnInit {
     });
   }
 
-  /**
-   * To sync cursor / select change event, we can send every single change that takes place.
-   * BUT this is VERY SLOW. Therefore we only send change event if we have to. We let Monaco's decoration
-   * and our function: recalculateAllNameTagIndicesAfterInsert/Remove takes care of the rest.
-   */
-  private worthSending(CursorOrSelectChangeEvent: any): boolean {
-    if (
-      CursorOrSelectChangeEvent.reason === CursorChangeReason.Explicit ||
-      CursorOrSelectChangeEvent.reason === CursorChangeReason.Redo ||
-      CursorOrSelectChangeEvent.reason === CursorChangeReason.Undo ||
-      (CursorOrSelectChangeEvent.source === CursorChangeSource.MOUSE_EVENT &&
-        CursorOrSelectChangeEvent.reason === CursorChangeReason.NotSet) ||
-      CursorOrSelectChangeEvent.source ===
-        CursorChangeSource.DRAG_AND_DROP_EVENT ||
-      CursorOrSelectChangeEvent.source ===
-        CursorChangeSource.CTRL_SHIFT_K_EVENT ||
-      CursorOrSelectChangeEvent.source ===
-        CursorChangeSource.CTRL_ENTER_EVENT ||
-      CursorOrSelectChangeEvent.source ===
-        CursorChangeSource.CTRL_SHIFT_ENTER_EVENT
-    ) {
-      return true;
-    }
-  }
-
   getRoomName(): void {
     this.peerService.connectionEstablished.subscribe((successful: boolean) => {
       if (successful) {
@@ -388,7 +359,12 @@ export class CodeEditorComponent implements OnInit {
     selBox.style.left = '0';
     selBox.style.top = '0';
     selBox.style.opacity = '0';
-    selBox.value = window.location.protocol + "//" + window.location.hostname + "/editor/" + this.roomName;
+    selBox.value =
+      window.location.protocol +
+      '//' +
+      window.location.hostname +
+      '/editor/' +
+      this.roomName;
     document.body.appendChild(selBox);
     selBox.focus();
     selBox.select();
