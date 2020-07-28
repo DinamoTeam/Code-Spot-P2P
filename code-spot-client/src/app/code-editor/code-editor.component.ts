@@ -293,7 +293,7 @@ export class CodeEditorComponent implements OnInit {
             } else {
               // Decide after ... milliseconds
               this.useEventToUpdateCursorAndNameTagIfNoMoreChangesAfter(
-                2000,
+                500,
                 cursorChangeInfo,
                 cursorChangeInfo.peerId
               );
@@ -312,7 +312,7 @@ export class CodeEditorComponent implements OnInit {
             } else {
               // Decide after ... milliseconds
               this.useEventToUpdateSelectIfNoMoreChangesAfter(
-                2000,
+                500,
                 selectionChangeInfo,
                 selectionChangeInfo.peerId
               );
