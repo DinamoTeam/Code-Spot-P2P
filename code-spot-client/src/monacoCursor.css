@@ -24,12 +24,12 @@
 .hide {
   font-size: 0.1px !important;
   opacity: 0;
-  height: 24px;
+  height: 18px;
   padding: 0px !important;
 }
 
 .nameTagText {
-  font-size: 16px;
+  font-size: 12px;
   color: white;
   padding: 0px 5px;
   border-radius: 2px;
