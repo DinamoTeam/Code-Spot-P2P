@@ -388,7 +388,7 @@ export class CodeEditorComponent implements OnInit {
     selBox.style.left = '0';
     selBox.style.top = '0';
     selBox.style.opacity = '0';
-    selBox.value = window.location.href;
+    selBox.value = window.location.protocol + "//" + window.location.hostname + "/editor/" + this.roomName;
     document.body.appendChild(selBox);
     selBox.focus();
     selBox.select();
