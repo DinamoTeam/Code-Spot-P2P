@@ -1,0 +1,20 @@
+Các tasks:
+- Giang:
++ Test 3 ngôn ngữ: C++ Java python
++ Fix icon
++ https://code-spot.azurewebsites.net/editor/ + roomName
+
+- Minh:
++ Làm nametag bé đi
++ Cursor, select worth sending (Add cái logic "" [] {}) và test kỹ lại
++ Fix window scroll when send chat messages
+
+- Reflection:
++ Cái gì mình làm tốt / ko tốt. How to improve.
+
+
+Viết Article + Kế hoạch marketing
+- Đăng lên linkedIn (GIF file + bài post ngắn)
+- Facebook
+- Medium
++ Research xem nên viết cái gì lên (How to build CRDT blabla / What we learned from this project, what challenges we faced)
