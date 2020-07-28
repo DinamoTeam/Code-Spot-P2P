@@ -15,10 +15,11 @@ export class CursorService {
   private myPeerId: string;
   private myLastCursorEvent: any = null;
   private myLastSelectEvent: any = null;
+  private peerMostRecentCursorEvents = new Map<string, any>();
+  private peerMostRecentSelectEvents = new Map<string, any>();
   private contentWidgetId = 0;
   private showNameTag = true;
   justJoinRoom = true;
-  peerIdsNeverSendCursorTo = new Set<string>();
 
   constructor(private nameService: NameService) {}
 
@@ -302,6 +303,22 @@ export class CursorService {
 
   setMyLastSelectEvent(event: any): void {
     this.myLastSelectEvent = event;
+  }
+
+  getPeerMostRecentCursorEvent(peerId: string): any {
+    return this.peerMostRecentCursorEvents.get(peerId);
+  }
+
+  setPeerMostRecentCursorChange(peerId: string, event: any) {
+    this.peerMostRecentCursorEvents.set(peerId, event);
+  }
+
+  getPeerMostRecentSelectEvent(peerId: string): any {
+    return this.peerMostRecentSelectEvents.get(peerId);
+  }
+
+  setPeerMostRecentSelectEvent(peerId: string, event: any) {
+    this.peerMostRecentSelectEvents.set(peerId, event);
   }
 }
 

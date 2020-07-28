@@ -9,6 +9,8 @@ import { AnnounceType } from '../shared/AnnounceType';
 import { CursorService } from '../services/cursor.service';
 import { PeerUtils, Utils } from '../shared/Utils';
 import { AlertType } from '../shared/AlertType';
+import { CursorChangeInfo } from '../shared/CursorChangeInfo';
+import { SelectionChangeInfo } from '../shared/SelectionChangeInfo';
 
 @Component({
   selector: 'app-code-editor',
@@ -231,20 +233,7 @@ export class CodeEditorComponent implements OnInit {
       true
     );
 
-    if (
-      true ||
-      EditorService.isEventWorthBroadcast(event) ||
-      this.cursorService.peerIdsNeverSendCursorTo.size > 0 ||
-      this.cursorService.justJoinRoom
-    ) {
-      this.peerService.broadcastChangeCursorPos(event);
-
-      // Handle edge cases when first join room
-      this.cursorService.peerIdsNeverSendCursorTo.clear();
-      if (this.cursorService.justJoinRoom) {
-        setTimeout(() => (this.cursorService.justJoinRoom = false), 2000);
-      }
-    }
+    this.peerService.broadcastChangeCursorPos(event);
   }
 
   /**
@@ -252,9 +241,7 @@ export class CodeEditorComponent implements OnInit {
    */
   onDidChangeCursorSelectionHandler(event: any): void {
     this.cursorService.setMyLastSelectEvent(event);
-    if (true || EditorService.isEventWorthBroadcast(event)) {
-      this.peerService.broadcastChangeSelectionPos(event);
-    }
+    this.peerService.broadcastChangeSelectionPos(event);
   }
 
   subscribeToPeerServiceEvents(): void {
@@ -294,31 +281,42 @@ export class CodeEditorComponent implements OnInit {
             this.ready = true;
             break;
           case AnnounceType.CursorChange:
-            const cursorChange = this.peerService.getCursorChangeInfo();
-            this.cursorService.drawCursor(
-              this.editor,
-              cursorChange.line,
-              cursorChange.col,
-              cursorChange.peerId
+            const cursorChangeInfo = this.peerService.getCursorChangeInfo();
+            this.cursorService.setPeerMostRecentCursorChange(
+              cursorChangeInfo.peerId,
+              cursorChangeInfo
             );
-            this.cursorService.drawNameTag(
-              this.editor,
-              cursorChange.peerId,
-              cursorChange.line,
-              cursorChange.col,
-              false
-            );
+
+            if (EditorService.isCursorOrSelectEventImportant(cursorChangeInfo)) {
+              // Apply change right now
+              this.updateCursorAndNameTag(cursorChangeInfo.peerId, cursorChangeInfo);
+            } else {
+              // Decide after ... milliseconds
+              this.useEventToUpdateCursorAndNameTagIfNoMoreChangesAfter(
+                2000,
+                cursorChangeInfo,
+                cursorChangeInfo.peerId
+              );
+            }
             break;
           case AnnounceType.SelectionChange:
-            const selectionChange = this.peerService.getSelectionChangeInfo();
-            this.cursorService.drawSelection(
-              this.editor,
-              selectionChange.startLine,
-              selectionChange.startColumn,
-              selectionChange.endLine,
-              selectionChange.endColumn,
-              selectionChange.peerId
+            const selectionChangeInfo = this.peerService.getSelectionChangeInfo();
+            this.cursorService.setPeerMostRecentSelectEvent(
+              selectionChangeInfo.peerId,
+              selectionChangeInfo
             );
+
+            if (EditorService.isCursorOrSelectEventImportant(selectionChangeInfo)) {
+              // Apply change right now
+              this.updateSelection(selectionChangeInfo.peerId, selectionChangeInfo);
+            } else {
+              // Decide after ... milliseconds
+              this.useEventToUpdateSelectIfNoMoreChangesAfter(
+                2000,
+                selectionChangeInfo,
+                selectionChangeInfo.peerId
+              );
+            }
             break;
           case AnnounceType.PeerLeft:
             const peerIdLeft = this.peerService.getPeerIdJustLeft();
@@ -340,6 +338,68 @@ export class CodeEditorComponent implements OnInit {
         }
       });
     });
+  }
+
+  private useEventToUpdateCursorAndNameTagIfNoMoreChangesAfter(
+    milliseconds: number,
+    cursorChangeEvent: CursorChangeInfo,
+    peerId: string
+  ) {
+    const that = this;
+    setTimeout(() => {
+      const isEventMostRecent =
+        that.cursorService.getPeerMostRecentCursorEvent(peerId) ===
+        cursorChangeEvent;
+
+      if (isEventMostRecent) {
+        that.updateCursorAndNameTag(peerId, cursorChangeEvent);
+      }
+    }, milliseconds);
+  }
+
+  private useEventToUpdateSelectIfNoMoreChangesAfter(
+    milliseconds: number,
+    selectChangeEvent: SelectionChangeInfo,
+    peerId: string
+  ) {
+    const that = this;
+    setTimeout(() => {
+      const isEventMostRecent =
+        that.cursorService.getPeerMostRecentSelectEvent(peerId) ===
+        selectChangeEvent;
+
+      if (isEventMostRecent) {
+        that.updateSelection(peerId, selectChangeEvent);
+      }
+    }, milliseconds);
+  }
+
+  private updateCursorAndNameTag(ofPeerId: string, cursorChangeEvent: CursorChangeInfo) {
+    this.cursorService.drawCursor(
+      this.editor,
+      cursorChangeEvent.line,
+      cursorChangeEvent.col,
+      cursorChangeEvent.peerId
+    );
+
+    this.cursorService.drawNameTag(
+      this.editor,
+      cursorChangeEvent.peerId,
+      cursorChangeEvent.line,
+      cursorChangeEvent.col,
+      false
+    );
+  }
+
+  private updateSelection(ofPeerId: string, selectionChangeEvent: SelectionChangeInfo) {
+    this.cursorService.drawSelection(
+      this.editor,
+      selectionChangeEvent.startLine,
+      selectionChangeEvent.startColumn,
+      selectionChangeEvent.endLine,
+      selectionChangeEvent.endColumn,
+      selectionChangeEvent.peerId
+    );
   }
 
   getRoomName(): void {

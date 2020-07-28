@@ -184,9 +184,6 @@ export class PeerService {
     );
     this.broadcastService.sendCursorInfo(conn);
 
-    // Seems weird but we need it
-    this.cursorService.peerIdsNeverSendCursorTo.add(conn.peer);
-
     console.log('Connection to peer ' + conn.peer + ' opened :)');
 
     // Only add this connection to our list when it has been opened!
@@ -361,7 +358,9 @@ export class PeerService {
         this.cursorChangeInfo = new CursorChangeInfo(
           cursorEvent.position.lineNumber,
           cursorEvent.position.column,
-          fromConn.peer
+          fromConn.peer,
+          cursorEvent.source,
+          cursorEvent.reason
         );
         PeerUtils.announceInfo(AnnounceType.CursorChange);
         break;
@@ -372,7 +371,9 @@ export class PeerService {
           selectEvent.selection.startColumn,
           selectEvent.selection.endLineNumber,
           selectEvent.selection.endColumn,
-          fromConn.peer
+          fromConn.peer,
+          selectEvent.source,
+          selectEvent.reason
         );
         PeerUtils.announceInfo(AnnounceType.SelectionChange);
         break;
