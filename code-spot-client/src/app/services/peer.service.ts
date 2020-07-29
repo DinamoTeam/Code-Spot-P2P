@@ -15,6 +15,7 @@ import { AlertType } from '../shared/AlertType';
 import { NameService } from './name.service';
 import { NameColor } from '../shared/NameColor';
 import { BroadcastService } from './broadcast.service';
+import { environment } from 'src/environments/environment';
 
 declare const Peer: any;
 const STOP_BROADCAST_AFTER_MILLI_SECONDS = 5000;
@@ -53,7 +54,7 @@ export class PeerService {
    */
   connectToPeerServerAndInit() {
     this.peer = new Peer({
-      host: 'codespotpeerserver.herokuapp.com/',
+      host: environment.peerServerHost,
       port: '/..',
       secure: true,
       config: {
