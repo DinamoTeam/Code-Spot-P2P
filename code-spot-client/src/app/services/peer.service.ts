@@ -15,11 +15,7 @@ import { AlertType } from '../shared/AlertType';
 import { NameService } from './name.service';
 import { NameColor } from '../shared/NameColor';
 import { BroadcastService } from './broadcast.service';
-<<<<<<< HEAD
 import { environment } from 'src/environments/environment';
-=======
-import { environment } from '../../environments/environment';
->>>>>>> 361d52e152b0175522747c7b797a5596ada20bae
 
 declare const Peer: any;
 const STOP_BROADCAST_AFTER_MILLI_SECONDS = 5000;
