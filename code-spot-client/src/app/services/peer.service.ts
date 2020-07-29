@@ -15,7 +15,11 @@ import { AlertType } from '../shared/AlertType';
 import { NameService } from './name.service';
 import { NameColor } from '../shared/NameColor';
 import { BroadcastService } from './broadcast.service';
+<<<<<<< HEAD
 import { environment } from 'src/environments/environment';
+=======
+import { environment } from '../../environments/environment';
+>>>>>>> 361d52e152b0175522747c7b797a5596ada20bae
 
 declare const Peer: any;
 const STOP_BROADCAST_AFTER_MILLI_SECONDS = 5000;
@@ -53,6 +57,7 @@ export class PeerService {
    * Is called when both main and aux monaco editor are ready
    */
   connectToPeerServerAndInit() {
+<<<<<<< HEAD
     this.peer = new Peer({
       host: environment.peerServerHost,
       port: '/..',
@@ -70,6 +75,9 @@ export class PeerService {
       pingInterval: 3000,
       debug: 2, // Print only errors and warnings
     });
+=======
+    this.peer = new Peer(environment.peerServerConfig);
+>>>>>>> 361d52e152b0175522747c7b797a5596ada20bae
 
     this.broadcastService.setPeer(this.peer);
     this.listenToPeerServerEvent();
@@ -220,7 +228,8 @@ export class PeerService {
     // If we just join room (this peer is here before us) and are ready (have received all CRDTs and Chat Messages)
     if (
       this.peerIdsInRoomWhenFirstEnter.find((id) => id === conn.peer) &&
-      this.hasReceivedAllOldCRDTs && this.hasReceivedOldChatMessages
+      this.hasReceivedAllOldCRDTs &&
+      this.hasReceivedOldChatMessages
     ) {
       conn.send(
         new Message(null, MessageType.CanDisplayMeJustJoinRoom, this.peer.id)
@@ -438,7 +447,8 @@ export class PeerService {
         EditorService.language = message.content;
         PeerUtils.announceInfo(AnnounceType.ChangeLanguage);
         Utils.alert(
-          'Language has been changed to ' + Utils.getLanguageName(message.content),
+          'Language has been changed to ' +
+            Utils.getLanguageName(message.content),
           AlertType.Message
         );
         break;
