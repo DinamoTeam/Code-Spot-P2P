@@ -53,7 +53,6 @@ export class PeerService {
    * Is called when both main and aux monaco editor are ready
    */
   connectToPeerServerAndInit() {
-<<<<<<< HEAD
     this.peer = new Peer({
       host: environment.peerServerHost,
       port: '/..',
@@ -71,9 +70,6 @@ export class PeerService {
       pingInterval: 3000,
       debug: 2, // Print only errors and warnings
     });
-=======
-    this.peer = new Peer(environment.peerServerConfig);
->>>>>>> 361d52e152b0175522747c7b797a5596ada20bae
 
     this.broadcastService.setPeer(this.peer);
     this.listenToPeerServerEvent();
