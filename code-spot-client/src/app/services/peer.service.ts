@@ -67,7 +67,7 @@ export class PeerService {
         ],
       },
       pingInterval: 3000,
-      debug: 3, // Print only errors and warnings
+      debug: 2, // Print only errors and warnings
     });
 
     this.broadcastService.setPeer(this.peer);
