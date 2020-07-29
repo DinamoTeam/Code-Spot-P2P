@@ -132,8 +132,8 @@ namespace CodeSpotP2P.Controllers
             return randomColor;
         }
 
-        // Delete: api/Room/DeletePeer?peerId=abc
-        [HttpDelete]
+        // Delete: api/Room/DeletePeer/abc
+        [HttpDelete("{peerId}")]
         public async Task<IActionResult> DeletePeer(string peerId)
 		{
             // peer.PeerID is a UUID. Don't need roomname
