@@ -81,8 +81,8 @@ namespace CodeSpotP2P.Controllers
             return Ok(new EnterRoomInfo(-1, null, -1, null, null, null));
         }
 
-        // Get: api/Room/MarkPeerReceivedAllMessages?peerId=abc
-        [HttpGet]
+        // Post: api/Room/MarkPeerReceivedAllMessages
+        [HttpPost]
         public async Task<IActionResult> MarkPeerReceivedAllMessages(string peerId) {
             var peer = await _database.peers.FirstOrDefaultAsync(p => p.PeerId == peerId);
             if (peer != null)
@@ -132,19 +132,19 @@ namespace CodeSpotP2P.Controllers
             return randomColor;
         }
 
-        // Get: api/Room/DeletePeer?peerId=abc
-        [HttpGet]
+        // Delete: api/Room/DeletePeer?peerId=abc
+        [HttpDelete]
         public async Task<IActionResult> DeletePeer(string peerId)
 		{
-            // peer.PeerID is unique by itself. It is a UUID
+            // peer.PeerID is a UUID. Don't need roomname
             Peer peer = _database.peers.FirstOrDefault(p => p.PeerId == peerId);
             if (peer != null)
             {
                 _database.peers.Remove(peer);
                 await _database.SaveChangesAsync();
 
-                // Delete room if nobody's in it
-                if (!_database.peers.Any(p => p.RoomName == peer.RoomName))
+                bool nobodyInRoom = !(_database.peers.Any(p => p.RoomName == peer.RoomName));
+                if (nobodyInRoom)
                 {
                     Room room = _database.rooms.FirstOrDefault(r => r.RoomName == peer.RoomName);
                     _database.rooms.Remove(room);

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -44,8 +44,16 @@ export class RoomService {
   }
 
   markPeerReceivedAllMessages(peerId: string): void {
+    const myheader = new HttpHeaders().set(
+      'Content-Type',
+      'application/x-www-form-urlencoded'
+    );
+    let body = new HttpParams();
+    body = body.set('peerId', peerId);
     this.http
-      .get(this.apiURL + 'MarkPeerReceivedAllMessages?peerId=' + peerId)
+      .post(this.apiURL + 'MarkPeerReceivedAllMessages', body, {
+        headers: myheader,
+      })
       .pipe(retry(1), catchError(this.handleError))
       .subscribe(() => {});
   }
