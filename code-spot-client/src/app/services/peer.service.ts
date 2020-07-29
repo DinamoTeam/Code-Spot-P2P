@@ -67,7 +67,7 @@ export class PeerService {
         ],
       },
       pingInterval: 3000,
-      // debug: 3, // Print all logs
+      debug: 3, // Print only errors and warnings
     });
 
     this.broadcastService.setPeer(this.peer);
@@ -526,7 +526,6 @@ export class PeerService {
     PeerUtils.announceInfo(AnnounceType.NewPeerJoining);
 
     if (peerIds.length === 0) {
-      // DO NOTHING
       console.log('I am the first one in this room');
       this.hasReceivedAllOldCRDTs = true;
       this.hasReceivedOldChatMessages = true;
@@ -580,7 +579,6 @@ export class PeerService {
   ) {
     if (!this.hasReceivedAllOldCRDTs) {
       this.roomService.getPeerIdsInRoom(this.roomName).subscribe((peerIds) => {
-        console.log(peerIdToGetAllMessages);
         if (peerIds.findIndex((id) => id === peerIdToGetAllMessages) === -1) {
           console.log(
             'The peer we intended to get old messages from just left the room. Refreshing...'

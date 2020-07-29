@@ -149,8 +149,6 @@ export class CodeEditorComponent implements OnInit {
     this.auxEditorTextModel = this.auxEditor.getModel();
     this.auxEditorTextModel.setEOL(0); // Set EOL from '\r\n' -> '\n'
 
-    this.auxEditor.onDidChangeModelContent((e: any) => console.log(e));
-
     // Only connect to PeerServer when both Monaco Editors is ready
     this.auxEditorReady = true;
     if (this.mainEditorReady && !this.peerServiceHasConnectedToPeerServer) {
@@ -280,6 +278,29 @@ export class CodeEditorComponent implements OnInit {
           case AnnounceType.ReadyToDisplayMonaco:
             this.ready = true;
             break;
+
+          /**
+           * Sync cursor, name tag and selection.
+           *
+           * To sync the 3 things above, we have 3 options. The first 2 don't work, the last one works quite well:
+           *
+           * 1/ Send all change events and update when receive those events: NOT GOOD because if 2 peers are far apart,
+           * there will be a noticeable delay
+           * 2/ Update based on our own calculation after each insertion, deletion and with the help of Monaco decoration: NOT GOOD
+           * because if the other peer click somewhere, how can we calculate that?
+           * => Maybe we can combine the best of both worlds? YES we can, with some 'tricks'.
+           * - We CANNOT send all change events, execute them all and also update based on our calculation. The cursor will go crazy
+           * - Adding some logic such as only send 'important' events such as mouse click is NOT enough (There are edge cases)
+           *
+           * Here's what we CAN do (and this is what we're doing right now):
+           * 3/ - Send ALL events to make sure the cursor, nametag and selection will EVENTUALLY be correct (after 2-3 seconds idle)
+           * - Then during those 2-3 seconds when cursors,... are possibly not in sync, use our calculation + monaco to make it
+           * correct AS MUCH AS POSSIBLE
+           * - Also we will NOT use MOST change events received. We only use the 'most recent' one if
+           * it has been 500 milliseconds and the cursor doesn't move
+           * - Finally, for important events such as mouse click, user explicitly move cursor by keyboard arrow and
+           * tricky-to-calculate events such as undo, redo, some Monaco shortcuts, we execute as soon as we receive them
+           */
           case AnnounceType.CursorChange:
             const cursorChangeInfo = this.peerService.getCursorChangeInfo();
             this.cursorService.setPeerMostRecentCursorChange(
@@ -287,9 +308,11 @@ export class CodeEditorComponent implements OnInit {
               cursorChangeInfo
             );
 
-            if (EditorService.isCursorOrSelectEventImportant(cursorChangeInfo)) {
+            if (
+              EditorService.isCursorOrSelectEventImportant(cursorChangeInfo)
+            ) {
               // Apply change right now
-              this.updateCursorAndNameTag(cursorChangeInfo.peerId, cursorChangeInfo);
+              this.updateCursorAndNameTag(cursorChangeInfo);
             } else {
               // Decide after ... milliseconds
               this.useEventToUpdateCursorAndNameTagIfNoMoreChangesAfter(
@@ -306,9 +329,11 @@ export class CodeEditorComponent implements OnInit {
               selectionChangeInfo
             );
 
-            if (EditorService.isCursorOrSelectEventImportant(selectionChangeInfo)) {
+            if (
+              EditorService.isCursorOrSelectEventImportant(selectionChangeInfo)
+            ) {
               // Apply change right now
-              this.updateSelection(selectionChangeInfo.peerId, selectionChangeInfo);
+              this.updateSelection(selectionChangeInfo);
             } else {
               // Decide after ... milliseconds
               this.useEventToUpdateSelectIfNoMoreChangesAfter(
@@ -318,6 +343,7 @@ export class CodeEditorComponent implements OnInit {
               );
             }
             break;
+
           case AnnounceType.PeerLeft:
             const peerIdLeft = this.peerService.getPeerIdJustLeft();
             this.cursorService.removePeer(this.editor, peerIdLeft);
@@ -352,7 +378,7 @@ export class CodeEditorComponent implements OnInit {
         cursorChangeEvent;
 
       if (isEventMostRecent) {
-        that.updateCursorAndNameTag(peerId, cursorChangeEvent);
+        that.updateCursorAndNameTag(cursorChangeEvent);
       }
     }, milliseconds);
   }
@@ -369,12 +395,12 @@ export class CodeEditorComponent implements OnInit {
         selectChangeEvent;
 
       if (isEventMostRecent) {
-        that.updateSelection(peerId, selectChangeEvent);
+        that.updateSelection(selectChangeEvent);
       }
     }, milliseconds);
   }
 
-  private updateCursorAndNameTag(ofPeerId: string, cursorChangeEvent: CursorChangeInfo) {
+  private updateCursorAndNameTag(cursorChangeEvent: CursorChangeInfo) {
     this.cursorService.drawCursor(
       this.editor,
       cursorChangeEvent.line,
@@ -391,7 +417,7 @@ export class CodeEditorComponent implements OnInit {
     );
   }
 
-  private updateSelection(ofPeerId: string, selectionChangeEvent: SelectionChangeInfo) {
+  private updateSelection(selectionChangeEvent: SelectionChangeInfo) {
     this.cursorService.drawSelection(
       this.editor,
       selectionChangeEvent.startLine,
