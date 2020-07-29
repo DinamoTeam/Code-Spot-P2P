@@ -4,7 +4,24 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://localhost:44395/api/'
+  apiUrl: 'https://localhost:44395/api/',
+  peerServerConfig: {
+    host: 'codespotpeerserver.herokuapp.com/',
+    port: '/..',
+    secure: true,
+    config: {
+      iceServers: [
+        { url: 'stun:relay.backups.cz' },
+        {
+          url: 'turn:relay.backups.cz',
+          username: 'webrtc',
+          credential: 'webrtc',
+        },
+      ],
+    },
+    pingInterval: 3000,
+    debug: 2, // Print only errors and warnings
+  },
 };
 
 /*
