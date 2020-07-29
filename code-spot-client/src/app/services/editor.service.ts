@@ -5,6 +5,8 @@ import { BalancedBST } from '../shared/BalancedBST';
 import { CursorService } from './cursor.service';
 import { CursorChangeReason } from '../shared/CursorChangeReason';
 import { CursorChangeSource } from '../shared/CursorChangeSource';
+import { SelectionChangeInfo } from '../shared/SelectionChangeInfo';
+import { CursorChangeInfo } from '../shared/CursorChangeInfo';
 
 @Injectable({
   providedIn: 'root',
@@ -399,11 +401,9 @@ export class EditorService {
   }
 
   /**
-   * To sync cursor / select change event, we can send every single change that takes place.
-   * BUT this is VERY SLOW. Therefore we only send change event if we have to. We let Monaco's decoration
-   * and our function: recalculateAllNameTagIndicesAfterInsert/Remove takes care of the rest.
+   * Classify important change events that needed to be applied right away such as mouse click
    */
-  static isEventWorthBroadcast(event: any): boolean {
+  static isCursorOrSelectEventImportant(event: SelectionChangeInfo | CursorChangeInfo): boolean {
     if (
       event.reason === CursorChangeReason.Explicit ||
       event.reason === CursorChangeReason.Redo ||

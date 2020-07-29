@@ -67,7 +67,7 @@ export class PeerService {
         ],
       },
       pingInterval: 3000,
-      // debug: 3, // Print all logs
+      debug: 2, // Print only errors and warnings
     });
 
     this.broadcastService.setPeer(this.peer);
@@ -183,9 +183,6 @@ export class PeerService {
       this.nameService.getPeerName(this.peer.id)
     );
     this.broadcastService.sendCursorInfo(conn);
-
-    // Seems weird but we need it
-    this.cursorService.peerIdsNeverSendCursorTo.add(conn.peer);
 
     console.log('Connection to peer ' + conn.peer + ' opened :)');
 
@@ -361,7 +358,9 @@ export class PeerService {
         this.cursorChangeInfo = new CursorChangeInfo(
           cursorEvent.position.lineNumber,
           cursorEvent.position.column,
-          fromConn.peer
+          fromConn.peer,
+          cursorEvent.source,
+          cursorEvent.reason
         );
         PeerUtils.announceInfo(AnnounceType.CursorChange);
         break;
@@ -372,7 +371,9 @@ export class PeerService {
           selectEvent.selection.startColumn,
           selectEvent.selection.endLineNumber,
           selectEvent.selection.endColumn,
-          fromConn.peer
+          fromConn.peer,
+          selectEvent.source,
+          selectEvent.reason
         );
         PeerUtils.announceInfo(AnnounceType.SelectionChange);
         break;
@@ -525,7 +526,6 @@ export class PeerService {
     PeerUtils.announceInfo(AnnounceType.NewPeerJoining);
 
     if (peerIds.length === 0) {
-      // DO NOTHING
       console.log('I am the first one in this room');
       this.hasReceivedAllOldCRDTs = true;
       this.hasReceivedOldChatMessages = true;
@@ -579,7 +579,6 @@ export class PeerService {
   ) {
     if (!this.hasReceivedAllOldCRDTs) {
       this.roomService.getPeerIdsInRoom(this.roomName).subscribe((peerIds) => {
-        console.log(peerIdToGetAllMessages);
         if (peerIds.findIndex((id) => id === peerIdToGetAllMessages) === -1) {
           console.log(
             'The peer we intended to get old messages from just left the room. Refreshing...'
