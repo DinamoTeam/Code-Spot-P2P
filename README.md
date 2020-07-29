@@ -1,99 +1,53 @@
-# Code-Spot
+# [Code-Spot](https://code-spot.azurewebsites.net/)
 
-## A sync code editor
+## A real-time collaborative code editor with the power of Visual Studio Code. 
 
 ![](./images/HomeScreen.png)
 ![](./images/EditorScreen.png)
 ![](./images/ChangeName.png)
 
-## **Development setup**
+## **I. Check it out [here](https://code-spot.azurewebsites.net/)!**
 
-Download SQLite3
+## **II. Development setup**
+
+1. Download SQLite3
 https://sqlite.org/download.html
 
-Install the EF Core SQL Server provider
+2. Make sure you have ASP.NET Core 2.1 SDK and runtime: Installs via Visual Studio Installer or downloads at https://dotnet.microsoft.com/download/dotnet-core/2.1
+
+3. Install the .NET Core CLI
 
 ```shell
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet tool install --global dotnet-ef
 ```
-Create/Update the local instance of the DB
+4. Create the local instance of the DB by running this command in the terminal
 
 ```shell
-dotnet ef database drop
 dotnet ef database update
 ```
-This project was generated with [Angular CLI](https://cli.angular.io/) version 8.3.9.
+Note: to drop the database, run the following command
+```shell
+dotnet ef database drop
+```
 
-Install the CLI using NPM ([Node.js](https://nodejs.org/en/) >= 10 required)
+5. This project was generated with [Angular CLI](https://cli.angular.io/) version 8.3.9.
+
+Install the Angular CLI using NPM ([Node.js](https://nodejs.org/en/) >= 10 required)
 
 ```shell
 npm install -g @angular/cli@8.3.9 
 ```
-In the client's folder. Restore all NPM packages by running
+In the code-spot-client folder. Restore all NPM packages by running
 
 ```shell
 npm install
 ```
-This project uses peer to peer (PeerJS). Config PeerServer
-Replace the content in file Code-Spot-P2P\code-spot-client\node_modules\peer\node_modules\ws\index.js with the following
 
-```js
-'use strict';
-
-const WebSocket = require('./lib/websocket');
-
-WebSocket.createWebSocketStream = require('./lib/stream');
-WebSocket.Server = require('./lib/websocket-server');
-WebSocket.Receiver = require('./lib/receiver');
-WebSocket.Sender = require('./lib/sender');
-
-module.exports = WebSocket;
-
-
-const PeerServer = require('peer').PeerServer;
-const server = PeerServer({
-    port: 9000, 
-    path: '/myapp'});
-
-const baseUrl = 'https://localhost:44395/api/Room/';
-const https = require('https');
-
-server.on('connection', (client) => {/* Do nothing */});
-server.on('disconnect', (client) => handleDisconnect(client));
-
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0; 
-
-function handleDisconnect(client) {
-    // Delete peer from Db
-    const url = baseUrl + "DeletePeer?peerId=" + client.getId();
-    https.get(url, response => {
-        let data = '';
-        response.on('data', chunk => {
-            data += chunk;
-        })
-        response.on('end', () => {
-            console.log(data);
-            console.log('Deleted peer with id: ' + client.getId() + ' from database');
-        })
-    })
-    .on('error', err => {
-        console.log('Error: ' + err.message);
-    });
-}
-```
-
-Start PeerServer
-
-```shell
-node code-spot-client/node_modules/peer/node_modules/ws/index.js
-### Go to this link to make sure PeerServer run successfully http://127.0.0.1:9000/myapp
-```
-
-Start IIS Express server through Visual Studio IDE or run this command in the project's folder
+6. Start IIS Express server through Visual Studio IDE or run this command in the project's folder (Code-Spot-P2P)
 ```shell
 dotnet run
 ```
-Run this command in the client's folder.
+7. Run this command in the client's folder (code-spot-client).
 
 ```shell
 ng serve --open
