@@ -66,6 +66,15 @@ export class BroadcastService {
     conn.send(message);
   }
 
+  /**
+   * Send old chat messages, old crdts and most recent change language
+   */
+  sendOldData(conn: any, oldChatMessages: Message[], oldCRDTs: CRDT[]) {
+    this.sendOldCRDTs(conn, oldCRDTs);
+    this.sendOldMessages(conn, oldChatMessages);
+    this.sendChangeLanguage(conn);
+  }
+
   sendMyCursorColor(conn: any, myColor: number) {
     conn.send(new Message(myColor + '', MessageType.CursorColor, this.peer.id));
   }
@@ -152,7 +161,7 @@ export class BroadcastService {
 
   sendChangeLanguage(conn: any) {
     const messageToSend = new Message(
-      EditorService.language,
+      EditorService.currentLanguage,
       MessageType.ChangeLanguage,
       this.peer.id
     );
@@ -204,6 +213,12 @@ export class BroadcastService {
     conn.send(message);
   }
 
+  sendNameAndCursorInfo(conn: any, name: string): void {
+    // Order is important! Name first and then cursor info!
+    this.sendMyName(conn, name);
+    this.sendCursorInfo(conn);
+  }
+
   /**
    * Send our cursor color, cursor pos and selection pos
    */
@@ -224,6 +239,16 @@ export class BroadcastService {
   sendMyName(conn: any, myName: string): void {
     const message = new Message(myName, MessageType.Name, this.peer.id);
     conn.send(message);
+  }
+
+  tellPeerCannotSendOldData(conn: any) {
+    conn.send(
+      new Message(
+        null,
+        MessageType.CannotSendOldCRDTsOrOldChatMessages,
+        this.peer.id
+      )
+    );
   }
 
   /**
