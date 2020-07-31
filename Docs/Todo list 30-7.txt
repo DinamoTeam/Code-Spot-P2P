@@ -1,0 +1,23 @@
+Todo list:
+1/ Giang: 
+- Fix icon menu
+- Tự động tải backup file khi đứt wifi
+- Làm zen mode (full screen)
+- Tao nghĩ contact form submit xong nên cho alertify success (Thay vì THANK YOU)
+- Mày có muốn làm cái Custom Undo stack ko, khá thú vị
+- Protect C# database = token authentification hay gì đó (Hiện tại gõ đúng link lên browser là xóa đc peer, tạo đc room,...)
+
+
+2/ Minh:
+- Nghĩ cách giải thích CRDT
+- Research vụ deploy domain name của mình có forward đc ko
+- Clean nốt code 
+- Làm cursor, select effect giống google docs
+- Lưu code trên server
+
+
+3/ Other interesting stuff:
+- Instruction có animation giống trong game (Giang nhé :)) )
+- Make sync Ctrl-D shortcut works (Probably Minh)
+- Đứt wifi thì try to reconnect trước đã, ko đc thì mới crash
+- Làm video call

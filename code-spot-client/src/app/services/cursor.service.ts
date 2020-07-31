@@ -228,7 +228,7 @@ export class CursorService {
     }
 
     // Recalculate my nameTag index
-    const myNewIndex = this.nameTagIndexAfterInsert(
+    const myNewIndex = this.nameTagIndexAfterRemove(
       this.myNameTagIndex,
       removeStartIndex,
       removeLength

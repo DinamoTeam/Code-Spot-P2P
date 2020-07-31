@@ -39,7 +39,7 @@ export class CodeEditorComponent implements OnInit {
   selectedTheme: string;
   editorForm = new FormGroup({
     language: new FormControl(
-      EditorService.language,
+      EditorService.currentLanguage,
       Validators.compose([Validators.required])
     ),
     theme: new FormControl(
@@ -61,13 +61,13 @@ export class CodeEditorComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.selectedLang = EditorService.language;
+    this.selectedLang = EditorService.currentLanguage;
     this.selectedTheme = 'vs-dark';
   }
 
   editorOptions = {
     theme: 'vs-dark',
-    language: EditorService.language,
+    language: EditorService.currentLanguage,
     wordWrap: 'on',
     trimAutoWhitespace: false,
   };
@@ -75,7 +75,7 @@ export class CodeEditorComponent implements OnInit {
   onLanguageChange(res: string) {
     this.selectedLang = res.slice(res.indexOf(':') + 2);
     monaco.editor.setModelLanguage(this.editorTextModel, this.selectedLang);
-    EditorService.language = this.selectedLang;
+    EditorService.currentLanguage = this.selectedLang;
     this.peerService.broadcastChangeLanguage();
   }
 
@@ -263,7 +263,7 @@ export class CodeEditorComponent implements OnInit {
             this.location.replaceState('/editor/' + this.roomName);
             break;
           case AnnounceType.ChangeLanguage:
-            this.selectedLang = EditorService.language;
+            this.selectedLang = EditorService.currentLanguage;
             monaco.editor.setModelLanguage(
               this.editorTextModel,
               this.selectedLang
