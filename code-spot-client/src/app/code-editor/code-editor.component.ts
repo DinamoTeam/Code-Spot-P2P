@@ -177,7 +177,7 @@ export class CodeEditorComponent implements OnInit {
         range.startLineNumber,
         range.startColumn
       );
-      this.cursorService.recalculateAllNameTagIndicesAfterRemove(
+      this.cursorService.recalculateAllNameTagAndCursorIndicesAfterRemove(
         index,
         changes[i].rangeLength
       );
@@ -198,9 +198,10 @@ export class CodeEditorComponent implements OnInit {
         range.startLineNumber,
         range.startColumn
       );
-      this.cursorService.recalculateAllNameTagIndicesAfterInsert(
+      this.cursorService.recalculateAllNameTagAndCursorIndicesAfterInsert(
         index,
-        changes[i].text.length
+        changes[i].text.length,
+        this.peerService.getMyPeerId()
       );
 
       // Handle local insert (if any)
@@ -213,7 +214,7 @@ export class CodeEditorComponent implements OnInit {
     }
 
     // Redraw name tag
-    this.cursorService.redrawPeersNameTags(this.editor);
+    this.cursorService.redrawPeersNameTagsAndCursors(this.editor);
   }
 
   /**
@@ -251,7 +252,8 @@ export class CodeEditorComponent implements OnInit {
             this.editorService.handleRemoteInsert(
               this.editor,
               this.auxEditor,
-              this.peerService.getReceivedRemoteCrdts()
+              this.peerService.getReceivedRemoteCrdts(),
+              this.peerService.getPeerIdWhoSentCrdts()
             );
             break;
           case AnnounceType.RemoteRemove:
@@ -314,7 +316,7 @@ export class CodeEditorComponent implements OnInit {
             } else {
               // Decide after ... milliseconds
               this.useEventToUpdateCursorAndNameTagIfNoMoreChangesAfter(
-                50000,
+                500,
                 cursorChangeInfo,
                 cursorChangeInfo.peerId
               );
@@ -335,7 +337,7 @@ export class CodeEditorComponent implements OnInit {
             } else {
               // Decide after ... milliseconds
               this.useEventToUpdateSelectIfNoMoreChangesAfter(
-                50000,
+                500,
                 selectionChangeInfo,
                 selectionChangeInfo.peerId
               );
@@ -347,7 +349,7 @@ export class CodeEditorComponent implements OnInit {
             this.cursorService.removePeer(this.editor, peerIdLeft);
             break;
           case AnnounceType.ChangePeerName:
-            this.cursorService.redrawPeersNameTags(this.editor);
+            this.cursorService.redrawPeersNameTagsAndCursors(this.editor);
             break;
           case AnnounceType.ChangeMyName:
             this.cursorService.redrawMyNameTag(
@@ -401,9 +403,9 @@ export class CodeEditorComponent implements OnInit {
   private updateCursorAndNameTag(cursorChangeEvent: CursorChangeInfo) {
     this.cursorService.drawCursor(
       this.editor,
+      cursorChangeEvent.peerId,
       cursorChangeEvent.line,
-      cursorChangeEvent.col,
-      cursorChangeEvent.peerId
+      cursorChangeEvent.col
     );
 
     this.cursorService.drawNameTag(

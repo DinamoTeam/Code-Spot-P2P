@@ -33,6 +33,7 @@ export class PeerService {
   private hasReceivedOldChatMessages = false;
   private newlyJoinedConnsNeededBroadcasting: any[] = [];
   private receivedRemoteCrdts: CRDT[];
+  private peerIdWhoSentCrdts: string;
   private cursorChangeInfo: CursorChangeInfo;
   private selectionChangeInfo: SelectionChangeInfo;
   private previousChatMessages: Message[] = [];
@@ -524,6 +525,10 @@ export class PeerService {
     return this.receivedRemoteCrdts;
   }
 
+  getPeerIdWhoSentCrdts(): string {
+    return this.peerIdWhoSentCrdts;
+  }
+
   getMyPeerId(): string {
     return this.peer.id;
   }
@@ -612,6 +617,7 @@ export class PeerService {
       BroadcastService.CRDTDelimiter
     );
     this.receivedRemoteCrdts = crdts;
+    this.peerIdWhoSentCrdts = message.fromPeerId;
     if (message.messageType === MessageType.RemoteInsert) {
       PeerUtils.announceInfo(AnnounceType.RemoteInsert);
     } else if (message.messageType === MessageType.RemoteRemove) {

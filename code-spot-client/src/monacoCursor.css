@@ -5,8 +5,9 @@
 }
 .monaco-cursor {
   background: hsla(277, 100%, 47%, 1) !important;
-  width: 2px !important;
   width: 5px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -147,8 +148,8 @@
 }
 .monaco-cursor-1 {
   background: var(--monaco-color-1) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -160,8 +161,8 @@
 }
 .monaco-cursor-2 {
   background: var(--monaco-color-2) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -173,8 +174,8 @@
 }
 .monaco-cursor-3 {
   background: var(--monaco-color-3) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -186,8 +187,8 @@
 }
 .monaco-cursor-4 {
   background: var(--monaco-color-4) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -199,8 +200,8 @@
 }
 .monaco-cursor-5 {
   background: var(--monaco-color-5) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -212,8 +213,8 @@
 }
 .monaco-cursor-6 {
   background: var(--monaco-color-6) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -225,8 +226,8 @@
 }
 .monaco-cursor-7 {
   background: var(--monaco-color-7) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -238,8 +239,8 @@
 }
 .monaco-cursor-8 {
   background: var(--monaco-color-8) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -251,8 +252,8 @@
 }
 .monaco-cursor-9 {
   background: var(--monaco-color-9) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -264,8 +265,8 @@
 }
 .monaco-cursor-10 {
   background: var(--monaco-color-10) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -277,8 +278,8 @@
 }
 .monaco-cursor-11 {
   background: var(--monaco-color-11) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -290,8 +291,8 @@
 }
 .monaco-cursor-12 {
   background: var(--monaco-color-12) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -303,8 +304,8 @@
 }
 .monaco-cursor-13 {
   background: var(--monaco-color-13) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -316,8 +317,8 @@
 }
 .monaco-cursor-14 {
   background: var(--monaco-color-14) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -329,8 +330,8 @@
 }
 .monaco-cursor-15 {
   background: var(--monaco-color-15) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -342,8 +343,8 @@
 }
 .monaco-cursor-16 {
   background: var(--monaco-color-16) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -355,8 +356,8 @@
 }
 .monaco-cursor-17 {
   background: var(--monaco-color-17) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -368,8 +369,8 @@
 }
 .monaco-cursor-18 {
   background: var(--monaco-color-18) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -381,8 +382,8 @@
 }
 .monaco-cursor-19 {
   background: var(--monaco-color-19) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -394,8 +395,8 @@
 }
 .monaco-cursor-20 {
   background: var(--monaco-color-20) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -407,8 +408,8 @@
 }
 .monaco-cursor-21 {
   background: var(--monaco-color-21) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -420,8 +421,8 @@
 }
 .monaco-cursor-22 {
   background: var(--monaco-color-22) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -433,8 +434,8 @@
 }
 .monaco-cursor-23 {
   background: var(--monaco-color-23) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -446,8 +447,8 @@
 }
 .monaco-cursor-24 {
   background: var(--monaco-color-24) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }
@@ -459,8 +460,8 @@
 }
 .monaco-cursor-25 {
   background: var(--monaco-color-25) !important;
-  width: 2px !important;
-  width: 2px !important;
+  width: 2px;
+  height: 20px;
   animation: blinking 0.5s infinite alternate;
   animation-timing-function: cubic-bezier(1, 0, 0, 1);
 }

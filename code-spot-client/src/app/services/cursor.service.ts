@@ -5,12 +5,12 @@ import { NameService } from './name.service';
   providedIn: 'root',
 })
 export class CursorService {
-  private cursorDecorations: Decoration[] = [];
   private selectionDecorations: Decoration[] = [];
   // Color: 1 to 25. peerColors include myColor
   private peerColors: Map<string, number> = new Map<string, number>();
   private oldNameTags: Map<string, any> = new Map<string, any>();
-  private otherPeerNameTagIndices = new Map<string, number>();
+  private oldCursors: Map<string, any> = new Map<string, any>();
+  private otherPeerNameTagAndCursorIndices = new Map<string, number>();
   private myNameTagIndex: number;
   private myPeerId: string;
   private myLastCursorEvent: any = null;
@@ -22,30 +22,6 @@ export class CursorService {
   justJoinRoom = true;
 
   constructor(private nameService: NameService) {}
-
-  drawCursor(editor: any, line: number, col: number, ofPeerId: string) {
-    const peerName = this.nameService.getPeerName(ofPeerId);
-    const color = this.peerColors.get(ofPeerId);
-    const deco = this.cursorDecorations.filter((d) => d.peerId === ofPeerId);
-    const oldDecoration = deco.map((d) => d.decoration);
-    const decoration = editor.deltaDecorations(
-      oldDecoration, // Remove old deco
-      [
-        {
-          range: new monaco.Range(line, col, line, col + 1),
-          options: {
-            className: 'monaco-cursor-' + color,
-            stickiness: 1,
-            hoverMessage: { value: peerName },
-          },
-        },
-      ]
-    );
-    this.cursorDecorations = this.cursorDecorations.filter(
-      (d) => d.peerId !== ofPeerId
-    );
-    this.cursorDecorations.push(new Decoration(decoration, ofPeerId));
-  }
 
   drawSelection(
     editor: any,
@@ -70,7 +46,52 @@ export class CursorService {
     this.selectionDecorations = this.selectionDecorations.filter(
       (d) => d.peerId !== ofPeerId
     );
-    this.cursorDecorations.push(new Decoration(decoration, ofPeerId));
+    this.selectionDecorations.push(new Decoration(decoration, ofPeerId));
+  }
+
+  drawCursor(
+    editor: any,
+    ofPeerId: string,
+    newLineNumber: number,
+    newColumn: number
+  ) {
+    const oldCursor = this.oldCursors.get(ofPeerId);
+
+    if (oldCursor) {
+      editor.removeContentWidget(oldCursor);
+    }
+    const cursorColor = this.peerColors.get(ofPeerId);
+
+    const contentWidgetId = this.contentWidgetId++ + '';
+    const newCursorWidget = {
+      domNode: null,
+      getId: function () {
+        return contentWidgetId;
+      },
+      getDomNode: function () {
+        if (!this.domNode) {
+          this.domNode = document.createElement('div');
+          this.domNode.classList.add('monaco-cursor-' + cursorColor);
+        }
+        return this.domNode;
+      },
+      getPosition: function () {
+        return {
+          position: {
+            lineNumber: newLineNumber,
+            column: newColumn,
+          },
+          preference: [monaco.editor.ContentWidgetPositionPreference.EXACT],
+        };
+      },
+    };
+    editor.addContentWidget(newCursorWidget);
+    this.oldCursors.set(ofPeerId, newCursorWidget);
+
+    const index = editor
+      .getModel()
+      .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
+    this.otherPeerNameTagAndCursorIndices.set(ofPeerId, index);
   }
 
   drawNameTag(
@@ -126,7 +147,7 @@ export class CursorService {
       .getModel()
       .getOffsetAt(new monaco.Position(newLineNumber, newColumn));
     if (!isMyNameTag) {
-      this.otherPeerNameTagIndices.set(ofPeerId, index);
+      this.otherPeerNameTagAndCursorIndices.set(ofPeerId, index);
     } else {
       this.myNameTagIndex = index;
     }
@@ -151,24 +172,31 @@ export class CursorService {
   }
 
   /**
-   * Manually calculate where a nameTag should be after an insertion
+   * Manually calculate where nameTag and cursor should be after an insertion
    */
-  nameTagIndexAfterInsert(
+  nameTagAndCursorIndexAfterInsert(
     originalIndex: number,
     insertStartIndex: number,
-    insertLength: number
+    insertLength: number,
+    moveNameTagOrCursorWhenInsertAtRightEdge: boolean
   ) {
     if (originalIndex < insertStartIndex) {
       return originalIndex;
+    } else if (originalIndex === insertStartIndex) {
+      if (moveNameTagOrCursorWhenInsertAtRightEdge) {
+        return originalIndex + insertLength;
+      } else {
+        return originalIndex;
+      }
     } else {
       return originalIndex + insertLength;
     }
   }
 
   /**
-   * Manually calculate where a nameTag should be after a removal
+   * Manually calculate where nameTag and cursor should be after a removal
    */
-  nameTagIndexAfterRemove(
+  nameTagAndCursorIndexAfterRemove(
     originalIndex: number,
     removeStartIndex: number,
     removeLength: number
@@ -180,49 +208,54 @@ export class CursorService {
     }
   }
 
-  recalculateAllNameTagIndicesAfterInsert(
+  recalculateAllNameTagAndCursorIndicesAfterInsert(
     insertStartIndex: number,
-    insertLength: number
+    insertLength: number,
+    peerIdWhoMadeThisInsertion: string
   ): void {
-    // Recalculate peers' nameTag indices
-    const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
+    // Recalculate peers' nameTag and cursor indices
+    const peerIds = Array.from(this.otherPeerNameTagAndCursorIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
-      const newIndex = this.nameTagIndexAfterInsert(
-        this.otherPeerNameTagIndices.get(peerId),
+      const isThisPeerMadeThisInsertion = peerId === peerIdWhoMadeThisInsertion;
+      const newIndex = this.nameTagAndCursorIndexAfterInsert(
+        this.otherPeerNameTagAndCursorIndices.get(peerId),
         insertStartIndex,
-        insertLength
+        insertLength,
+        isThisPeerMadeThisInsertion
       );
-      this.otherPeerNameTagIndices.set(peerId, newIndex);
+      this.otherPeerNameTagAndCursorIndices.set(peerId, newIndex);
     }
 
-    // Recalculate my nameTag index
-    const myNewIndex = this.nameTagIndexAfterInsert(
+    // Recalculate my nameTag and cursor index
+    const iMadeThisInsert = peerIdWhoMadeThisInsertion === this.myPeerId;
+    const myNewIndex = this.nameTagAndCursorIndexAfterInsert(
       this.myNameTagIndex,
       insertStartIndex,
-      insertLength
+      insertLength,
+      iMadeThisInsert
     );
     this.myNameTagIndex = myNewIndex;
   }
 
-  recalculateAllNameTagIndicesAfterRemove(
+  recalculateAllNameTagAndCursorIndicesAfterRemove(
     removeStartIndex: number,
     removeLength: number
   ): void {
-    // Recalculate peers' nameTag indices
-    const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
+    // Recalculate peers' nameTag and cursor indices
+    const peerIds = Array.from(this.otherPeerNameTagAndCursorIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
-      const newIndex = this.nameTagIndexAfterRemove(
-        this.otherPeerNameTagIndices.get(peerId),
+      const newIndex = this.nameTagAndCursorIndexAfterRemove(
+        this.otherPeerNameTagAndCursorIndices.get(peerId),
         removeStartIndex,
         removeLength
       );
-      this.otherPeerNameTagIndices.set(peerId, newIndex);
+      this.otherPeerNameTagAndCursorIndices.set(peerId, newIndex);
     }
 
     // Recalculate my nameTag index
-    const myNewIndex = this.nameTagIndexAfterRemove(
+    const myNewIndex = this.nameTagAndCursorIndexAfterRemove(
       this.myNameTagIndex,
       removeStartIndex,
       removeLength
@@ -230,11 +263,14 @@ export class CursorService {
     this.myNameTagIndex = myNewIndex;
   }
 
-  redrawPeersNameTags(editor: any): void {
-    this.otherPeerNameTagIndices.forEach((index: number, peerId: string) => {
-      const pos = editor.getModel().getPositionAt(index);
-      this.drawNameTag(editor, peerId, pos.lineNumber, pos.column, false);
-    });
+  redrawPeersNameTagsAndCursors(editor: any): void {
+    this.otherPeerNameTagAndCursorIndices.forEach(
+      (index: number, peerId: string) => {
+        const pos = editor.getModel().getPositionAt(index);
+        this.drawNameTag(editor, peerId, pos.lineNumber, pos.column, false);
+        this.drawCursor(editor, peerId, pos.lineNumber, pos.column);
+      }
+    );
   }
 
   redrawMyNameTag(editor: any, myPeerId: string): void {
@@ -249,14 +285,8 @@ export class CursorService {
   removePeer(editor: any, peerId: string): void {
     this.peerColors.delete(peerId);
 
-    // Clean cursor decoration
-    const cursorDecoration = this.cursorDecorations
-      .filter((d) => d.peerId === peerId)
-      .map((d) => d.decoration);
-    editor.deltaDecorations(cursorDecoration, []);
-
     // Clean select decoration
-    const selectDecoration = this.cursorDecorations
+    const selectDecoration = this.selectionDecorations
       .filter((d) => d.peerId === peerId)
       .map((d) => d.decoration);
     editor.deltaDecorations(selectDecoration, []);
@@ -266,7 +296,15 @@ export class CursorService {
     if (oldNameTag) {
       editor.removeContentWidget(oldNameTag);
       this.oldNameTags.delete(peerId);
-      this.otherPeerNameTagIndices.delete(peerId);
+      this.otherPeerNameTagAndCursorIndices.delete(peerId);
+    }
+
+    // Clean cursor
+    const oldCursor = this.oldCursors.get(peerId);
+    if (oldCursor) {
+      editor.removeContentWidget(oldCursor);
+      this.oldCursors.delete(peerId);
+      this.otherPeerNameTagAndCursorIndices.delete(peerId);
     }
   }
 

@@ -109,7 +109,8 @@ export class EditorService {
   handleRemoteInsert(
     editor: any,
     auxEditor: any,
-    newCRDTs: CRDT[]
+    newCRDTs: CRDT[],
+    fromPeerId: string
   ) {
     const editorTextModel = editor.getModel();
     const auxEditorTextModel = auxEditor.getModel();
@@ -187,14 +188,15 @@ export class EditorService {
       );
 
       // Calculate new pos for nameTag after remote insert
-      this.cursorService.recalculateAllNameTagIndicesAfterInsert(
+      this.cursorService.recalculateAllNameTagAndCursorIndicesAfterInsert(
         startIndexMonaco,
-        textToInsert.length
+        textToInsert.length,
+        fromPeerId
       );
     }
 
     // Redraw nameTags
-    this.cursorService.redrawPeersNameTags(editor);
+    this.cursorService.redrawPeersNameTagsAndCursors(editor);
   }
 
   /**
@@ -300,7 +302,7 @@ export class EditorService {
 
       // Calculate new pos for nameTag after remote remove
       const deleteLength = endIndexMonaco - startIndexMonaco + 1;
-      this.cursorService.recalculateAllNameTagIndicesAfterRemove(
+      this.cursorService.recalculateAllNameTagAndCursorIndicesAfterRemove(
         startIndexMonaco,
         deleteLength
       );
@@ -314,7 +316,7 @@ export class EditorService {
     }
 
     // Actually redraw nameTag
-    this.cursorService.redrawPeersNameTags(editor);
+    this.cursorService.redrawPeersNameTagsAndCursors(editor);
   }
 
   private writeTextToMonacoAtIndex(
