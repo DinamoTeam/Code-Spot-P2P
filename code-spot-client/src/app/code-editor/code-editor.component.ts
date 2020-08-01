@@ -77,6 +77,11 @@ export class CodeEditorComponent implements OnInit {
     monaco.editor.setModelLanguage(this.editorTextModel, this.selectedLang);
     EditorService.currentLanguage = this.selectedLang;
     this.peerService.broadcastChangeLanguage();
+    Utils.alert(
+      'Language has been changed to ' +
+        Utils.getLanguageName(EditorService.currentLanguage),
+      AlertType.Message
+    );
   }
 
   onThemeChange(res: string) {
