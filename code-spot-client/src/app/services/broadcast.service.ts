@@ -23,9 +23,6 @@ export class BroadcastService {
     conn.send(message);
   }
 
-  /**
-   * Send oldCRDTs to new peer
-   */
   sendOldCRDTs(conn: any, previousCRDTs: CRDT[]) {
     previousCRDTs = previousCRDTs.slice(1, previousCRDTs.length - 1); // Don't send "beg" and "end" CRDT
     if (previousCRDTs.length === 0) {
@@ -54,9 +51,6 @@ export class BroadcastService {
     setTimeout(() => that.sendCursorInfo(conn), 10);
   }
 
-  /**
-   * Send old chat messages to new peer
-   */
   sendOldMessages(conn: any, previousChatMessages: Message[]) {
     const message = new Message(
       JSON.stringify(previousChatMessages),
@@ -116,9 +110,6 @@ export class BroadcastService {
     });
   }
 
-  /**
-   * Broadcast Chat Messages
-   */
   broadcastChatMessage(
     content: string,
     connectionList: any[],

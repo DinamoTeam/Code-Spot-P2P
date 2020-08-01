@@ -151,7 +151,7 @@ export class CursorService {
   }
 
   /**
-   * Manually calculate where a nameTag should be after an insert
+   * Manually calculate where a nameTag should be after an insertion
    */
   nameTagIndexAfterInsert(
     originalIndex: number,
@@ -166,7 +166,7 @@ export class CursorService {
   }
 
   /**
-   * Manually calculate where a nameTag should be after a remove
+   * Manually calculate where a nameTag should be after a removal
    */
   nameTagIndexAfterRemove(
     originalIndex: number,
@@ -188,9 +188,6 @@ export class CursorService {
     const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
-      if (!peerId) {
-        console.error('PeerId undefined! What happened?!');
-      }
       const newIndex = this.nameTagIndexAfterInsert(
         this.otherPeerNameTagIndices.get(peerId),
         insertStartIndex,
@@ -216,9 +213,6 @@ export class CursorService {
     const peerIds = Array.from(this.otherPeerNameTagIndices.keys());
     for (let i = 0; i < peerIds.length; i++) {
       const peerId = peerIds[i];
-      if (!peerId) {
-        console.error('PeerId undefined! What happened?!');
-      }
       const newIndex = this.nameTagIndexAfterRemove(
         this.otherPeerNameTagIndices.get(peerId),
         removeStartIndex,
@@ -259,12 +253,12 @@ export class CursorService {
     const cursorDecoration = this.cursorDecorations
       .filter((d) => d.peerId === peerId)
       .map((d) => d.decoration);
+    editor.deltaDecorations(cursorDecoration, []);
 
     // Clean select decoration
     const selectDecoration = this.cursorDecorations
       .filter((d) => d.peerId === peerId)
       .map((d) => d.decoration);
-    editor.deltaDecorations(cursorDecoration, []);
     editor.deltaDecorations(selectDecoration, []);
 
     // Clean name tag

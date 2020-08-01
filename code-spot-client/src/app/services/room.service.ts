@@ -8,19 +8,20 @@ import { EnterRoomInfo } from '../shared/EnterRoomInfo';
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * This class communicate with our C# API
+ */
 export class RoomService {
   apiURL = environment.apiUrl + 'Room/';
 
   constructor(private http: HttpClient) {}
 
-  // HttpClient API get() -> Create new room and return the room name
   joinNewRoom(peerId: string): Observable<EnterRoomInfo> {
     return this.http
       .get<EnterRoomInfo>(this.apiURL + 'JoinNewRoom?peerId=' + peerId)
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  // HttpClient API get() -> Join existing room
   joinExistingRoom(
     peerId: string,
     roomName: string
@@ -36,7 +37,6 @@ export class RoomService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  // HttpClient API get() -> get PeerIds In Room
   getPeerIdsInRoom(roomName: string): Observable<string[]> {
     return this.http
       .get<string[]>(this.apiURL + 'GetPeerIdsInRoom?roomName=' + roomName)
@@ -58,7 +58,6 @@ export class RoomService {
       .subscribe(() => {});
   }
 
-  // Error handling
   private handleError(error) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
