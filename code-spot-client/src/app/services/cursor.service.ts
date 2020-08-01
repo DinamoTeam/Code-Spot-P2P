@@ -39,7 +39,7 @@ export class CursorService {
         range: new monaco.Range(startLine, startCol, endLine, endCol),
         options: {
           className: 'monaco-select-' + color,
-          stickiness: 1,
+          stickiness: monaco.editor.TrackedRangeStickiness.GrowsOnlyWhenTypingBefore,
         },
       },
     ]);
