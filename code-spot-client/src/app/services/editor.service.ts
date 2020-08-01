@@ -45,7 +45,7 @@ export class EditorService {
    * correspond to each new char, add them to BST and then broadcast these new CRDT objects
    */
   handleLocalInsert(
-    auxEditorTextModel: any,
+    auxEditor: any,
     textToInsert: string,
     startLineNumber: number,
     startColumn: number
@@ -55,11 +55,14 @@ export class EditorService {
 
     if (textToInsert === '') return;
 
+    const auxEditorTextModel = auxEditor.getModel();
+
     // IMPORTANT: Update auxiliary editor ONLY AFTER getting the CORRECT insertAtIndex
     const insertAtIndex =
       this.posToIndex(auxEditorTextModel, startLineNumber, startColumn) + 1; // Because we have _beg limit
     // Update aux editor
     this.writeTextToMonacoAtPos(
+      auxEditor,
       auxEditorTextModel,
       textToInsert,
       startLineNumber,
@@ -105,10 +108,12 @@ export class EditorService {
    */
   handleRemoteInsert(
     editor: any,
-    editorTextModel: any,
-    auxEditorTextModel: any,
+    auxEditor: any,
     newCRDTs: CRDT[]
   ) {
+    const editorTextModel = editor.getModel();
+    const auxEditorTextModel = auxEditor.getModel();
+
     const insertingIndices = new Array<number>(newCRDTs.length);
 
     // Note: Indices from BST and from Monaco Editor are in sync. Getting the correct indices
@@ -167,6 +172,7 @@ export class EditorService {
 
       // Write text to aux Editor
       this.writeTextToMonacoAtIndex(
+        auxEditor,
         auxEditorTextModel,
         textToInsert,
         startIndexMonaco
@@ -174,6 +180,7 @@ export class EditorService {
 
       // Write text to main Monaco Editor
       this.writeTextToMonacoAtIndex(
+        editor,
         editorTextModel,
         textToInsert,
         startIndexMonaco
@@ -195,7 +202,7 @@ export class EditorService {
    * CRDT objects from BST and broadcast these removed CRDTs to the rest in room
    */
   handleLocalRemove(
-    auxEditorTextModel: any,
+    auxEditor: any,
     startLineNumber: number,
     startColumn: number,
     endLineNumber: number,
@@ -206,6 +213,8 @@ export class EditorService {
       throw new Error('Error: call handleLocalRemove before setting siteId');
 
     if (length === 0) return;
+
+    const auxEditorTextModel = auxEditor.getModel();
 
     // IMPORTANT: Update auxiliary editor ONLY AFTER getting the CORRECT startIndex
     const startIndex =
@@ -240,10 +249,12 @@ export class EditorService {
    */
   handleRemoteRemove(
     editor: any,
-    editorTextModel: any,
-    auxEditorTextModel: any,
+    auxEditor: any,
     toBeRemovedCRDTs: CRDT[]
   ): void {
+    const editorTextModel = editor.getModel();
+    const auxEditorTextModel = auxEditor.getModel();
+
     const deletingIndices = new Array<number>(toBeRemovedCRDTs.length);
     let offSet = 0; // offSet to add back to index because deleting 1 element will decrease the indices of all elements after it
     for (let i = 0; i < toBeRemovedCRDTs.length; i++) {
@@ -307,12 +318,14 @@ export class EditorService {
   }
 
   private writeTextToMonacoAtIndex(
+    editor: any,
     editorTextModel: any,
     text: string,
     startIndex: number
   ): void {
     const pos = this.indexToPos(editorTextModel, startIndex);
     this.writeTextToMonacoAtPos(
+      editor,
       editorTextModel,
       text,
       pos.lineNumber,
@@ -361,18 +374,25 @@ export class EditorService {
   }
 
   private writeTextToMonacoAtPos(
+    editor: any,
     editorTextModel: any,
     text: string,
     startLineNumber: number,
     startColumn: number
   ) {
+    const selection = editor.getSelection();
+    const isTypingAtRightEdge = this.isTypingAtRightEdgeOfCurrentSelection(
+      selection,
+      startLineNumber,
+      startColumn
+    );
+
     const range = new monaco.Range(
       startLineNumber,
       startColumn,
       startLineNumber,
       startColumn
     );
-
     editorTextModel.pushEditOperations(
       [],
       [
@@ -382,6 +402,22 @@ export class EditorService {
           forceMoveMarkers: true,
         },
       ]
+    );
+
+    if (isTypingAtRightEdge) {
+      // Do not grow our selection when typing at the right edge of that selection
+      editor.setSelection(selection);
+    }
+  }
+
+  private isTypingAtRightEdgeOfCurrentSelection(
+    selection: any,
+    insertStartLineNumber: number,
+    insertStartColumn: number
+  ): boolean {
+    return (
+      insertStartLineNumber === selection.endLineNumber &&
+      insertStartColumn === selection.endColumn
     );
   }
 
@@ -404,7 +440,9 @@ export class EditorService {
   /**
    * Classify important change events that needed to be applied right away such as mouse click
    */
-  static isCursorOrSelectEventImportant(event: SelectionChangeInfo | CursorChangeInfo): boolean {
+  static isCursorOrSelectEventImportant(
+    event: SelectionChangeInfo | CursorChangeInfo
+  ): boolean {
     if (
       event.reason === CursorChangeReason.Explicit ||
       event.reason === CursorChangeReason.Redo ||

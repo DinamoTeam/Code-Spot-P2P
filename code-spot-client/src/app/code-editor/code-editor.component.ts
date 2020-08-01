@@ -184,7 +184,7 @@ export class CodeEditorComponent implements OnInit {
 
       // Handle local remove (if any)
       this.editorService.handleLocalRemove(
-        this.auxEditorTextModel,
+        this.auxEditor,
         range.startLineNumber,
         range.startColumn,
         range.endLineNumber,
@@ -205,7 +205,7 @@ export class CodeEditorComponent implements OnInit {
 
       // Handle local insert (if any)
       this.editorService.handleLocalInsert(
-        this.auxEditorTextModel,
+        this.auxEditor,
         changes[i].text,
         range.startLineNumber,
         range.startColumn
@@ -250,16 +250,14 @@ export class CodeEditorComponent implements OnInit {
           case AnnounceType.RemoteAllMessages:
             this.editorService.handleRemoteInsert(
               this.editor,
-              this.editorTextModel,
-              this.auxEditorTextModel,
+              this.auxEditor,
               this.peerService.getReceivedRemoteCrdts()
             );
             break;
           case AnnounceType.RemoteRemove:
             this.editorService.handleRemoteRemove(
               this.editor,
-              this.editorTextModel,
-              this.auxEditorTextModel,
+              this.auxEditor,
               this.peerService.getReceivedRemoteCrdts()
             );
             break;
@@ -316,7 +314,7 @@ export class CodeEditorComponent implements OnInit {
             } else {
               // Decide after ... milliseconds
               this.useEventToUpdateCursorAndNameTagIfNoMoreChangesAfter(
-                500,
+                50000,
                 cursorChangeInfo,
                 cursorChangeInfo.peerId
               );
@@ -337,7 +335,7 @@ export class CodeEditorComponent implements OnInit {
             } else {
               // Decide after ... milliseconds
               this.useEventToUpdateSelectIfNoMoreChangesAfter(
-                500,
+                50000,
                 selectionChangeInfo,
                 selectionChangeInfo.peerId
               );
