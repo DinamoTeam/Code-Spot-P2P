@@ -383,7 +383,11 @@ export class EditorService {
     startColumn: number
   ) {
     const selection = editor.getSelection();
-    const cursorPos = editor.getPosition();
+    const selectionEndIndex = this.posToIndex(
+      editorTextModel,
+      selection.endLineNumber,
+      selection.endColumn
+    );
     const isTypingAtLeftEdge =
       startLineNumber === selection.startLineNumber &&
       startColumn === selection.startColumn;
@@ -413,11 +417,13 @@ export class EditorService {
       editor.setSelection(selection);
     } else if (isTypingAtLeftEdge) {
       // Grow our selection when typing at left edge
+      const endIndex = selectionEndIndex + text.length;
+      const endPos = this.indexToPos(editorTextModel, endIndex);
       const newSelectionRange = new monaco.Range(
         startLineNumber,
         startColumn,
-        selection.endLineNumber,
-        selection.endColumn
+        endPos.lineNumber,
+        endPos.column
       );
       editor.setSelection(newSelectionRange);
     }
