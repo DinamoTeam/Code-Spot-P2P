@@ -35,14 +35,16 @@
   <div>&nbsp;</div>
 
   <!-- Emoji Picker-->
-  <emoji-mart *ngIf="showEmojiPicker"
-              set="messenger"
-              [showPreview]="false"
-              [emojiSize]="18"
-              [perLine]="7"
-              [totalFrequentLines]="1"
-              height ="150px"
-              (emojiClick)="addEmoji($event)"></emoji-mart>
+  <div class="emoji-wrapper">
+    <emoji-mart *ngIf="showEmojiPicker"
+    set="messenger"
+    [showPreview]="false"
+    [emojiSize]="18"
+    [perLine]="7"
+    [totalFrequentLines]="1"
+    height ="150px"
+    (emojiClick)="addEmoji($event)"></emoji-mart>
+  </div>
 
   <form class="ml-2 mr-1 mt-auto"
         [formGroup]="messageForm"

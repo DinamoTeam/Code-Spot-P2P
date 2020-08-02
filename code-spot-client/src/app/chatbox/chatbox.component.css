@@ -15,6 +15,7 @@ img {
   width: 90vw;
   height: 50vh;
   overflow-y: auto;
+  position: relative !important;
 }
 
 .dropdown-menu {
@@ -35,10 +36,16 @@ img {
   margin-right: 0.5rem;
 }
 
-emoji-mart {
+.emoji-wrapper {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.emoji-wrapper emoji-mart {
   position: absolute;
   right: 38px;
-  bottom: 65px;
+  bottom: 0px;
 }
 
 @media (min-width: 768px) {
