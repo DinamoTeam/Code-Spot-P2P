@@ -24,4 +24,12 @@ export class UtilsService {
         console.log(data);
       });
   }
+
+  sendFeedbackForm(form) {
+    return this.http
+      .post<any>(this.apiURL + 'SendFeedbackForm', form, this.HTTP_OPTIONS)
+      .subscribe((data) => {
+        console.log(data);
+      });
+  }
 }

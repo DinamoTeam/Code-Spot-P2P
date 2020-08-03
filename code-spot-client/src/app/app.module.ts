@@ -17,6 +17,7 @@ import { ChatboxComponent } from './chatbox/chatbox.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ContactComponent } from './contact/contact.component';
 import { MessageBubbleComponent } from './message-bubble/message-bubble.component';
+import { FeedbackComponent } from './feedback/feedback.component';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   defaultOptions: {
@@ -53,6 +54,7 @@ export function onMonacoLoad() {
     ChatboxComponent,
     ContactComponent,
     MessageBubbleComponent,
+    FeedbackComponent,
   ],
   imports: [
     HttpClientModule,

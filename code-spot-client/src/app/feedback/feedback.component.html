@@ -1,0 +1,268 @@
+<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Feedback</h5>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!--<input [(ngModel)]="myUsername" type="text" class="form-control" placeholder="New name" aria-label="New Username">-->
+      <form
+        [formGroup]="feedbackForm"
+        (ngSubmit)="onSubmit(feedbackForm.value)"
+      >
+        <!-- Overal satisfaction -->
+        <div class="form-group">
+          <label class="col-form-label"
+            >Your overall satisfaction of the app</label
+          >
+          <br />
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="100%"
+              formControlName="satisfactionLevel"
+              type="radio"
+              id="satisfactionLevel"
+              name="satisfactionLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="satisfactionLevel"
+              >Extremely well</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="80%"
+              formControlName="satisfactionLevel"
+              type="radio"
+              id="satisfactionLevel2"
+              name="satisfactionLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="satisfactionLevel2"
+              >Very well</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="60%"
+              formControlName="satisfactionLevel"
+              type="radio"
+              id="satisfactionLevel3"
+              name="satisfactionLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="satisfactionLevel3"
+              >Somewhat well</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="40%"
+              formControlName="satisfactionLevel"
+              type="radio"
+              id="satisfactionLevel4"
+              name="satisfactionLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="satisfactionLevel4"
+              >Not so well</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="20%"
+              formControlName="satisfactionLevel"
+              type="radio"
+              id="satisfactionLevel5"
+              name="satisfactionLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="satisfactionLevel5"
+              >Not at all well</label
+            >
+          </div>
+        </div>
+        <!-- Collaborate -->
+        <div class="form-group">
+          <label class="col-form-label"
+            >How satisfied are you with the ability to collaborate with others
+            using this app?</label
+          >
+          <br />
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="100%"
+              formControlName="collabLevel"
+              type="radio"
+              id="collabLevel"
+              name="collabLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="collabLevel"
+              >Extremely well</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="80%"
+              formControlName="collabLevel"
+              type="radio"
+              id="collabLevel2"
+              name="collabLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="collabLevel2"
+              >Very well</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="60%"
+              formControlName="collabLevel"
+              type="radio"
+              id="collabLevel3"
+              name="collabLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="collabLevel3"
+              >Somewhat well</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="40%"
+              formControlName="collabLevel"
+              type="radio"
+              id="collabLevel4"
+              name="collabLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="collabLevel4"
+              >Not so well</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="20%"
+              formControlName="collabLevel"
+              type="radio"
+              id="collabLevel5"
+              name="collabLevel"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="collabLevel5"
+              >Not at all well</label
+            >
+          </div>
+        </div>
+        <!-- Like most -->
+        <div class="form-group">
+          <label class="col-form-label"
+            >What do you like most about the app?</label
+          >
+          <br />
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="0"
+              formControlName="didWell"
+              type="radio"
+              id="didWell"
+              name="didWell"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="didWell"
+              >Look and feel</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="1"
+              formControlName="didWell"
+              type="radio"
+              id="didWell2"
+              name="didWell"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="didWell2"
+              >Functionality</label
+            >
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input
+              value="2"
+              formControlName="didWell"
+              type="radio"
+              id="didWell3"
+              name="didWell"
+              class="custom-control-input"
+            />
+            <label class="custom-control-label" for="didWell3"
+              >Convenience</label
+            >
+          </div>
+        </div>
+        <!-- Issue -->
+        <div class="form-group">
+          <label class="col-form-label"
+            >Which of the issues below was the biggest problem during your
+            experience?</label
+          >
+          <br />
+          <select class="custom-select" formControlName="issue">
+            <option value="0">Nothing</option>
+            <option value="1">The app was confusing to use</option>
+            <option value="2">The app was missing features I needed</option>
+            <option value="3">I experienced bugs</option>
+            <option value="4">The app suddenly crashed</option>
+            <option value="5">Other</option>
+          </select>
+        </div>
+        <!-- Issue in details -->
+        <div *ngIf="feedbackForm.value['issue'] !== 0" class="form-group">
+          <label class="col-form-label"
+            >Please describe the problem you encountered in more detail</label
+          >
+          <textarea
+            class="form-control"
+            formControlName="issueDetails"
+            rows="2"
+            placeholder="When I ..."
+          ></textarea>
+        </div>
+        <!-- Suggestions -->
+        <div class="form-group">
+          <label class="col-form-label"
+            >Do you have any suggestions for improvement? (e.g. features you
+            want to see in the future)</label
+          >
+          <input
+            formControlName="improvement"
+            placeholder="I want ..."
+            type="text"
+            class="form-control"
+          />
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        (click)="onSubmit(feedbackForm.value)"
+        data-dismiss="modal"
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+</div>

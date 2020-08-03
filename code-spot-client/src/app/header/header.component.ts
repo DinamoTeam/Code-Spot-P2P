@@ -28,10 +28,8 @@ export class HeaderComponent implements OnInit {
     this.showCreateNewRoomBtn = true;
   }
 
-  onBtnAboutClick() {
+  onBtnFeedbackClick() {
     this.isExpanded = false;
-    window.location.replace('/About');
-    this.showCreateNewRoomBtn = true;
   }
 
   onBtnContactClick() {

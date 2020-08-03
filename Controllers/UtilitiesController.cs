@@ -32,6 +32,30 @@ namespace CodeSpot.Controllers
 			emailBody += "<p>Message:" + "</p>";
 			emailBody += "<p>" + form.Message + "</p>";
 
+			SendEmail(emailBody);
+
+			return Ok(new {response = "Email sent sucessful!"});
+		}
+
+		// POST: api/Utilities/SendFeedbackForm
+		[HttpPost]
+		public OkObjectResult SendFeedbackForm([FromBody] FeedbackForm form)
+		{
+			string emailBody = string.Empty;
+			emailBody += "<p>Your overall satisfaction of the app: " + form.SatisfactionLevel + "</p>";
+			emailBody += "<p>How satisfied are you with the ability to collaborate with others using this app? " + form.CollabLevel + "</p>";
+			emailBody += "<p>What do you like most about the app? " + form.DidWell + "</p>";
+			emailBody += "<p>Which of the issues below was the biggest problem during your experience? " + form.Issue + "</p>";
+			emailBody += "<p>Please describe the problem you encountered in more detail: " + form.IssueDetails + "</p>";
+			emailBody += "<p>Do you have any suggestions for improvement? " + form.Improvement + "</p>";
+
+			SendEmail(emailBody);
+
+			return Ok(new { response = "Email sent sucessful!" });
+		}
+
+		private void SendEmail(string emailBody)
+		{
 			string password = Configuration["EmailPassword"];
 
 			using (MailMessage email = new MailMessage())
@@ -49,10 +73,10 @@ namespace CodeSpot.Controllers
 					smtp.Credentials = new NetworkCredential(emailFromAddress, password);
 					smtp.EnableSsl = enableSSL;
 					smtp.Send(email);
+
+					// TODO: Catch if send email fail
 				}
 			}
-
-			return Ok(new {response = "Email sent sucessful!"});
 		}
 	}
 }

@@ -3,7 +3,8 @@
     class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom shadow-sm"
   >
     <div class="container-fluid mx-5">
-      <strong class="d-flex align-items-center"><img id="brandLogo" src="../../assets/CodeSpotLogo.svg" class="mr-2" />
+      <strong class="d-flex align-items-center">
+        <img id="brandLogo" src="../../assets/CodeSpotLogo.svg" class="mr-2" />
         <a class="navbar-brand clickable" (click)="goHome()">Code Spot</a>
       </strong>
       <button
@@ -21,33 +22,52 @@
         [ngClass]="{ show: isExpanded }"
       >
         <ul class="navbar-nav flex-grow align-items-center">
+          <!-- Home -->
           <li
             class="nav-item"
             [routerLinkActive]="['link-active']"
             [routerLinkActiveOptions]="{ exact: true }"
           >
-            <a class="nav-link text-dark" role="button" (click)="goHome()"
+            <a class="nav-link text-secondary" role="button" (click)="goHome()"
               >Home</a
             >
           </li>
+          <!-- Feedback -->
           <li
             class="nav-item"
             [routerLinkActive]="['link-active']"
             [routerLinkActiveOptions]="{ exact: true }"
           >
             <a
-              class="nav-link text-dark"
+              class="nav-link text-secondary"
+              role="button"
+              data-toggle="modal"
+              data-target="#feedbackModal"
+              (click)="onBtnFeedbackClick()"
+              >Feedback</a
+            >
+          </li>
+          <!-- Contact -->
+          <li
+            class="nav-item"
+            [routerLinkActive]="['link-active']"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <a
+              class="nav-link text-secondary"
               role="button"
               (click)="onBtnContactClick()"
               >Contact</a
             >
           </li>
+          <!-- Create Room-->
           <li *ngIf="showCreateNewRoomBtn" class="nav-item">
             <button
               class="btn btn-lg btn-primary"
               role="button"
               (click)="onBtnCreateNewRoomClick()"
-              >Create New Room &raquo;
+            >
+              Create New Room &raquo;
             </button>
           </li>
         </ul>
@@ -55,3 +75,14 @@
     </div>
   </nav>
 </header>
+
+<!-- Feedback form -->
+<div
+  class="modal fade"
+  id="feedbackModal"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <app-feedback></app-feedback>
+</div>
