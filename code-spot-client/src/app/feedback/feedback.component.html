@@ -12,7 +12,6 @@
       </button>
     </div>
     <div class="modal-body">
-      <!--<input [(ngModel)]="myUsername" type="text" class="form-control" placeholder="New name" aria-label="New Username">-->
       <form
         [formGroup]="feedbackForm"
         (ngSubmit)="onSubmit(feedbackForm.value)"
@@ -162,67 +161,68 @@
             >
           </div>
         </div>
-        <!-- Like most -->
-        <div class="form-group">
-          <label class="col-form-label"
-            >What do you like most about the app?</label
-          >
-          <br />
-          <div class="custom-control custom-radio custom-control-inline">
-            <input
-              value="0"
-              formControlName="didWell"
-              type="radio"
-              id="didWell"
-              name="didWell"
-              class="custom-control-input"
-            />
-            <label class="custom-control-label" for="didWell"
-              >Look and feel</label
+        <div class="d-flex flex-md-row flex-column">
+          <!-- Did well -->
+          <div class="form-group col-sm-12 col-md-5 pl-0 mb-md-0">
+            <label class="col-form-label"
+              >What do you like most about the app?</label
             >
+            <br />
+            <div class="custom-control custom-radio custom-control-inline">
+              <input
+                value="0"
+                formControlName="didWell"
+                type="radio"
+                id="didWell"
+                name="didWell"
+                class="custom-control-input"
+              />
+              <label class="custom-control-label" for="didWell"
+                >Look and feel</label
+              >
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input
+                value="1"
+                formControlName="didWell"
+                type="radio"
+                id="didWell2"
+                name="didWell"
+                class="custom-control-input"
+              />
+              <label class="custom-control-label" for="didWell2"
+                >Functionality</label
+              >
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input
+                value="2"
+                formControlName="didWell"
+                type="radio"
+                id="didWell3"
+                name="didWell"
+                class="custom-control-input"
+              />
+              <label class="custom-control-label" for="didWell3"
+                >Convenience</label
+              >
+            </div>
           </div>
-          <div class="custom-control custom-radio custom-control-inline">
-            <input
-              value="1"
-              formControlName="didWell"
-              type="radio"
-              id="didWell2"
-              name="didWell"
-              class="custom-control-input"
-            />
-            <label class="custom-control-label" for="didWell2"
-              >Functionality</label
-            >
+          <!-- Issue -->
+          <div class="form-group">
+            <label class="col-form-label">
+              What was your biggest problem during your experience?
+            </label>
+            <br />
+            <select class="custom-select" formControlName="issue">
+              <option value="0">Nothing</option>
+              <option value="1">The app was confusing to use</option>
+              <option value="2">The app was missing features I needed</option>
+              <option value="3">I experienced bugs</option>
+              <option value="4">The app suddenly crashed</option>
+              <option value="5">Other</option>
+            </select>
           </div>
-          <div class="custom-control custom-radio custom-control-inline">
-            <input
-              value="2"
-              formControlName="didWell"
-              type="radio"
-              id="didWell3"
-              name="didWell"
-              class="custom-control-input"
-            />
-            <label class="custom-control-label" for="didWell3"
-              >Convenience</label
-            >
-          </div>
-        </div>
-        <!-- Issue -->
-        <div class="form-group">
-          <label class="col-form-label"
-            >Which of the issues below was the biggest problem during your
-            experience?</label
-          >
-          <br />
-          <select class="custom-select" formControlName="issue">
-            <option value="0">Nothing</option>
-            <option value="1">The app was confusing to use</option>
-            <option value="2">The app was missing features I needed</option>
-            <option value="3">I experienced bugs</option>
-            <option value="4">The app suddenly crashed</option>
-            <option value="5">Other</option>
-          </select>
         </div>
         <!-- Issue in details -->
         <div *ngIf="feedbackForm.value['issue'] !== 0" class="form-group">
@@ -232,7 +232,7 @@
           <textarea
             class="form-control"
             formControlName="issueDetails"
-            rows="2"
+            rows="1"
             placeholder="When I ..."
           ></textarea>
         </div>
