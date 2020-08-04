@@ -1,11 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
-@import "./monacoCursor.css";
-@import "../node_modules/alertifyjs/build/css/alertify.min.css";
-@import "../node_modules/alertifyjs/build/css/themes/bootstrap.css";
+@import './monacoCursor.css';
+@import '../node_modules/alertifyjs/build/css/alertify.min.css';
+@import '../node_modules/alertifyjs/build/css/themes/bootstrap.css';
 
 /* width */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 7px;
 }
 
 /* Track */
@@ -18,7 +18,7 @@
   background: #999;
 }
 
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: #777;
-  }
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
