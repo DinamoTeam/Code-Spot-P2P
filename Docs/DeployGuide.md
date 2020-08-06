@@ -106,8 +106,11 @@ In the code-spot folder, run the following command
 ```shell
 dotnet publish -c Release
 ```
+## Step 8: Set up resource group on Azure
 
-## Step 8: Add your IP address in Azure firewall settings
+Log in to Azure portal -> When creating resource group, select Web app + SQL
+
+## Step 9: Add your IP address in Azure firewall settings
 
 First, log in to Azure portal.
 
@@ -118,7 +121,7 @@ Add your IP address. Fill in _Start IP_ and _End IP_ with your IP address
 
 Now you can use the Query editor (preview) to view and query your production DB
 
-## Step 9: Publish on Azure
+## Step 10: Publish on Azure
 
 Open Visual Studio and click on the project and select _Publish_
 
