@@ -1,0 +1,17 @@
+1/ Mục tiêu của dự án:
+- Main use case là phục vụ online interview
+- Mục tiêu chính là làm employer ngỡ ngàng luôn =))
+
+2/ Các tasks hướng về những mục tiêu này:
+- Viết lại thông tin cho page cho đúng mục tiêu (Nghĩ ra use cases)
+- Viết article đăng Medium
+- Video call (Maybe limit chỉ gọi 1-1)
+- Market trên LinkedIn, mấy trang App review. Make CodeSpot go viral!
+
+3/ Plan cho tháng 8:
+- 1 tuần 1 buổi, cả 2 học thêm về dự án từ nhau
+- Nhờ bạn bè test họ và cho feedback
+
+4/ Đến tháng 9:
+- Viết code trở lại
+- Viết article giải thích cách app hoạt động, market
