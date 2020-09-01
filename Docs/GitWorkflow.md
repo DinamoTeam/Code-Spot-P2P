@@ -24,5 +24,12 @@ git pull
 ```shell
 git checkout <branchName>
 git rebase -i origin/master
+git pull 
 git push
+```
+
+#5. To delete a branch (locally and remotely)
+```shell
+git push -d origin <branchName>
+git branch -d <branchName>
 ```
