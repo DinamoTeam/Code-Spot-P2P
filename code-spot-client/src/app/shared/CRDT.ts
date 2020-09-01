@@ -172,7 +172,7 @@ export class CRDTId {
     const NPlus1InBaseBASE = CustomNumber.decimalToCustomNumber(N + 1);
     const NInBaseBASE = CustomNumber.decimalToCustomNumber(N);
 
-    // If id2 > id1 because a digit is bigger
+    // If id2 > id1 because id2 is longer OR a digit is bigger
     if (
       index === shorterLength ||
       id1.arr[index].digit !== id2.arr[index].digit

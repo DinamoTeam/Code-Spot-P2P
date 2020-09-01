@@ -90,7 +90,7 @@ export class PeerService {
       this.peer.destroy();
 
       PeerUtils.handlePeerError(
-        'Wifi connection error! Going back to Home page?'
+        'You/PeerServer disconnects. Going back to Home page?'
       );
     });
 
