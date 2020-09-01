@@ -1,0 +1,53 @@
+0/ Lịch tháng 9 của cả 2 như thế nào?
+
+
+1/ Các ví dụ biến thành hình ảnh / GIF. Cắt giảm mạnh chữ
+
+2/ Cần thêm cái intro về kiểu tại sao lại làm ra Codespot.
+   Introduce 1 số concept cho người đọc (Editor handle text dưới dạng index blabla). Maybe nói 1 ít về Operational Transform
+   Làm cho các phần chuyển ý nó mượt. Prepare người đọc trc khi ném bụp kiến thức mới vào họ.
+   
+3/ Có chỗ nào khó hiểu => bôi đỏ
+
+
+4/ Tasks Tháng 9:
+- Viết article, làm animation. PR cho Codespot trên LinkedIn, Medium.
+- Tiếp tục dev Codespot:
+	+ Viết lại trang home để phù hợp cho PV
+	+ Full screen mode
+	+ Tải backup file khi crash. Cho người dùng nút tải file
+	+ Undo stack
+	+ Làm video call
+	+ Instruction animation lần đầu người dùng vào
+	+ Fix:
+		. Samsung ko delete đc
+		. Contact form dùng alertifyJS thay vì Thank you
+		. Khi click vào link từ Fb, bỏ mấy cái Facebook Id thừa ra khỏi url
+		
+
+- Redeploy + Xem log heroku
+
+
+Article outline:
+
+Article 1: Building a real-time synchorized code editor (Part 1)
+- Overview (1 para): (Tell a story style) Why we decided to do Code Spot. Our successful end result: what have we achieved at the end. Ask ppl to check it out. End para with: In this article, we will show you guy the key underlying ideas on building a real-time synchorized code editor.
+- Why building a synchronize real time editing is difficult
+    -> Phần 1+2: 2 problem. Có câu chốt conclusion
+- How CRDT can help solve those problems
+    Intro para: add unique id + abc. We'll see this in an Examples
+    -> Example 1
+    ...
+    -> Example 2
+- Full examples of CRDT and how it solve the 2 problems
+- Conclusion: In this article, we've learned about abc. In the next article, we'll talk more about abcd.
+Comment below if you have questions + what you want to hear more
+
+Article 2: Building a real-time synchorized code editor (Part 2)
+- This article is about how to generateNpositionBetween -> focus the entire article on this
+
+Article 3 (Optional): Building a real-time synchorized code editor (Part 3)
+This article will be about #5 challenges that we faced and our solution
+- Mình sẽ làm kiểu 3 cái header: xong mỗi cái là 1-2 para.
+- Có thể nói về challenges như kiểu how to connect users together, sync cursor, etc
+- But point là mỗi idea chỉ nói 1-2 para về WHAT was the prob, and HOW we solve it
