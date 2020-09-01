@@ -26,28 +26,3 @@
 		
 
 - Redeploy + Xem log heroku
-
-
-Article outline:
-
-Article 1: Building a real-time synchorized code editor (Part 1)
-- Overview (1 para): (Tell a story style) Why we decided to do Code Spot. Our successful end result: what have we achieved at the end. Ask ppl to check it out. End para with: In this article, we will show you guy the key underlying ideas on building a real-time synchorized code editor.
-- Why building a synchronize real time editing is difficult
-    -> Phần 1+2: 2 problem. Có câu chốt conclusion
-- How CRDT can help solve those problems
-    Intro para: add unique id + abc. We'll see this in an Examples
-    -> Example 1
-    ...
-    -> Example 2
-- Full examples of CRDT and how it solve the 2 problems
-- Conclusion: In this article, we've learned about abc. In the next article, we'll talk more about abcd.
-Comment below if you have questions + what you want to hear more
-
-Article 2: Building a real-time synchorized code editor (Part 2)
-- This article is about how to generateNpositionBetween -> focus the entire article on this
-
-Article 3 (Optional): Building a real-time synchorized code editor (Part 3)
-This article will be about #5 challenges that we faced and our solution
-- Mình sẽ làm kiểu 3 cái header: xong mỗi cái là 1-2 para.
-- Có thể nói về challenges như kiểu how to connect users together, sync cursor, etc
-- But point là mỗi idea chỉ nói 1-2 para về WHAT was the prob, and HOW we solve it
