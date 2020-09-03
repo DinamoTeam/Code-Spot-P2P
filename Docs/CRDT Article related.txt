@@ -1,6 +1,12 @@
 - Medium text formating: https://help.medium.com/hc/en-us/articles/215194537-Format-text
 
+- Be careful when adding image. "full-width images will be scaled 
+in vastly different ways depending on how someone is reading your post"
+=> Xem link này: https://medium.com/@tylerneylon/how-to-write-mathematics-on-medium-f89aa45c42a0#.tb4rw3gqc
+
+
 Article outline:
+- Insert code vào đâu cho hợp lý
 
 Article 1: Building a real-time synchorized code editor (Part 1)
 - Overview (1 para): (Tell a story style) Why we decided to do Code Spot. Our successful end result: what have we achieved at the end. Ask ppl to check it out. End para with: In this article, we will show you guy the key underlying ideas on building a real-time synchorized code editor.
@@ -19,7 +25,12 @@ Article 2: Building a real-time synchorized code editor (Part 2)
 - This article is about how to generateNpositionBetween -> focus the entire article on this
 
 Article 3 (Optional): Building a real-time synchorized code editor (Part 3)
-This article will be about #5 challenges that we faced and our solution
+This article will be about #3 challenges that we faced and our solution
 - Mình sẽ làm kiểu 3 cái header: xong mỗi cái là 1-2 para.
 - Có thể nói về challenges như kiểu how to connect users together, sync cursor, etc
 - But point là mỗi idea chỉ nói 1-2 para về WHAT was the prob, and HOW we solve it
+
++ P2P: Mình set up connection kiểu ông mặt trời 3 paragraph
+        . UDP protocol
++ Optimization: BST, Custom number (Hiện tại đang dùng base 10): 1 paragraph
++ Sync cursor, selection: 1 paragraph

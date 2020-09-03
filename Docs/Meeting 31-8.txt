@@ -12,17 +12,22 @@
 
 4/ Tasks Tháng 9:
 - Viết article, làm animation. PR cho Codespot trên LinkedIn, Medium.
+	+ Giang: Animation
+		. Animation cho example
+		. Viết đoạn kể chuyện
+		. Intensive review
+	+ Minh:
+		. Viết, request thêm h/a + animation
 - Tiếp tục dev Codespot:
-	+ Viết lại trang home để phù hợp cho PV
-	+ Full screen mode
+	+ Viết lại trang home để phù hợp cho PV => Giang
+	+ Full screen mode => Giang
 	+ Tải backup file khi crash. Cho người dùng nút tải file
+	+ Fix:
+		. Samsung ko delete đc (Look into that) => Minh
+		. Contact form dùng alertifyJS thay vì Thank you => Minh
+		. Khi click vào link từ Fb, bỏ mấy cái Facebook Id thừa ra khỏi url => Giang
+		. Heroku inactive sau 30p => heartbeat() => Minh
 	+ Undo stack
 	+ Làm video call
-	+ Instruction animation lần đầu người dùng vào
-	+ Fix:
-		. Samsung ko delete đc
-		. Contact form dùng alertifyJS thay vì Thank you
-		. Khi click vào link từ Fb, bỏ mấy cái Facebook Id thừa ra khỏi url
 		
 
-- Redeploy + Xem log heroku
