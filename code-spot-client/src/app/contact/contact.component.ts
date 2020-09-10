@@ -11,7 +11,10 @@ export class ContactComponent implements OnInit {
   contactForm: FormGroup;
   headerMessage: string;
 
-  constructor(private formBuilder: FormBuilder, private utilsService: UtilsService) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private utilsService: UtilsService
+  ) {
     this.contactForm = this.formBuilder.group({
       name: '',
       email: '',
@@ -21,7 +24,7 @@ export class ContactComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.headerMessage = "Talk to us!";
+    this.headerMessage = 'Talk to us!';
   }
 
   onSubmit(form) {
@@ -29,7 +32,6 @@ export class ContactComponent implements OnInit {
 
     if (form['message'] != '') {
       this.utilsService.sendEmail(form);
-      this.headerMessage = "THANK YOU!";
     }
   }
 }
