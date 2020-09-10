@@ -3,6 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { Utils } from '../shared/Utils';
+import { AlertType } from '../shared/AlertType';
 
 @Injectable({
   providedIn: 'root',
@@ -20,9 +22,17 @@ export class UtilsService {
   sendEmail(email) {
     return this.http
       .post<any>(this.apiURL + 'SendEmail', email, this.HTTP_OPTIONS)
-      .subscribe((data) => {
-        console.log(data);
-      });
+      .subscribe(
+        (data) => {
+          Utils.alert('Submit successfully', AlertType.Success);
+        },
+        (error) => {
+          Utils.alert(
+            'Something went wrong. Please try again',
+            AlertType.Error
+          );
+        }
+      );
   }
 
   sendFeedbackForm(form) {
