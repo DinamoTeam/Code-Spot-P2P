@@ -13,6 +13,7 @@ import { EnterRoomInfo } from '../shared/EnterRoomInfo';
  */
 export class RoomService {
   apiURL = environment.apiUrl + 'Room/';
+  peerServerUrl = 'https://' + environment.peerServerHost;
 
   constructor(private http: HttpClient) {}
 
@@ -56,6 +57,10 @@ export class RoomService {
       })
       .pipe(retry(1), catchError(this.handleError))
       .subscribe(() => {});
+  }
+
+  sendDummyRequestToKeepPeerServerAlive(): void {
+    this.http.get(this.peerServerUrl).subscribe(() => {});
   }
 
   private handleError(error) {

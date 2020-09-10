@@ -83,6 +83,7 @@ export class PeerService {
     this.peer.on(PeerServerConnection.Open, (myId: string) => {
       console.log('I have connected to peerServer. My id: ' + myId);
       this.connectionEstablished.emit(true);
+      this.keepSendDummyRequestToKeepServerAlive();
     });
 
     this.peer.on(PeerServerConnection.Disconnected, () => {
@@ -122,6 +123,14 @@ export class PeerService {
         );
       }
     });
+  }
+
+  private keepSendDummyRequestToKeepServerAlive() {
+    const tenMinutesInMilliSeconds = 10 * 60 * 1000;
+    setInterval(
+      () => this.roomService.sendDummyRequestToKeepPeerServerAlive(),
+      tenMinutesInMilliSeconds
+    );
   }
 
   private connectToPeer(otherPeerId: any, getOldMessages: boolean) {
