@@ -1,7 +1,7 @@
 import { CRDT } from './CRDT';
 
 /**
- * Attempt to replace Monaco undo stack. Unfinished.
+ * Replace Monaco undo / redo stack
  */
 export class EditStack {
   private arr: Array<Edit>;
@@ -22,6 +22,7 @@ export class EditStack {
       return null;
     }
     const editArr: Edit[] = [];
+    editArr.push(this.arr.pop());
     while (this.arr.length > 0 && !this.arr[this.arr.length - 1].isStop) {
       editArr.push(this.arr.pop());
     }
@@ -33,7 +34,7 @@ export class EditStack {
     }
   }
   clear(): void {
-      this.arr = new Array<Edit>();
+    this.arr = new Array<Edit>();
   }
   isEmpty(): boolean {
     return this.arr.length === 0;

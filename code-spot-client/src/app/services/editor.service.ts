@@ -7,6 +7,7 @@ import { CursorChangeReason } from '../shared/CursorChangeReason';
 import { CursorChangeSource } from '../shared/CursorChangeSource';
 import { SelectionChangeInfo } from '../shared/SelectionChangeInfo';
 import { CursorChangeInfo } from '../shared/CursorChangeInfo';
+import { Edit, EditStack, EditType } from '../shared/EditStack';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +21,8 @@ export class EditorService {
   bst: BalancedBST<CRDT>;
   crdtEvent = new EventEmitter<boolean>();
   crdtsToTransfer: CRDT[];
+  undoStack: EditStack;
+  redoStack: EditStack;
 
   static setSiteId(id: number): void {
     EditorService.siteId = id;
@@ -38,6 +41,8 @@ export class EditorService {
         new CRDTId([new Identifier(CustomNumber.BASE - 1, 0)], this.curClock++)
       )
     );
+    this.undoStack = new EditStack();
+    this.redoStack = new EditStack();
   }
 
   /**
@@ -48,7 +53,8 @@ export class EditorService {
     auxEditor: any,
     textToInsert: string,
     startLineNumber: number,
-    startColumn: number
+    startColumn: number,
+    markUndoStop: boolean
   ): void {
     if (EditorService.siteId === -1)
       throw new Error('Error: call handleLocalInsert before setting siteId');
@@ -95,10 +101,10 @@ export class EditorService {
       this.bst.insert(listCRDTBetween[i]);
     }
 
-    // Tell peerService to broadcast these new CRDTs
-    // PeerService listens to this event at subscribeToEditorServiceEvents()
-    this.crdtsToTransfer = listCRDTBetween;
-    this.crdtEvent.emit(true);
+    const newUndo = new Edit(listCRDTBetween, EditType.Insert, markUndoStop);
+    this.undoStack.push(newUndo);
+
+    this.tellPeerServerToBroadcast(listCRDTBetween, true);
   }
 
   /**
@@ -209,7 +215,8 @@ export class EditorService {
     startColumn: number,
     endLineNumber: number,
     endColumn: number,
-    length: number
+    length: number,
+    markUndoStop: boolean
   ): void {
     if (EditorService.siteId === -1)
       throw new Error('Error: call handleLocalRemove before setting siteId');
@@ -238,10 +245,10 @@ export class EditorService {
       this.bst.remove(crdtToBeRemoved);
     }
 
-    // Tell peerService to broadcast these removed CRDTs
-    // PeerService listens to this event at subscribeToEditorServiceEvents()
-    this.crdtsToTransfer = removedCRDTs;
-    this.crdtEvent.emit(false);
+    const newUndo = new Edit(removedCRDTs, EditType.Remove, markUndoStop);
+    this.undoStack.push(newUndo);
+
+    this.tellPeerServerToBroadcast(removedCRDTs, false);
   }
 
   /**
@@ -317,6 +324,39 @@ export class EditorService {
 
     // Actually redraw nameTag
     this.cursorService.redrawPeersNameTagsAndCursors(editor);
+  }
+
+  // handleRedo(editor: any, auxEditor: any, fromPeerId: string) {}
+
+  handleUndo(editor: any, auxEditor: any, fromPeerId: string) {
+    const undos = this.undoStack.popTillStop();
+    const noMoreUndos = undos === null;
+    if (noMoreUndos) {
+      return;
+    }
+
+    for (let i = 0; i < undos.length; i++) {
+      const currentUndo = undos[i];
+      const isUndoInsert = currentUndo.editType === EditType.Insert;
+      if (isUndoInsert) {
+        this.handleRemoteRemove(editor, auxEditor, currentUndo.edit);
+        this.tellPeerServerToBroadcast(currentUndo.edit, false);
+      } else {
+        this.handleRemoteInsert(
+          editor,
+          auxEditor,
+          currentUndo.edit,
+          fromPeerId
+        );
+        this.tellPeerServerToBroadcast(currentUndo.edit, true);
+      }
+    }
+  }
+
+  private tellPeerServerToBroadcast(crdts: CRDT[], isInsert: boolean) {
+    // PeerService listens to this event at subscribeToEditorServiceEvents()
+    this.crdtsToTransfer = crdts;
+    this.crdtEvent.emit(isInsert);
   }
 
   private writeTextToMonacoAtIndex(

@@ -105,6 +105,15 @@ export class CodeEditorComponent implements OnInit {
       function () {}
     );
 
+    // Custom undo
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_Z, () => {
+      this.editorService.handleUndo(
+        this.editor,
+        this.auxEditor,
+        this.peerService.getMyPeerId()
+      );
+    });
+
     // Add "padding" to the top
     let viewZoneId;
     this.editor.changeViewZones((changeAccessor) => {
@@ -167,9 +176,17 @@ export class CodeEditorComponent implements OnInit {
       return;
     }
     const changes = event.changes;
-
     for (let i = 0; i < changes.length; i++) {
       const range = changes[i].range;
+
+      let markUndoRemove = false;
+      let markUndoInsert = false;
+      if (i === changes.length - 1) {
+        const willRemove = changes[i].rangeLength > 0;
+        const willInsert = changes[i].text.length > 0;
+        markUndoInsert = willInsert;
+        markUndoRemove = !willInsert && willRemove;
+      }
 
       // Calculate new pos for nameTag when local remove. Notice we use auxEditor
       let index = this.editorService.posToIndex(
@@ -189,7 +206,8 @@ export class CodeEditorComponent implements OnInit {
         range.startColumn,
         range.endLineNumber,
         range.endColumn,
-        changes[i].rangeLength
+        changes[i].rangeLength,
+        markUndoRemove
       );
 
       // Calculate new pos for nameTag when local insert. Notice we use auxEditor
@@ -209,7 +227,8 @@ export class CodeEditorComponent implements OnInit {
         this.auxEditor,
         changes[i].text,
         range.startLineNumber,
-        range.startColumn
+        range.startColumn,
+        markUndoInsert
       );
     }
 
