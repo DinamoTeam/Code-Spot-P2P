@@ -461,7 +461,7 @@ export class CodeEditorComponent implements OnInit {
   downloadFile(): void {
     const text = this.editorService.getEditorContent(this.editor);
     const elem = document.createElement('a');
-    const fileName = 'codeSpot.txt';
+    const fileName = 'codeSpot' + Utils.getLanguageExt(EditorService.currentLanguage);
     elem.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     elem.setAttribute('download', fileName);
     elem.style.display = 'none';

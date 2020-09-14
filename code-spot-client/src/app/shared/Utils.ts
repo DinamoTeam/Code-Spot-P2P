@@ -147,4 +147,8 @@ export class Utils {
   static getLanguageName(lang: string) {
     return Languages.find(elem => elem.value === lang).name;
   }
+
+  static getLanguageExt(lang: string) {
+    return Languages.find(elem => elem.value === lang).ext;
+  }
 }
