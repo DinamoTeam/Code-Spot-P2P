@@ -319,6 +319,11 @@ export class EditorService {
     this.cursorService.redrawPeersNameTagsAndCursors(editor);
   }
 
+  getEditorContent(editor: any): string {
+    const editorTextModel = editor.getModel();
+    return editorTextModel.getValue();
+  }
+
   private writeTextToMonacoAtIndex(
     editor: any,
     editorTextModel: any,
