@@ -438,7 +438,6 @@ export class CodeEditorComponent implements OnInit {
     });
   }
 
-  showSuccessAlert: boolean = false;
   copyLink(): void {
     const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';
@@ -457,6 +456,18 @@ export class CodeEditorComponent implements OnInit {
     document.execCommand('copy');
     document.body.removeChild(selBox);
     Utils.alert('Link copied to clipboard!', AlertType.Success);
+  }
+
+  downloadFile(): void {
+    const text = this.editorService.getEditorContent(this.editor);
+    const elem = document.createElement('a');
+    const fileName = 'codeSpot.txt';
+    elem.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    elem.setAttribute('download', fileName);
+    elem.style.display = 'none';
+    document.body.appendChild(elem);
+    elem.click();
+    document.body.removeChild(elem);
   }
 
   printBST() {

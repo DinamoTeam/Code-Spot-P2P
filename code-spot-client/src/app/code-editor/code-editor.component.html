@@ -97,15 +97,15 @@
         [options]="editorOptions"
         (onInit)="onInitEditorHandler($event)"
       ></ngx-monaco-editor>
-      <div
-        class="btn-container d-flex"
-        [style.visibility]="ready ? 'visible' : 'hidden'"
-      >
-        <button
-          class="btn btn-md btn-primary mt-3 mb-4 font-weight-bold"
-          (click)="copyLink()"
-        >
+      <div class="btn-container d-flex"
+           [style.visibility]="ready ? 'visible' : 'hidden'">
+        <button class="btn btn-md btn-primary mt-2 mb-4 font-weight-bold"
+                (click)="copyLink()">
           Get shareable link!
+        </button>
+        <button class="btn btn-md btn-primary mt-2 ml-2 mb-4 font-weight-bold"
+                (click)="downloadFile()">
+          Download file!
         </button>
       </div>
     </div>
