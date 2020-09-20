@@ -12,7 +12,7 @@ import { CursorChangeInfo } from '../shared/CursorChangeInfo';
   providedIn: 'root',
 })
 export class EditorService {
-  static defaultLanguage: string = 'cpp';
+  static defaultLanguage: string = 'javascript';
   static currentLanguage: string = EditorService.defaultLanguage;
   static siteId: number = -1;
   static remoteOpLeft: number = 0;
