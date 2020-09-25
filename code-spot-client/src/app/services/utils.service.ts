@@ -20,19 +20,20 @@ export class UtilsService {
   constructor(private http: HttpClient) {}
 
   sendEmail(email) {
-    return this.http
-      .post<any>(this.apiURL + 'SendEmail', email, this.HTTP_OPTIONS)
-      .subscribe(
-        (data) => {
-          Utils.alert('Submit successfully', AlertType.Success);
-        },
-        (error) => {
-          Utils.alert(
-            'Something went wrong. Please try again',
-            AlertType.Error
-          );
-        }
-      );
+    console.log(email);
+    //return this.http
+    //  .post<any>(this.apiURL + 'SendEmail', email, this.HTTP_OPTIONS)
+    //  .subscribe(
+    //    (data) => {
+    //      Utils.alert('Submit successfully', AlertType.Success);
+    //    },
+    //    (error) => {
+    //      Utils.alert(
+    //        'Something went wrong. Please try again',
+    //        AlertType.Error
+    //      );
+    //    }
+    //  );
   }
 
   sendFeedbackForm(form) {
