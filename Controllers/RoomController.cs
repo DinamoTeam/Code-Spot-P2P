@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using CodeSpotP2P.Data;
 using CodeSpotP2P.Model;
 using Code_Spot_P2P.Data.DTO;
+using CodeSpot.Models;
 
 namespace CodeSpotP2P.Controllers
 {
@@ -83,8 +84,9 @@ namespace CodeSpotP2P.Controllers
 
         // Post: api/Room/MarkPeerReceivedAllMessages
         [HttpPost]
-        public async Task<IActionResult> MarkPeerReceivedAllMessages(string peerId) {
-            var peer = await _database.peers.FirstOrDefaultAsync(p => p.PeerId == peerId);
+        public async Task<IActionResult> MarkPeerReceivedAllMessages(StringHelper pid) {
+            string peerId = pid.Val;
+            Peer peer = await _database.peers.FirstOrDefaultAsync(p => p.PeerId == peerId);
             if (peer != null)
             {
                 peer.HasReceivedAllMessages = 1;
