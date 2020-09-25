@@ -4,6 +4,8 @@ import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { EnterRoomInfo } from '../shared/EnterRoomInfo';
+import { Utils } from '../shared/Utils';
+import { AlertType } from '../shared/AlertType';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +16,11 @@ import { EnterRoomInfo } from '../shared/EnterRoomInfo';
 export class RoomService {
   apiURL = environment.apiUrl + 'Room/';
   peerServerUrl = 'https://' + environment.peerServerHost;
+  private HTTP_OPTIONS = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+    }),
+  };
 
   constructor(private http: HttpClient) {}
 
@@ -44,19 +51,14 @@ export class RoomService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  markPeerReceivedAllMessages(peerId: string): void {
-    const myheader = new HttpHeaders().set(
-      'Content-Type',
-      'application/x-www-form-urlencoded'
-    );
-    let body = new HttpParams();
-    body = body.set('peerId', peerId);
-    this.http
-      .post(this.apiURL + 'MarkPeerReceivedAllMessages', body, {
-        headers: myheader,
-      })
-      .pipe(retry(1), catchError(this.handleError))
-      .subscribe(() => {});
+  markPeerReceivedAllMessages(peerId: string) {
+    return this.http.post<any>(this.apiURL + 'MarkPeerReceivedAllMessages', { val: peerId }, this.HTTP_OPTIONS)
+      .subscribe(data => { }, error => {
+        Utils.alert(
+          'Something went wrong. Please join room again!',
+          AlertType.Error
+        );
+      });
   }
 
   sendDummyRequestToKeepPeerServerAlive(): void {
