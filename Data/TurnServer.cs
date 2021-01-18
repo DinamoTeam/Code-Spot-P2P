@@ -10,11 +10,25 @@ namespace CodeSpotP2P.Data
         readonly string authToken = Environment.GetEnvironmentVariable("TWILIO_AUTH_TOKEN");
         public TurnServer()
         {
-            TwilioClient.Init(accountSid, authToken);
+            try
+            {
+                TwilioClient.Init(accountSid, authToken);
+            }
+            catch (Exception)
+            {
+                // Invalid accountSid or authToken
+            }
         }
         public TokenResource getToken()
         {
-            return TokenResource.Create();
+            try
+            {
+                return TokenResource.Create();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

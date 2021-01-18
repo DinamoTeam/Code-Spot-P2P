@@ -17,6 +17,7 @@ import { NameColor } from '../shared/NameColor';
 import { BroadcastService } from './broadcast.service';
 import { environment } from 'src/environments/environment';
 import { TurnServerService } from './turnServerService';
+import { finalize } from 'rxjs/operators';
 
 declare const Peer: any;
 const STOP_BROADCAST_AFTER_MILLI_SECONDS = 5000;
@@ -65,28 +66,31 @@ export class PeerService {
         },
       ];
     this.turnServerService.getTurnStunToken()
+      .pipe(
+        finalize(() => {
+          // Finally block
+          this.peer = new Peer({
+            host: environment.peerServerHost,
+            port: '/..',
+            secure: true,
+            config: {
+              iceServers: iceServers
+            },
+            pingInterval: 3000,
+            debug: 2, // Print only errors and warnings
+          });
+      
+          this.broadcastService.setPeer(this.peer);
+          this.listenToPeerServerEvent();
+          this.registerConnectToMeEvent();
+          this.subscribeToEditorServiceEvents();
+          this.listenToBrowserOffline();
+        })
+      )
       .subscribe(token => {
         iceServers = token.ice_servers;
       }, error => {
-        console.error('Cannot get Turn server token from Twilio', error);
-      }, () => {
-        // finally block
-        this.peer = new Peer({
-          host: environment.peerServerHost,
-          port: '/..',
-          secure: true,
-          config: {
-            iceServers: iceServers
-          },
-          pingInterval: 3000,
-          debug: 2, // Print only errors and warnings
-        });
-    
-        this.broadcastService.setPeer(this.peer);
-        this.listenToPeerServerEvent();
-        this.registerConnectToMeEvent();
-        this.subscribeToEditorServiceEvents();
-        this.listenToBrowserOffline();
+        console.error('Cannot get Turn server token from Twilio. Check your credential', error);
       })
   }
 
