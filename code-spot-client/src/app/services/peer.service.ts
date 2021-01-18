@@ -16,6 +16,7 @@ import { NameService } from './name.service';
 import { NameColor } from '../shared/NameColor';
 import { BroadcastService } from './broadcast.service';
 import { environment } from 'src/environments/environment';
+import { TurnServerService } from './turnServerService';
 
 declare const Peer: any;
 const STOP_BROADCAST_AFTER_MILLI_SECONDS = 5000;
@@ -47,36 +48,46 @@ export class PeerService {
     private cursorService: CursorService,
     private editorService: EditorService,
     private nameService: NameService,
-    private broadcastService: BroadcastService
+    private broadcastService: BroadcastService,
+    private turnServerService: TurnServerService
   ) {}
 
   /**
    * Is called when both main and aux monaco editor are ready
    */
   connectToPeerServerAndInit() {
-    this.peer = new Peer({
-      host: environment.peerServerHost,
-      port: '/..',
-      secure: true,
-      config: {
-        iceServers: [
-          { url: 'stun:relay.backups.cz' },
-          {
-            url: 'turn:relay.backups.cz',
-            username: 'webrtc',
-            credential: 'webrtc',
+    let iceServers = [
+        { url: 'stun:relay.backups.cz' },
+        {
+          url: 'turn:relay.backups.cz?transport=tcp',
+          username: 'webrtc',
+          credential: 'webrtc',
+        },
+      ];
+    this.turnServerService.getTurnStunToken()
+      .subscribe(token => {
+        iceServers = token.ice_servers;
+      }, error => {
+        console.error('Cannot get Turn server token from Twilio', error);
+      }, () => {
+        // finally block
+        this.peer = new Peer({
+          host: environment.peerServerHost,
+          port: '/..',
+          secure: true,
+          config: {
+            iceServers: iceServers
           },
-        ],
-      },
-      pingInterval: 3000,
-      debug: 2, // Print only errors and warnings
-    });
-
-    this.broadcastService.setPeer(this.peer);
-    this.listenToPeerServerEvent();
-    this.registerConnectToMeEvent();
-    this.subscribeToEditorServiceEvents();
-    this.listenToBrowserOffline();
+          pingInterval: 3000,
+          debug: 2, // Print only errors and warnings
+        });
+    
+        this.broadcastService.setPeer(this.peer);
+        this.listenToPeerServerEvent();
+        this.registerConnectToMeEvent();
+        this.subscribeToEditorServiceEvents();
+        this.listenToBrowserOffline();
+      })
   }
 
   private listenToPeerServerEvent() {
