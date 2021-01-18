@@ -17,6 +17,7 @@ namespace CodeSpotP2P
 {
 	public class Startup
 	{
+		readonly string _allowedOrigins = "_myAllowedOrigins";
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -29,6 +30,17 @@ namespace CodeSpotP2P
 			services.AddDbContext<DataContext>(x => 
 				x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
+			services.AddCors(options =>
+			{
+				options.AddPolicy(_allowedOrigins,
+						builder =>
+						{
+							builder.AllowAnyOrigin()
+									.AllowAnyMethod()
+									.AllowAnyHeader();
+						});
+			});
+
 			ConfigureServices(services);
 		}
 
@@ -36,7 +48,18 @@ namespace CodeSpotP2P
 		{
 			services.AddDbContext<DataContext>(x => 
 				x.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-				
+
+			services.AddCors(options =>
+			{
+				options.AddPolicy(_allowedOrigins,
+						builder =>
+						{
+							builder.WithOrigins("http://code-spot.azurewebsites.net/")
+									.AllowAnyHeader()
+									.AllowAnyMethod();
+						});
+			});
+
 			ConfigureServices(services);
 		}
 
@@ -59,7 +82,7 @@ namespace CodeSpotP2P
 				app.UseHsts();
 			}
 			app.UseDeveloperExceptionPage();
-			app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+			app.UseCors(_allowedOrigins);
 			app.UseHttpsRedirection();
 			app.UseDefaultFiles();
 			app.UseStaticFiles();
