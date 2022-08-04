@@ -84,7 +84,6 @@ namespace CodeSpotP2P
             }
             app.UseDeveloperExceptionPage();
             app.UseCors(_allowedOrigins);
-            app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvc(routes =>
