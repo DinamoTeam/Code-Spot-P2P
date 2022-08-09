@@ -3,6 +3,19 @@
 @import '../node_modules/alertifyjs/build/css/alertify.min.css';
 @import '../node_modules/alertifyjs/build/css/themes/bootstrap.css';
 
+.alertify-notifier .ajs-message.ajs-message {
+  background: #F8F9FA;
+}
+.alertify-notifier .ajs-message.ajs-success {
+  background: #28A745
+}
+.alertify-notifier .ajs-message.ajs-error {
+  background: #DC3545
+}
+.alertify-notifier .ajs-message.ajs-warning {
+  background: #FFC107;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 7px;
