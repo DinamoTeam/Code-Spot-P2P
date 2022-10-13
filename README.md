@@ -1,6 +1,6 @@
 # [Code-Spot](https://code-spot.azurewebsites.net/)
 
-## A real-time collaborative code editor with the power of Visual Studio Code. 
+## A real-time collaborative code editor with the power of Visual Studio Code.
 
 ![](./images/HomeScreen.png)
 ![](./images/EditorScreen.png)
