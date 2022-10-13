@@ -1,0 +1,10 @@
+{
+   "version": 2,
+   "name": "code-spot-p2p",
+   "builds": [
+      { "src": "server/src/server.js", "use": "@vercel/node" }
+   ],
+   "routes": [
+      { "src": "/(.*)", "dest": "/server/src/server.js" }
+   ]
+}
