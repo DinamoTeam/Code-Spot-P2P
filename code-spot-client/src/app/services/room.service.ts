@@ -24,6 +24,10 @@ export class RoomService {
 
   constructor(private http: HttpClient) {}
 
+  connectServer() {
+    return this.http.get(environment.connection);
+  }
+
   joinNewRoom(peerId: string): Observable<EnterRoomInfo> {
     return this.http
       .get<EnterRoomInfo>(this.apiURL + 'JoinNewRoom?peerId=' + peerId)

@@ -1,0 +1,24 @@
+{
+  "name": "code-spot-server",
+  "version": "1.0.0",
+  "description": "A real-time collaborative code editor with the power of Visual Studio Code. ",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "mongodb": "^4.8.1",
+    "nodemailer": "^6.7.8",
+    "nodemailer-html-to-text": "^3.2.0",
+    "twilio": "^3.80.1",
+    "uuid": "^8.3.2"
+  }
+}
