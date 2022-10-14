@@ -1,4 +1,4 @@
-# [Code-Spot](https://code-spot.azurewebsites.net/)
+# [Code-Spot](https://code-spot.net/)
 
 ## A real-time collaborative code editor with the power of Visual Studio Code. 
 
@@ -6,7 +6,7 @@
 ![](./images/EditorScreen.png)
 ![](./images/ChangeName.png)
 
-## **I. Check it out [here](https://code-spot.azurewebsites.net/)!**
+## **I. Check it out [here](https://code-spot.net/)!**
 We also published an article on building a real-time collaborative code editor. Check it out [here](https://medium.com/@dinamoteam01/building-a-real-time-collaborative-code-editor-cb842975652f)!
 
 ## **II. Development setup**
